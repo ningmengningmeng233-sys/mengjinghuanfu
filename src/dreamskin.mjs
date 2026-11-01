@@ -43,6 +43,8 @@ import { CdpSession, fetchCdpJson } from './core/cdp-core.mjs';
 import { makeInjectors } from './core/inject.mjs';
 import { buildSkinLayers, layersLength, serializeSkinFile, parseSkinFile } from './theme/layers.mjs';
 import { listProcesses, debugPortOf, findExe, freePort, portAlive, launchWithPort, waitForMainTargets as waitTargets } from './core/app-process.mjs';
+import { partChecksOf, partsProbeExpr, evaluateHealth, degradeLayers, wallpaperPartsCss, bumpScrim } from './core/health.mjs';
+import { writeCompatRecord, compatRecordOf } from './store/compat.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -104,6 +106,9 @@ const say = (word, msg) => console.log(`${word}: ${msg}`);
 
 // 注入 / 移除 / 预览 / 校验脚本在 core/inject.mjs（T3-2 分层：部件层 / 变量层 / 额外层三个 <style> + live 预览层）。
 const { IDS, injectLayersExpr, removeExpr, liveExpr, verifyExpr } = makeInjectors(APP);
+
+// §4.5 体检清单：由本应用 parts-map 生成（哪些部件必需、各自的选择器），apply 与 check 共用。
+const PART_CHECKS = partChecksOf(APP.partsMap);
 
 // 启动 / 注入通道（T1-3 起入口改走适配器 + 通道）：发现、关闭、主窗口列表走 CHANNEL；
 // CHANNEL_ADAPTER 由运行时 profile 适配成通道形状（channels/exe.mjs 的 profileToChannelAdapter）。
@@ -177,7 +182,7 @@ async function apply(o) {
   if (o.image) o.image = resolve(o.image);
   if (o.image) imageDataUri(o.image, MAX_IMAGE_BYTES_CDP); // 先校验格式和大小，坏图不去动应用
   const palette = o.palette ? resolvePalette(o.palette) : resolvePalette(o.preset);
-  const values = { ...(mine ? mine.values : {}), ...choiceValues(o) };
+  let values = { ...(mine ? mine.values : {}), ...choiceValues(o) };
 
   const ep = await ensurePort(o);
   if (!ep.port) return ep.code;
@@ -191,7 +196,23 @@ async function apply(o) {
   let slim = o.image;
   if (o.image) { try { slim = await withSession(targets[0], port, (s) => slimImage(o.image, s)); } catch {} }
   const imageUri = slim ? imageDataUri(slim, MAX_IMAGE_BYTES_CDP) : '';
-  const layers = buildSkinLayers(APP, palette, imageUri, values);
+  let layers = buildSkinLayers(APP, palette, imageUri, values);
+
+  // §4.5 体检门禁（T3-3）：注入前先探必需部件在不在；缺失超过三成，自动降级为兼容模式
+  // （部件层只保留壁纸挂载点 app.root、额外层撤掉，变量层即配色与壁纸原样保留），不硬套错位的样式。
+  let health = null;
+  try {
+    health = await withSession(targets[0], port, async (s) => {
+      for (let i = 0; i < 40; i++) {
+        if (await s.evaluate(`!!document.querySelector(${JSON.stringify(READY)})`)) break;
+        await new Promise((r) => setTimeout(r, 500));
+      }
+      const states = await s.evaluate(partsProbeExpr(PART_CHECKS));
+      return evaluateHealth({ partStates: states || {}, checks: PART_CHECKS, contrast: null });
+    });
+  } catch {}
+  let compatDegraded = false;
+  if (health && health.mode === 'compat') { layers = degradeLayers(layers, APP.partsMap); compatDegraded = true; }
 
   // 先落盘（三层 JSON），守护进程和后续刷新都读这一份。
   writeFileSync(SKIN_FILE, serializeSkinFile(layers), 'utf8');
@@ -212,6 +233,37 @@ async function apply(o) {
       if (v.userCss > 0) leftoverUserCss = true;
     } catch {}
   }
+  // §4.5 对比度（T3-3）：注入后量一次正文对比度（计算口径与 check 同一份 contrastOf）；
+  // 不达标就自动把整体遮罩浓度提高一档、重写皮肤文件并重注入（只做一次；再不达标由 check 提示用户）。
+  let scrimNote = '';
+  if (verified > 0) {
+    try {
+      const cols = await withSession(targets[0], port, (s) => s.evaluate(`(() => { const cs = getComputedStyle(document.documentElement); return { bg: cs.getPropertyValue('--ds-bg').trim(), text: cs.getPropertyValue('--ds-text').trim() }; })()`));
+      const hexOk = (x) => /^#[0-9a-f]{6}$/i.test(x || '');
+      const cc = hexOk(cols.bg) && hexOk(cols.text) ? contrastOf(cols.bg, cols.text) : 0;
+      if (cc && cc < 4.5) {
+        const bumped = bumpScrim(values, SETTINGS);
+        if (bumped) {
+          const before = Number.isFinite(Number(values.scrim)) ? Number(values.scrim)
+            : (palette.tune && Number.isFinite(Number(palette.tune.scrim)) ? Number(palette.tune.scrim) : 100);
+          values = bumped;
+          layers = buildSkinLayers(APP, palette, imageUri, values);
+          if (compatDegraded) layers = degradeLayers(layers, APP.partsMap);
+          writeFileSync(SKIN_FILE, serializeSkinFile(layers), 'utf8');
+          for (const t of targets) {
+            try { await withSession(t, port, async (s) => { await s.evaluate(injectLayersExpr(layers)); await s.evaluate(liveExpr('')); }); } catch {}
+          }
+          if (health) health = { ...health, contrast: Number(cc.toFixed(2)), contrastOk: false, needsScrimRaise: true };
+          scrimNote = `文字对比度偏低（${cc.toFixed(1)}），已自动把整体遮罩浓度提高一档（${before} → ${bumped.scrim}）。`;
+        }
+      } else if (cc && health) {
+        health = { ...health, contrast: Number(cc.toFixed(2)), contrastOk: cc >= 4.5, needsScrimRaise: false };
+      }
+    } catch {}
+  }
+  // 体检结果记入兼容矩阵缓存（store/compat.json）；版本在 check 时补齐，这里先记部件与对比度。
+  if (health) { try { writeCompatRecord(compatRecordOf(health, { adapterId: APP.id, appVersion: '' })); } catch {} }
+
   const watcherPid = startWatcher(port);
   // launch 传的是完整 palette 对象（不带 key），用 presetKey 把「我的皮肤」等的 key 带回来，否则总控台「使用中」角标认不出。
   const savedKey = palette.key || o.presetKey || '';
@@ -219,11 +271,12 @@ async function apply(o) {
   writeFileSync(CHOICE_FILE, JSON.stringify({ preset: savedKey, palette, image: o.image || '', values }, null, 2), 'utf8');
 
   const hint = leftoverUserCss ? '注意：Cherry 设置 → 外观 → 自定义 CSS 里还有内容（可能是旧版换肤写进去的），建议清空，免得和皮肤打架。' : '';
+  const compatNote = compatDegraded ? `注意：这一版 ${APP.name} 缺了不少必需部件，已自动切到兼容模式（只保留配色和壁纸），等适配更新后再恢复完整皮肤。` : '';
   if (verified === targets.length) {
-    say('SUCCESS', `已应用 [${palette.name}]${o.image ? ' + 自定义壁纸' : ''}，${APP.name} 主窗口校验通过。以后请用梦境换肤启动 ${APP.name}，皮肤会自动带上。${hint}`);
+    say('SUCCESS', `已应用 [${palette.name}]${o.image ? ' + 自定义壁纸' : ''}，${APP.name} 主窗口校验通过。以后请用梦境换肤启动 ${APP.name}，皮肤会自动带上。${hint}${compatNote}${scrimNote}`);
     return EXIT.OK;
   }
-  say('UNCERTAIN', `已注入，但 ${targets.length - verified}/${targets.length} 个主窗口没通过校验（可能还在加载，或这一版 ${APP.name} 界面结构变了）。看一眼窗口；不对就点「还原」。`);
+  say('UNCERTAIN', `已注入，但 ${targets.length - verified}/${targets.length} 个主窗口没通过校验（可能还在加载，或这一版 ${APP.name} 界面结构变了）。看一眼窗口；不对就点「还原」。${compatNote}${scrimNote}`);
   return EXIT.UNCERTAIN;
 }
 
@@ -562,7 +615,10 @@ const galleryRemove = skinCmd((o) => removeTheme(String(o.id || '').replace(/^ds
 const skinImport = skinCmd((o) => { const s = importSkin(o.file); return { skin: { key: s.key, name: s.name } }; });
 
 // 体检：连上正在跑的应用，看皮肤是不是真的生效（样式在、有壁纸时壁纸层不是 none、字和底色对比够）。
-// 输出一行 JSON：{ ok, problems: [..], info }。问题用中文写，总控台直接显示。
+// 输出一行 JSON：{ ok, problems: [..], partsOk, partsMissing, mode, info }（§4.5 / T3-3：
+// partsOk / partsMissing 是 parts-map 部件的命中 / 缺失清单，mode 是 full | compat；
+// 必需部件缺失超过三成时会自动把页面与皮肤文件降级为兼容模式，并把结果记入 store/compat.json）。
+// 既有字段与退出码口径与 2.1 不变，新字段是增补。问题用中文写，总控台直接显示。
 function contrastOf(a, b) {
   const lum = (h) => { const n = parseInt(String(h).replace('#', '').slice(0, 6), 16); return [n >> 16, (n >> 8) & 255, n & 255].map((c) => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }).reduce((s, c, i) => s + c * [0.2126, 0.7152, 0.0722][i], 0); };
   const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
@@ -582,6 +638,7 @@ async function check() {
     const probes = ${JSON.stringify(APP.probes || [])};
     const missing = probes.filter(([q, , when]) => (!when || has(when)) && !has(q)).map(([q, label]) => label + '（' + q + '）');
     return { skin: ${JSON.stringify([IDS.parts, IDS.vars, IDS.extra])}.some((id) => !!document.getElementById(id)), live: (document.getElementById(${JSON.stringify(LIVE_ID)}) || {}).textContent ? true : false,
+      partState: ${partsProbeExpr(PART_CHECKS)},
       wall: getComputedStyle(document.body, '::before').backgroundImage.slice(0, 30), bg: v('--ds-bg'), text: v('--ds-text'), muted: v('--ds-muted'),
       ready: has(${JSON.stringify(READY)}), missing, ua: navigator.userAgent };
   })()`));
@@ -600,9 +657,24 @@ async function check() {
   const hex = (x) => /^#[0-9a-f]{6}$/i.test(x);
   const c = hex(r.bg) && hex(r.text) ? contrastOf(r.bg, r.text) : 0;
   if (c && c < 4.5) problems.push(`文字和底色对比度只有 ${c.toFixed(1)}（建议 ≥ 4.5），字可能看不清`);
+  // §4.5 部件体检（T3-3）：用 parts-map 的必需部件清单裁决，要与上面的 probes 口径并存（probes 是 2.1 的逐项提示）。
+  const health = evaluateHealth({ partStates: r.partState || {}, checks: PART_CHECKS, contrast: c || null });
+  if (health.mode === 'compat') problems.push(`必需部件缺失 ${health.requiredMissing}/${health.requiredTotal}（超过三成），已自动降级为兼容模式：只保留配色和壁纸，这一版 ${APP.name} 还没适配好`);
   const ok = problems.length === 0;
   if (ok && version) { try { writeFileSync(CHECKED_FILE, JSON.stringify({ version, at: new Date().toISOString() }), 'utf8'); } catch {} }
-  return out({ ok, problems, info: { app: APP.id, version, versionChanged, lastOkVersion: lastOk.version || '', preview: r.live, wallpaper: r.wall !== 'none', contrast: c ? Number(c.toFixed(2)) : null, preset: choice.preset || '' } });
+  // 自动降级落地：页面与皮肤文件还带着完整部件层 / 额外层时换成兼容模式三层（守护进程随后跟随皮肤文件）。
+  if (health.mode === 'compat') {
+    try {
+      const cur = parseSkinFile(readFileSync(SKIN_FILE, 'utf8'));
+      if (cur && (cur.extra || cur.parts !== wallpaperPartsCss(APP.partsMap))) {
+        const degraded = degradeLayers(cur, APP.partsMap);
+        writeFileSync(SKIN_FILE, serializeSkinFile(degraded), 'utf8');
+        await withSession(targets[0], port, (s) => s.evaluate(injectLayersExpr(degraded)));
+      }
+    } catch {}
+  }
+  try { writeCompatRecord(compatRecordOf(health, { adapterId: APP.id, appVersion: version })); } catch {}
+  return out({ ok, problems, partsOk: health.partsOk, partsMissing: health.partsMissing, mode: health.mode, info: { app: APP.id, version, versionChanged, lastOkVersion: lastOk.version || '', preview: r.live, wallpaper: r.wall !== 'none', contrast: c ? Number(c.toFixed(2)) : null, preset: choice.preset || '' } });
 }
 
 const o = parseArgs(process.argv.slice(2));
