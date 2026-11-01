@@ -10,10 +10,13 @@
     "exeNames": [
       "Cherry Studio.exe"
     ],
+    "macBundle": "Cherry Studio",
     "uninstallDisplayName": "Cherry Studio"
   },
+  "extraCss": "extra.css",
   "id": "cherry",
   "name": "Cherry Studio",
+  "partsMap": "parts-map.json",
   "probes": [
     [
       "[data-ui=\"app.sidebar\"]",
@@ -38,11 +41,18 @@
       "#chat"
     ]
   ],
+  "process": {
+    "gracefulCloseMs": 8000
+  },
   "readySelector": "#app-sidebar",
   "restartNote": "聊天记录不受影响，未发送的输入框内容会丢失",
   "schema": "dreamskin-adapter/1",
   "target": {
     "uaToken": "CherryStudio",
     "urlPattern": "^file://.*/windows/main/index\\.html"
-  }
+  },
+  "testedVersions": [
+    "2.1.4"
+  ],
+  "userCssId": "user-defined-custom-css"
 }

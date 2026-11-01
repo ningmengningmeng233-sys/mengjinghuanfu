@@ -1,19 +1,26 @@
-# adapters/ (transitional, T1-2)
+# adapters/ (one directory per app, plan 4.2)
 
-One directory per app, each holding a pure-data `adapter.json`
-(schema `dreamskin-adapter/1`, see plan section 4.2). The loader is
-`src/core/adapters.mjs`: it scans this directory, validates each file,
-skips invalid adapters and collects their errors instead of crashing.
+Each app is a directory `adapters/<id>/` of pure data:
 
-Transitional status: the `cherry/` and `zcode/` files in this directory
-are data copies of the profiles that still live in `src/core/apps.mjs`.
-**`apps.mjs` remains the runtime source of truth.** These files only
-prove the loader, the validation rules and `--app <any registered id>`
-at the loader/test level. The formal migration of Cherry/ZCode onto
-adapters (and removal of the duplication) is ticket T1-3.
+- `adapter.json` — the app's facts (schema `dreamskin-adapter/1`):
+  discovery (exe names, install candidates with `%ENV%` placeholders,
+  env override, uninstall display name, macOS bundle), process traits,
+  main-window target description, ready selector, probes, restart note,
+  tested versions.
+- `parts-map.json` — semantic part -> this app's selectors (plan 4.4),
+  rendered through `parts/templates/*.css` into the parts layer.
+- `extra.css` — app-specific rules no semantic part can express (the
+  extra layer). The literal `{{version}}` placeholder in comments is
+  replaced with the current DreamSkin version when the profile is built.
 
-Only confirmed fields are written here. Anything not yet confirmed by
-a Spike or by the 2.1 code (for example `partsMap` / `extraCss` files)
-is intentionally left out; when a field like `partsMap` is declared,
-the referenced file must exist in the same directory or the adapter
-is rejected by the loader.
+**`adapter.json` is the single source of app facts.** The loader is
+`src/core/adapters.mjs` (validates, skips invalid adapters and collects
+their errors instead of crashing). At runtime,
+`src/core/app-runtime.mjs` assembles each adapter into the profile the
+entry point and the launch channels consume: candidates expanded,
+parts-map rendered, `target` turned into the `isMainTarget(item, port)`
+matcher, `process.helperCmdPattern` into `isHelperCmd(cmd)`, and the
+style ids derived as `dream-skin-2-<id>` / `dream-skin-2-<id>-live`.
+Only write fields confirmed by the 2.1 code or by a Spike report; when a
+field like `partsMap` is declared, the referenced file must exist in the
+same directory or the adapter is rejected by the loader.

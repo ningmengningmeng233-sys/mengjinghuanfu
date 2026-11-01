@@ -5,27 +5,31 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAdapters, listAdapters, adapterById, adapterErrors, validateAdapter } from '../src/core/adapters.mjs';
-import { APPS } from '../src/core/apps.mjs';
+import { appRuntimeById } from '../src/core/app-runtime.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const sep = '\\';
 const absPath = ['Q:', 'Apps', 'X', 'X.exe'].join(sep); // built, so no literal drive path in source
 
-test('bundled transitional adapters load with no errors', () => {
+test('bundled adapters load with no errors', () => {
   const { adapters, errors } = loadAdapters();
   assert.deepEqual(errors, []);
   assert.deepEqual(adapters.map((a) => a.id).sort(), ['cherry', 'zcode']);
 });
 
-test('transitional adapter.json matches apps.mjs profile facts', () => {
+test('formal adapter.json drives the runtime profile (T1-3: single source of facts)', () => {
   for (const id of ['cherry', 'zcode']) {
     const a = adapterById(id);
+    const p = appRuntimeById(id);
     assert.equal(a.channel, 'exe');
-    assert.equal(a.readySelector, APPS[id].readySelector);
-    assert.equal(a.target.uaToken, APPS[id].uaToken);
-    assert.equal(a.discover.envExe, APPS[id].envExe);
-    assert.equal(a.discover.exeNames[0], APPS[id].exeName);
-    assert.deepEqual(a.probes, APPS[id].probes);
+    assert.equal(a.partsMap, 'parts-map.json');
+    assert.equal(a.extraCss, 'extra.css');
+    assert.equal(p.readySelector, a.readySelector);
+    assert.equal(p.uaToken, a.target.uaToken);
+    assert.equal(p.envExe, a.discover.envExe);
+    if (process.platform === 'win32') assert.equal(p.exeName, a.discover.exeNames[0]);
+    assert.deepEqual(p.probes, a.probes);
+    assert.deepEqual(p.testedVersions, a.testedVersions);
   }
 });
 

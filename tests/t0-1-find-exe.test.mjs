@@ -3,7 +3,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { findExe, exeFromInstallLocation } from '../src/core/app-process.mjs';
-import { APPS } from '../src/core/apps.mjs';
+import { appRuntimeById } from '../src/core/app-runtime.mjs';
+
+const ZCODE = appRuntimeById('zcode'); // T1-3 起 profile 由 adapter.json 组装
 
 const sep = '\\';
 const customDir = ['X:', 'CustomApps', 'ZCode'].join(sep); // 测试夹具路径，拼出来避免出现真实盘符字面量
@@ -11,14 +13,14 @@ const customExe = customDir + sep + 'ZCode.exe';
 
 test('ZCode candidates 里没有写死的盘符路径', () => {
   if (process.platform !== 'win32') return;
-  for (const c of APPS.zcode.candidates()) {
+  for (const c of ZCODE.candidates()) {
     assert.ok(!c.includes(sep + 'AI' + sep), '候选路径不应含开发机目录: ' + c);
   }
 });
 
 test('模拟注册表返回自定义 InstallLocation 时能找到 exe', () => {
   delete process.env.DREAMSKIN_ZCODE_EXE;
-  const got = findExe(APPS.zcode, [], {
+  const got = findExe(ZCODE, [], {
     exists: (p) => p === customExe,
     queryInstallLocation: (app) => {
       assert.equal(app.uninstallName, 'ZCode');
@@ -30,7 +32,7 @@ test('模拟注册表返回自定义 InstallLocation 时能找到 exe', () => {
 
 test('注册表没有 InstallLocation 时返回空字符串，不乱猜', () => {
   delete process.env.DREAMSKIN_ZCODE_EXE;
-  const got = findExe(APPS.zcode, [], {
+  const got = findExe(ZCODE, [], {
     exists: () => false,
     queryInstallLocation: () => '',
   });

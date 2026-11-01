@@ -1,14 +1,16 @@
 // T3-1 tests: parts catalogue + templates + renderer (plan 4.4).
 // Proves: the catalogue is exactly the plan's part list and validates; every
-// template references a catalogued part; rendering the transitional cherry /
-// zcode maps expands all placeholders and keeps the 2.1 selectors.
+// template references a catalogued part; rendering the cherry / zcode
+// adapters' parts-maps expands all placeholders and keeps the 2.1 selectors.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadParts, validateParts, partIds, loadTemplates, validateTemplates, validatePartsMap, renderPartsCss } from '../src/parts/parts.mjs';
-import { CHERRY_PARTS_MAP, ZCODE_PARTS_MAP } from '../src/parts/maps.mjs';
+// T1-3 起两份 map 的正式位置是 adapters/<id>/parts-map.json（原 parts/maps.mjs 已删）。
+const CHERRY_PARTS_MAP = JSON.parse(readFileSync(new URL('../src/adapters/cherry/parts-map.json', import.meta.url), 'utf8'));
+const ZCODE_PARTS_MAP = JSON.parse(readFileSync(new URL('../src/adapters/zcode/parts-map.json', import.meta.url), 'utf8'));
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 
@@ -54,7 +56,7 @@ test('a template for an unknown part is flagged', () => {
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 
-test('validatePartsMap flags unknown parts and empty entries; bundled maps are clean', () => {
+test('validatePartsMap flags unknown parts and empty entries; adapter maps are clean', () => {
   const parts = loadParts();
   assert.deepEqual(validatePartsMap(CHERRY_PARTS_MAP, parts), []);
   assert.deepEqual(validatePartsMap(ZCODE_PARTS_MAP, parts), []);

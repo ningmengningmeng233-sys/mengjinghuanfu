@@ -18,10 +18,9 @@
   block), a block missing only some forms is an error, and forms a
   template declares with `require:` in its header must be present
   in the map whenever the part is mapped at all.
-- `maps.mjs` — TRANSITIONAL parts-maps for the two existing apps
-  (cherry / zcode), with selectors lifted unchanged from the 2.1 rule
-  sheets. The formal home is `adapters/<id>/parts-map.json` (plan 4.4);
-  T1-3 moves them there and deletes this file.
+- Per-app parts-maps live in `adapters/<id>/parts-map.json` (plan 4.4).
+  They used to sit here as a transitional `maps.mjs`; T1-3 moved them
+  into the adapter directories and deleted that file.
 
 Parts with no reusable rules yet (e.g. `chat.bubble.assistant`,
 `ide.*`) exist in the catalogue but have no template file; adapters

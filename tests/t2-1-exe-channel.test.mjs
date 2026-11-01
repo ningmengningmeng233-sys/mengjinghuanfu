@@ -7,7 +7,9 @@ import { createServer } from 'node:net';
 import { createExeChannel, exeChannel, profileToChannelAdapter } from '../src/channels/exe.mjs';
 import { channelFor } from '../src/channels/index.mjs';
 import { freePort } from '../src/core/app-process.mjs';
-import { APPS } from '../src/core/apps.mjs';
+import { appRuntimeById } from '../src/core/app-runtime.mjs';
+
+const APPS = { cherry: appRuntimeById('cherry'), zcode: appRuntimeById('zcode') };
 
 const fakeAdapter = (over = {}) => ({
   id: 'fake', name: 'Fake App', exeName: 'Fake.exe', envExe: 'DREAMSKIN_FAKE_EXE', uninstallName: 'Fake',
@@ -142,7 +144,7 @@ test('bad adapters are rejected with a clear error', async () => {
   await assert.rejects(() => ch.status({ id: 'x' }), /缺少 exeName/);
 });
 
-test('profileToChannelAdapter carries the apps.mjs profile facts', () => {
+test('profileToChannelAdapter carries the runtime profile facts', () => {
   const a = profileToChannelAdapter(APPS.cherry);
   assert.equal(a.id, 'cherry');
   assert.equal(a.exeName, APPS.cherry.exeName);

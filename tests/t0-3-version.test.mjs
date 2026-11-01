@@ -3,8 +3,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { VERSION, USER_AGENT } from '../src/core/version.mjs';
-import { RULES } from '../src/theme/cherry-skin-css.mjs';
-import { ZCODE_RULES } from '../src/theme/zcode-skin-css.mjs';
+import { appRuntimeById } from '../src/core/app-runtime.mjs';
+
+// T1-3 起规则段在 adapters/<id>/，由运行时组装（extra.css 的 {{version}} 占位替换为当前 VERSION）。
+const RULES = appRuntimeById('cherry').rules;
+const ZCODE_RULES = appRuntimeById('zcode').rules;
 
 test('VERSION 是 x.y.z 且 UA 带它', () => {
   assert.match(VERSION, /^\d+\.\d+\.\d+$/);

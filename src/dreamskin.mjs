@@ -1,6 +1,6 @@
 // Cherry Studio / ZCode 换肤（CDP 通道）。做法与 Codex Dream Skin 原型一致：
 // 带本机调试端口启动应用 → 往主窗口注入一个 <style>，壁纸任意大小、可还原、不碰官方文件和设置。
-// 所有命令都可加 --app cherry|zcode（默认 cherry）；两端共用同一套主题、参数和「我的皮肤」。
+// 所有命令都可加 --app <适配器 id>（默认 cherry，已注册的见 adapters/）；各应用共用同一套主题、参数和「我的皮肤」。
 //
 // 用法：
 //   node dreamskin.mjs apply   [--preset dark-gold|b16-xxx|wp-1-tonal-dark] [--image 壁纸路径]
@@ -32,7 +32,9 @@ import { dataDir } from './core/env.mjs';
 import { SETTINGS, buildVarsCss, defaultValues, imageDataUri, MAX_IMAGE_BYTES_CDP, CHERRY_PRESETS, PRESET_ALIASES } from './theme/cherry-skin-css.mjs';
 import { listPalettes, resolvePalette, wallpaperPalettes, bundledImage, GROUPS } from './theme/palettes.mjs';
 import { saveSkin, renameSkin, deleteSkin, exportSkin, importSkin, getSkin } from './store/user-skins.mjs';
-import { appById } from './core/apps.mjs';
+import { appRuntimeById } from './core/app-runtime.mjs';
+import { channelFor } from './channels/index.mjs';
+import { profileToChannelAdapter } from './channels/exe.mjs';
 import { VERSION } from './core/version.mjs';
 import { listGallery, fetchTheme, removeTheme } from './store/gallery.mjs';
 import { createInterface } from 'node:readline';
@@ -40,20 +42,19 @@ import { slimImage } from './theme/wall-cache.mjs';
 import { CdpSession, fetchCdpJson } from './core/cdp-core.mjs';
 import { makeInjectors } from './core/inject.mjs';
 import { buildSkinLayers, layersLength, serializeSkinFile, parseSkinFile } from './theme/layers.mjs';
-import { listProcesses, debugPortOf, findExe, freePort, portAlive, stopApp, launchWithPort, listMainTargets, waitForMainTargets as waitTargets } from './core/app-process.mjs';
+import { listProcesses, debugPortOf, findExe, freePort, portAlive, launchWithPort, waitForMainTargets as waitTargets } from './core/app-process.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
-const APP = appById(argAt('--app') || 'cherry');
+const APP = appRuntimeById(argAt('--app') || 'cherry');
 const RULES = APP.rules;
 const LIVE_ID = APP.liveId; // 实时预览层（core/inject.mjs 的 IDS.live 同一个 id）
 const READY = APP.readySelector;
 const EXIT = { OK: 0, FAILED: 1, UNCERTAIN: 2, NEEDS_RESTART: 3 };
 const listCherryProcesses = () => listProcesses(APP);
 const findCherryExe = (running) => findExe(APP, running);
-const stopCherry = (opts) => stopApp(APP, opts);
 const launchCherryWithPort = launchWithPort;
 const waitForMainTargets = (port, ms) => waitTargets(APP, port, ms);
-const listCherryMainTargets = (port) => listMainTargets(APP, port);
+const listCherryMainTargets = (port) => CHANNEL.targets(CHANNEL_ADAPTER, port);
 
 const dir = dataDir(APP.id);
 const SKIN_FILE = join(dir, 'active-skin.css');
@@ -104,6 +105,11 @@ const say = (word, msg) => console.log(`${word}: ${msg}`);
 // 注入 / 移除 / 预览 / 校验脚本在 core/inject.mjs（T3-2 分层：部件层 / 变量层 / 额外层三个 <style> + live 预览层）。
 const { IDS, injectLayersExpr, removeExpr, liveExpr, verifyExpr } = makeInjectors(APP);
 
+// 启动 / 注入通道（T1-3 起入口改走适配器 + 通道）：发现、关闭、主窗口列表走 CHANNEL；
+// CHANNEL_ADAPTER 由运行时 profile 适配成通道形状（channels/exe.mjs 的 profileToChannelAdapter）。
+const CHANNEL = channelFor(APP);
+const CHANNEL_ADAPTER = profileToChannelAdapter(APP, { skinActive: () => existsSync(SKIN_FILE) });
+
 async function withSession(target, port, fn) {
   const session = await new CdpSession(target, port).open();
   try { return await fn(session); } finally { session.close(); }
@@ -131,19 +137,22 @@ function startWatcher(port) {
   return child.pid;
 }
 
-// 确保有一个带调试端口的 Cherry：已有端口直接用；Cherry 开着但没端口 → 需要重启（--restart 才动手）。
+// 确保有一个带调试端口的应用：已有端口（会话口径 currentPort）直接用；应用开着但没端口 → 需要重启（--restart 才动手）。
+// T1-3 起发现与关闭走通道：CHANNEL.status 给 running / exe，CHANNEL.stop({ graceful: false }) 等同 2.1 的
+// stopApp({ force: true })；启动仍用 freePort + launchWithPort（与通道 launch 内部同一套 app-process 原语），
+// 等主窗口由 apply 负责。提示文案与退出码与 2.1 逐字一致。
 async function ensurePort(o) {
   let port = await currentPort();
   if (port) return { port };
-  const running = listCherryProcesses();
-  const exe = findCherryExe(running);
+  const cs = await CHANNEL.status(CHANNEL_ADAPTER);
+  const exe = cs.exe;
   if (!exe) { say('FAILED', `找不到 ${APP.name} 安装位置。可设置环境变量 ${APP.envExe} 指向 ${APP.exeName}。`); return { code: EXIT.FAILED }; }
-  if (running.length > 0) {
+  if (cs.running) {
     if (!o.restart) {
       say('NEEDS_RESTART', `${APP.name} 正在运行，需要由梦境换肤重新启动一次才能换肤（${APP.restartNote}）。`);
       return { code: EXIT.NEEDS_RESTART };
     }
-    const stop = await stopCherry({ force: true });
+    const stop = await CHANNEL.stop(CHANNEL_ADAPTER, { graceful: false });
     if (!stop.stopped) { say('FAILED', `${APP.name} 没能关闭，请手动退出（托盘图标右键 → 退出）后再试。`); return { code: EXIT.FAILED }; }
   }
   port = await freePort();
@@ -257,7 +266,7 @@ async function sync(o) {
   const from = o.from || (APP.id === 'cherry' ? 'zcode' : 'cherry');
   let src;
   try { src = JSON.parse(readFileSync(join(dataDir(from), 'last-choice.json'), 'utf8')); }
-  catch { say('FAILED', `${appById(from).name} 还没保存过皮肤`); return EXIT.FAILED; }
+  catch { say('FAILED', `${appRuntimeById(from).name} 还没保存过皮肤`); return EXIT.FAILED; }
   const port = await currentPort();
   if (!port) {
     writeFileSync(CHOICE_FILE, JSON.stringify(src, null, 2), 'utf8');
@@ -421,12 +430,14 @@ function shortcut() {
 }
 
 async function status() {
-  const port = await currentPort();
+  const cs = await CHANNEL.status(CHANNEL_ADAPTER);
+  // debugPort 口径合并（T1-3）：以会话文件口径 currentPort() 为准——那是梦境换肤自己启动 / 守护的端口，
+  // live / check / watch 都靠它定位；通道口径（进程命令行扫描）作兜底。梦境换肤启动的场景下两者恒等。
+  const port = (await currentPort()) || cs.debugPort;
   const st = readState();
-  const running = listCherryProcesses();
   // cherryRunning / cherryExe 字段名保留（总控台旧版本按它解析），新增 app / running / exe。
-  console.log(JSON.stringify({ app: APP.id, version: VERSION, cherryRunning: running.length > 0, running: running.length > 0, debugPort: port,
-    skinActive: existsSync(SKIN_FILE), preset: st?.preset ?? null, cherryExe: findCherryExe(running) || null, exe: findCherryExe(running) || null }, null, 2));
+  console.log(JSON.stringify({ app: APP.id, version: VERSION, cherryRunning: cs.running, running: cs.running, debugPort: port,
+    skinActive: existsSync(SKIN_FILE), preset: st?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null }, null, 2));
   return EXIT.OK;
 }
 

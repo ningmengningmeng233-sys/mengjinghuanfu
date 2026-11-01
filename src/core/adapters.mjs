@@ -1,9 +1,9 @@
 // Adapter loader (T1-2, plan 4.2): scans adapters/*/adapter.json, validates
 // pure data, skips invalid adapters and collects their errors instead of
 // crashing. No external dependencies (zero-dependency project rule).
-// NOTE (transitional): core/apps.mjs is still the runtime source of truth.
-// The adapter.json files for cherry/zcode are transitional data copies;
-// the formal migration happens in T1-3.
+// Since T1-3, adapter.json (+ parts-map.json / extra.css in the same
+// directory) is the single source of app facts; core/app-runtime.mjs
+// assembles the runtime profile from this data (core/apps.mjs is gone).
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -100,6 +100,24 @@ export function validateAdapter(data, opts = {}) {
     }
   }
   if (data.process !== undefined && !isPlainObject(data.process)) errors.push('process must be an object');
+  if (isPlainObject(data.process)) {
+    if (data.process.helperCmdPattern !== undefined) {
+      if (typeof data.process.helperCmdPattern !== 'string') errors.push('process.helperCmdPattern must be a string');
+      else { try { new RegExp(data.process.helperCmdPattern); } catch { errors.push('process.helperCmdPattern is not a valid regular expression'); } }
+    }
+    if (data.process.gracefulCloseMs !== undefined
+      && !(typeof data.process.gracefulCloseMs === 'number' && Number.isFinite(data.process.gracefulCloseMs) && data.process.gracefulCloseMs >= 0)) {
+      errors.push('process.gracefulCloseMs must be a non-negative number');
+    }
+  }
+  if (isPlainObject(d)) {
+    for (const k of ['uninstallDisplayName', 'macBundle', 'msixPackageFamily']) {
+      if (d[k] !== undefined && typeof d[k] !== 'string') errors.push('discover.' + k + ' must be a string');
+    }
+  }
+  for (const k of ['restartNote', 'minVersion', 'userCssId']) {
+    if (data[k] !== undefined && typeof data[k] !== 'string') errors.push(k + ' must be a string');
+  }
   if (data.readySelector !== undefined && typeof data.readySelector !== 'string') errors.push('readySelector must be a string');
   if (data.probes !== undefined) {
     const okProbe = (p) => Array.isArray(p) && p.length >= 2 && p.length <= 3 && p.every((s) => typeof s === 'string');

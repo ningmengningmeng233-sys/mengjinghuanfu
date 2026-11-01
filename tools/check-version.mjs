@@ -1,5 +1,5 @@
 // T0-3 构建校验：版本号以 src/core/version.mjs 为单一来源。
-// 检查：① 主题库 UA 不许再写死版本；② status 输出带 version；③ 规则段用 ${VERSION} 生成；
+// 检查：① 主题库 UA 不许再写死版本；② status 输出带 version；③ 各适配器组装出的规则段带当前 VERSION（extra.css 的 {{version}} 占位，T1-3 起）；
 // ④ 若总控台源码（src/launcher/，由反编译重建）已存在，其 AssemblyVersion / FileVersion 必须与 VERSION 一致，否则构建失败。
 // 用法：node tools/check-version.mjs（在源码/ 目录运行）。全部通过退出码 0，否则 1。
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -21,9 +21,12 @@ if (!gallery.includes('USER_AGENT')) bad('gallery.mjs 没用 USER_AGENT'); else 
 const main = read('src/dreamskin.mjs');
 if (!main.includes('version: VERSION')) bad('dreamskin.mjs 的 status 输出没带 version'); else ok('status 输出带 version（日志头口径）');
 
-for (const f of ['src/theme/cherry-skin-css.mjs', 'src/theme/zcode-skin-css.mjs']) {
-  const t = read(f);
-  if (!t.includes('Dream Skin ${VERSION}')) bad(f + ' 规则段没用 ${VERSION}'); else ok(f + ' 规则段版本来自 version.mjs');
+const { appRuntimeById } = await import('../src/core/app-runtime.mjs');
+for (const id of ['cherry', 'zcode']) {
+  const p = appRuntimeById(id);
+  if (!p.rules.includes('Dream Skin ' + VERSION)) bad(id + ' 的运行时规则段没带 VERSION');
+  else ok(id + ' 规则段版本来自 version.mjs（extra.css {{version}} 占位）');
+  if (p.rules.includes('{{version}}')) bad(id + ' 的运行时规则段残留 {{version}} 占位');
 }
 
 const launcherDir = new URL('../src/launcher/', import.meta.url);

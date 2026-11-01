@@ -4,11 +4,11 @@
 //   launch(adapter, { port, restart }) -> { port }   带调试能力启动；返回前已等到主窗口（轮询 /json/list）
 //   stop(adapter, { graceful })        -> { stopped, forced }
 //   targets(adapter, port)             -> CdpTarget[]（主窗口列表）
-// 通道只依赖「通道适配器」形状，与 core/apps.mjs 的 profile 字段对齐：
+// 通道只依赖「通道适配器」形状，与运行时 profile（core/app-runtime.mjs）字段对齐：
 //   { id, name, exeName, envExe, uninstallName, candidates(), isMainTarget(item, port),
 //     isHelperCmd?(cmd), restartNote?, uaToken?, skinActive?() }
-// apps.mjs 的 profile 用 profileToChannelAdapter() 适配；T1-3 把 Cherry/ZCode 迁到 adapters/ 后，
-// 由适配器运行时把 adapter.json + 钩子组装成同一形状，通道不用改。
+// 运行时 profile 用 profileToChannelAdapter() 适配；T1-3 已把 Cherry/ZCode 迁到 adapters/，
+// core/app-runtime.mjs 由 adapter.json 组装出同一形状，通道不用改。
 // 要点（§4.3 exe 行）：优雅关闭 -> 空闲端口 -> exe --remote-debugging-port=N -> 轮询 /json/list；
 // 端口只绑 127.0.0.1（freePort / fetchCdpJson 都只走回环），主窗口判定沿用 validatedDebuggerUrl（core/cdp-core.mjs）。
 // 全部系统操作可注入（deps），单测用假的实现，不真启应用。
@@ -20,7 +20,7 @@ const defaultDeps = {
   fetchVersion: (port) => fetchCdpJson(port, '/json/version', 1500),
 };
 
-// apps.mjs profile -> 通道适配器。opts.skinActive: () => boolean（入口按数据目录里皮肤文件是否存在判断）。
+// 运行时 profile -> 通道适配器。opts.skinActive: () => boolean（入口按数据目录里皮肤文件是否存在判断）。
 export function profileToChannelAdapter(profile, opts = {}) {
   if (!profile || typeof profile !== 'object') throw new Error('profileToChannelAdapter: profile 不能为空');
   return {

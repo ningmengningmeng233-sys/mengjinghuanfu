@@ -1,0 +1,38 @@
+{
+  "app.root": {
+    "scope": "html:has([data-workspace-shell])",
+    "scopeBody": "body:has([data-workspace-shell])",
+    "selector": "body:has([data-workspace-shell]) #root, body:has([data-workspace-shell]) #app, [data-workspace-shell], [data-root-workspace-surface], [data-desktop-window-frame]",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-workspace-sidebar-panel]",
+    "pane": "#sidebar, [data-testid=\"sidebar\"]",
+    "pane-border-strong": "#sidebar, [data-testid=\"sidebar\"]",
+    "required": true
+  },
+  "app.sidebar.item": {
+    "selector": "[data-purpose-section-list]",
+    "meta": "[data-task-row-metadata], [data-purpose-section-drag-handle]"
+  },
+  "app.topbar": {
+    "bar": "body:has([data-workspace-shell]) header, [data-workspace-header-variant]",
+    "foot": "body:has([data-workspace-shell]) footer",
+    "active": "[data-slot=\"tabs-trigger\"][data-state=\"active\"], [data-testid=\"task-new-button\"]"
+  },
+  "app.content": {
+    "selector": "[data-workspace-conversation-frame], [data-panel]",
+    "main": "body:has([data-workspace-shell]) main",
+    "required": true
+  },
+  "chat.composer": {
+    "selector": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute)",
+    "dock": "[data-v4-composer-dock], [data-v4-composer-dock-content]",
+    "radius": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute)",
+    "required": true
+  },
+  "overlay.panel": {
+    "header": "[data-slot=\"dialog-header\"]",
+    "title": "[data-slot=\"dialog-title\"]"
+  }
+}

@@ -9,10 +9,13 @@
     "exeNames": [
       "ZCode.exe"
     ],
+    "macBundle": "ZCode",
     "uninstallDisplayName": "ZCode"
   },
+  "extraCss": "extra.css",
   "id": "zcode",
   "name": "ZCode",
+  "partsMap": "parts-map.json",
   "probes": [
     [
       "[data-root-workspace-surface]",
@@ -38,6 +41,7 @@
     ]
   ],
   "process": {
+    "gracefulCloseMs": 8000,
     "helperCmdPattern": "\\.cjs\\b|__zcode-plugin-host|app-server"
   },
   "readySelector": "[data-workspace-shell]",
@@ -47,5 +51,8 @@
     "rejectPattern": "login|log-in|sign-in|auth|update|updater|settings|splash|welcome",
     "uaToken": "ZCode",
     "urlPattern": "^file://.*/index\\.html"
-  }
+  },
+  "testedVersions": [
+    "3.15.3"
+  ]
 }

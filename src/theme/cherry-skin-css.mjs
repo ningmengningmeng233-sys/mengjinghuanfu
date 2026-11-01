@@ -23,9 +23,6 @@
 //   输入框       #inputbar[data-ui="chat.composer"]
 import { readFileSync, statSync } from 'node:fs';
 import { extname } from 'node:path';
-import { VERSION } from '../core/version.mjs';
-import { renderPartsCss } from '../parts/parts.mjs';
-import { CHERRY_PARTS_MAP } from '../parts/maps.mjs';
 
 // 精选预设：少而精。配色取自口碑最好的几套开源主题（Catppuccin、Rosé Pine、Tokyo Night、Nord、Kanagawa、
 // Everforest、Gruvbox Material、Dracula、Ayu、Oxocarbon，均 MIT），按 Theme Station 的做法做了莫兰迪式降饱和，
@@ -267,42 +264,7 @@ body:has(#app-sidebar)::before, body:has([data-workspace-shell])::before { backg
 ` : ''}`;
 }
 
-// 规则段（T3-2 分层）：部件层由 parts/ 模板按 CHERRY_PARTS_MAP 渲染（选择器不再手写在这里），
-// 额外层只放没有语义部件可归的个别规则；变量层仍是 buildVarsCss。三层分别注入（不同 style id，见 core/inject.mjs）。
-// RULES 保留为「部件层 + 额外层」的组合导出，兼容 buildCherryCss 与 live 预览；与 2.1 的等价性由夹具测试守住。
-export const CHERRY_PARTS_CSS = renderPartsCss(CHERRY_PARTS_MAP);
-export const CHERRY_EXTRA_CSS = `/* ===== Cherry Dream Skin ${VERSION} · 额外层 ===== */
-
-/* 文字选中 */
-::selection { background: rgba(var(--ds-accent-rgb), 0.35); }
-
-/* 滚动条：细、圆、跟主色走（只改外观，不改滚动容器本身） */
-body ::-webkit-scrollbar { width: 8px; height: 8px; }
-body ::-webkit-scrollbar-track, body ::-webkit-scrollbar-corner { background: transparent; }
-body ::-webkit-scrollbar-thumb { background-color: rgba(var(--ds-accent-rgb), 0.26); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
-body ::-webkit-scrollbar-thumb:hover { background-color: rgba(var(--ds-accent-rgb), 0.55); }
-`;
-export const RULES = `/* ===== Cherry Dream Skin ${VERSION} · 规则段 · for Cherry Studio v2 ===== */
-
-${CHERRY_PARTS_CSS}
-
-${CHERRY_EXTRA_CSS}`;
-
-/**
- * 兼容旧接口：buildCherryCss(presetKey | palette, imageUri, values)
- * @param {string|object} preset  内置预设 key，或调色板对象
- * @param {string} imageUri       data: URI，空串 = 只用配色
- * @param {object} [values]       SETTINGS 里的参数（旧的 focusX/focusY 也认）
- */
-export function buildCherryCss(preset = 'dark-gold', imageUri = '', values = {}) {
-  let palette = preset;
-  if (typeof preset === 'string') {
-    palette = CHERRY_PRESETS[PRESET_ALIASES[preset] || preset];
-    if (!palette) throw new Error('未知预设：' + preset + '，可选：' + Object.keys(CHERRY_PRESETS).join(', '));
-  }
-  const v = { ...(values || {}) };
-  if (Number.isFinite(v.focusX)) v['focus-x'] = v.focusX;
-  if (Number.isFinite(v.focusY)) v['focus-y'] = v.focusY;
-  delete v.focusX; delete v.focusY;
-  return RULES + '\n' + buildVarsCss(palette, imageUri, v);
-}
+// T1-3 起：Cherry 的规则段（部件层 + 额外层）已迁到 adapters/cherry/
+// （parts-map.json + extra.css，运行时由 core/app-runtime.mjs 组装成 profile.rules / partsCss / extraCss）。
+// 本文件只保留两端共用的主题模型：精选预设、SETTINGS 参数、变量层 buildVarsCss、壁纸处理。
+// 兼容旧接口 buildCherryCss 也随规则段一起搬到了 core/app-runtime.mjs。

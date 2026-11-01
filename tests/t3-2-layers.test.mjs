@@ -1,5 +1,5 @@
 // T3-2 tests: layered CSS generation + injection (plan 4.4 / 7.3 V-C5).
-// 1) Equivalence: the composed RULES (parts templates x transitional maps +
+// 1) Equivalence: the composed RULES (parts templates x adapter parts-maps +
 //    extra layer) must equal the 2.1 hand-written rule sheets, compared as
 //    per-selector declaration sets against fixtures snapshotted from 2.1.
 // 2) Layers generate independently: changing palette/values touches vars only.
@@ -8,11 +8,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { RULES, CHERRY_PARTS_CSS, CHERRY_EXTRA_CSS } from '../src/theme/cherry-skin-css.mjs';
-import { ZCODE_RULES, ZCODE_PARTS_CSS, ZCODE_EXTRA_CSS } from '../src/theme/zcode-skin-css.mjs';
+import { appRuntimeById } from '../src/core/app-runtime.mjs';
 import { buildSkinLayers, joinLayers, layersLength, serializeSkinFile, parseSkinFile } from '../src/theme/layers.mjs';
 import { makeInjectors, layerStyleIds } from '../src/core/inject.mjs';
-import { APPS } from '../src/core/apps.mjs';
+// T1-3 起：规则三件套由适配器运行时组装（parts-map.json 渲染 + extra.css）。
+const cherryProfile = appRuntimeById('cherry');
+const zcodeProfile = appRuntimeById('zcode');
+const RULES = cherryProfile.rules, CHERRY_PARTS_CSS = cherryProfile.partsCss, CHERRY_EXTRA_CSS = cherryProfile.extraCss;
+const ZCODE_RULES = zcodeProfile.rules, ZCODE_PARTS_CSS = zcodeProfile.partsCss, ZCODE_EXTRA_CSS = zcodeProfile.extraCss;
+const APPS = { cherry: cherryProfile, zcode: zcodeProfile };
 import { resolvePalette } from '../src/theme/palettes.mjs';
 
 // --- normalizer (same algorithm that produced the fixtures from 2.1) ---
