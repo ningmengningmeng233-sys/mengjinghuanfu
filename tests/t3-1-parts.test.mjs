@@ -71,7 +71,7 @@ test('rendering the cherry map expands everything and keeps the 2.1 selectors', 
     '[data-ui="chat.composer"]', '[data-ui="part:code-block"]']) {
     assert.ok(css.includes(sel), 'missing selector: ' + sel);
   }
-  assert.ok(css.includes('body:has(#app-sidebar) > body::before') || css.includes('html:has(#app-sidebar) > body::before'));
+  assert.ok(css.includes('body:has(#app-sidebar)::before'));
 });
 
 test('rendering the zcode map expands everything and keeps the 2.1 selectors', () => {

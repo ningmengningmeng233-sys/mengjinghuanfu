@@ -1,13 +1,13 @@
-/* part: app.root; require: scope, selector */
-/* 整窗底板：壁纸层挂在这里。scope 形态是窗口根作用域，默认形态是根容器本体。 */
+/* part: app.root; require: scope, scopeBody, selector */
+/* 整窗底板：壁纸层挂在这里。scope 是窗口根作用域，scopeBody 是根作用域下的 body 本体，默认形态是根容器本体。 */
 {{selector:scope}} {
   background: var(--ds-bg) !important;
 }
-{{selector:scope}} > body {
+{{selector:scopeBody}} {
   background: transparent !important;
   color: var(--ds-text);
 }
-{{selector:scope}} > body::before {
+{{selector:scopeBody}}::before {
   content: "";
   position: fixed;
   inset: -40px;
@@ -16,7 +16,7 @@
   background: var(--ds-art) var(--ds-focus) / cover no-repeat;
   filter: var(--ds-wall-filter);
 }
-{{selector:scope}} > body::after {
+{{selector:scopeBody}}::after {
   content: "";
   position: fixed;
   inset: 0;

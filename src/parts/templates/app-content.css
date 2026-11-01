@@ -1,8 +1,11 @@
 /* part: app.content */
-/* 主内容区：外层容器透明；card 形态是实心内容卡片；main 形态是上浅下深的渐变遮罩主区。 */
+/* 主内容区：外层容器透明；wrap 形态是只置透明的外层包裹；card 形态是实心内容卡片；main 形态是上浅下深的渐变遮罩主区。 */
 {{selector}} {
   background: transparent !important;
   background-color: transparent !important;
+}
+{{selector:wrap}} {
+  background: transparent !important;
 }
 {{selector:card}} {
   background: var(--ds-content-bg) !important;

@@ -13,10 +13,12 @@ export const TEMPLATES_DIR = join(PARTS_DIR, 'templates');
 
 const PART_ID_RE = /^[a-z][a-z0-9]*(\.[a-z][a-z0-9]*)*$/;
 const SCOPES = ['all', 'chat', 'ide'];
-const FORM_RE = /^[a-z][a-z0-9-]*$/;
-const PLACEHOLDER_RE = /\{\{selector(?::([a-z][a-z0-9-]*))?\}\}/g;
+const FORM_RE = /^[a-z][a-zA-Z0-9-]*$/;
+// 占位符可紧跟一个伪类 / 伪元素后缀（如 {{selector}}:focus-within、{{selector:scope}}::before）：
+// 后缀在替换时分发到 map 选择器列表里的每一个选择器（原版规则就是逐个写的），见 renderPartsCss。
+const PLACEHOLDER_RE = /\{\{selector(?::([a-z][a-zA-Z0-9-]*))?\}\}((?:::?[a-zA-Z-]+)(?:\([^)]*\))?)?/g;
 const ANY_PLACEHOLDER_RE = /\{\{[^}]*\}\}/g;
-const PART_HEADER_RE = /^\/\*\s*part:\s*([a-z0-9.]+)(?:\s*;\s*require:\s*([a-z0-9,\s-]+))?\s*\*\//;
+const PART_HEADER_RE = /^\/\*\s*part:\s*([a-z0-9.]+)(?:\s*;\s*require:\s*([a-zA-Z0-9,\s-]+))?\s*\*\//;
 
 // ---- 部件清单 ----
 export function validateParts(data) {
@@ -63,7 +65,7 @@ export function parseTemplate(file, text) {
   const forms = new Set();
   for (const m of text.matchAll(ANY_PLACEHOLDER_RE)) {
     const ph = m[0];
-    const one = /^\{\{selector(?::([a-z][a-z0-9-]*))?\}\}$/.exec(ph);
+    const one = /^\{\{selector(?::([a-z][a-zA-Z0-9-]*))?\}\}$/.exec(ph);
     if (!one) { errors.push(file + '：不认识的占位符 ' + ph + '（只允许 {{selector}} 与 {{selector:<形态>}}）'); continue; }
     forms.add(one[1] || '');
   }
@@ -95,6 +97,24 @@ export function validateTemplates(parts, templates) {
     else seen.set(t.part, t.file);
   }
   return errors;
+}
+
+// 选择器列表按顶层逗号拆开（括号 / 方括号内的逗号不算）。
+function splitSelectorList(sel) {
+  const out = []; let d = 0, b = 0, cur = '';
+  for (const ch of sel) {
+    if (ch === '(') d++; else if (ch === ')') d--;
+    else if (ch === '[') b++; else if (ch === ']') b--;
+    if (ch === ',' && d === 0 && b === 0) { out.push(cur); cur = ''; } else cur += ch;
+  }
+  if (cur.trim()) out.push(cur);
+  return out.map((s) => s.trim());
+}
+
+// 把伪类 / 伪元素后缀分发到选择器列表的每一项。
+function withSuffix(sel, suffix) {
+  if (!suffix) return sel;
+  return splitSelectorList(sel).map((s) => s + suffix).join(', ');
 }
 
 // 把一份模板按 CSS 规则分块：注释行归入紧随其后的规则块，深度回到 0 的 '}' 行结束一块。
@@ -182,7 +202,7 @@ export function renderPartsCss(map, opts = {}) {
       if (missing.length) {
         throw new Error('parts-map 缺少部件 ' + t.part + ' 的 selector 形态：' + missing.join(', ') + '（模板 ' + t.file + ' 的某一块只给了一部分）');
       }
-      kept.push(block.replace(PLACEHOLDER_RE, (ph, form) => forms.get(form || '')));
+      kept.push(block.replace(PLACEHOLDER_RE, (ph, form, suffix) => withSuffix(forms.get(form || ''), suffix || '')));
     }
     const css = kept.join('\n\n').trim();
     if (css) chunks.push(css);

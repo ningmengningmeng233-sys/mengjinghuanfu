@@ -10,6 +10,7 @@ const B = 'body:has([data-workspace-shell])';
 export const CHERRY_PARTS_MAP = {
   'app.root': {
     scope: 'html:has(#app-sidebar)',
+    scopeBody: 'body:has(#app-sidebar)',
     selector: 'body:has(#app-sidebar) #root, body:has(#app-sidebar) [data-ui="app.main"], body:has(#app-sidebar) .h-screen.w-screen',
     required: true,
   },
@@ -21,7 +22,8 @@ export const CHERRY_PARTS_MAP = {
   },
   'app.topbar': { selector: '[data-ui="app.tab-bar"]' },
   'app.content': {
-    selector: 'div[data-ui="app.content"], [data-ui="chat.view"], #chat, #home-page',
+    selector: '[data-ui="chat.view"], #chat, #home-page',
+    wrap: 'div[data-ui="app.content"]',
     card: 'main[data-ui="app.content"]',
     required: true,
   },
@@ -38,6 +40,7 @@ export const CHERRY_PARTS_MAP = {
 export const ZCODE_PARTS_MAP = {
   'app.root': {
     scope: W,
+    scopeBody: B,
     selector: B + ' #root, ' + B + ' #app, [data-workspace-shell], [data-root-workspace-surface], [data-desktop-window-frame]',
     required: true,
   },

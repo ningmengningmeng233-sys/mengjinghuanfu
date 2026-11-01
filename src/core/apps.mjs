@@ -2,8 +2,8 @@
 // 配色（palettes.mjs）、参数（SETTINGS）、变量段（buildVarsCss）、我的皮肤（user-skins.mjs）两端完全共用。
 import { join } from 'node:path';
 import { isCherryMainTarget, validatedDebuggerUrl } from './cdp-core.mjs';
-import { RULES as CHERRY_RULES } from '../theme/cherry-skin-css.mjs';
-import { ZCODE_RULES } from '../theme/zcode-skin-css.mjs';
+import { RULES as CHERRY_RULES, CHERRY_PARTS_CSS, CHERRY_EXTRA_CSS } from '../theme/cherry-skin-css.mjs';
+import { ZCODE_RULES, ZCODE_PARTS_CSS, ZCODE_EXTRA_CSS } from '../theme/zcode-skin-css.mjs';
 
 import { homedir } from 'node:os';
 
@@ -43,7 +43,7 @@ export const APPS = {
       ['[data-ui="chat.message-list"]', '消息列表', '#chat'],
       ['#inputbar', '输入框', '#chat'],
     ],
-    rules: CHERRY_RULES,
+    rules: CHERRY_RULES, partsCss: CHERRY_PARTS_CSS, extraCss: CHERRY_EXTRA_CSS,
     styleId: 'dream-skin-2-cherry', liveId: 'dream-skin-2-cherry-live',
     userCssId: 'user-defined-custom-css',
     shortcutName: 'Cherry Studio (梦境换肤)',
@@ -66,7 +66,7 @@ export const APPS = {
       ['[data-v4-composer-dock]', '输入区', '[data-workspace-conversation-frame]'],
       ['[data-testid="v4-composer"] .chat-composer-input-surface > form > div:not(.absolute)', '输入框', '[data-v4-composer-dock]'],
     ],
-    rules: ZCODE_RULES,
+    rules: ZCODE_RULES, partsCss: ZCODE_PARTS_CSS, extraCss: ZCODE_EXTRA_CSS,
     styleId: 'dream-skin-2-zcode', liveId: 'dream-skin-2-zcode-live',
     userCssId: '',
     shortcutName: 'ZCode (梦境换肤)',

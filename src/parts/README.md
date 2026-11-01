@@ -10,6 +10,9 @@
 - `parts.mjs` — loader + validation + renderer (`loadParts`,
   `validateParts`, `loadTemplates`, `validateTemplates`,
   `validatePartsMap`, `renderPartsCss`). Pure data work only.
+  A placeholder may be followed by a pseudo-class/element suffix
+  (e.g. `{{selector}}:focus-within`); the suffix is distributed to
+  every selector in the map's comma-separated list for that form.
   Rendering is block-based: a rule block whose forms are all absent
   from an app's map is skipped (that app simply does not have that
   block), a block missing only some forms is an error, and forms a

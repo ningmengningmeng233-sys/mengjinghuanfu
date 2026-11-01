@@ -38,13 +38,14 @@ import { listGallery, fetchTheme, removeTheme } from './store/gallery.mjs';
 import { createInterface } from 'node:readline';
 import { slimImage } from './theme/wall-cache.mjs';
 import { CdpSession, fetchCdpJson } from './core/cdp-core.mjs';
+import { makeInjectors } from './core/inject.mjs';
+import { buildSkinLayers, layersLength, serializeSkinFile, parseSkinFile } from './theme/layers.mjs';
 import { listProcesses, debugPortOf, findExe, freePort, portAlive, stopApp, launchWithPort, listMainTargets, waitForMainTargets as waitTargets } from './core/app-process.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appById(argAt('--app') || 'cherry');
 const RULES = APP.rules;
-const STYLE_ID = APP.styleId;
-const LIVE_ID = APP.liveId; // 实时预览写这一块（规则段 + 变量段），排在皮肤后面覆盖它
+const LIVE_ID = APP.liveId; // 实时预览层（core/inject.mjs 的 IDS.live 同一个 id）
 const READY = APP.readySelector;
 const EXIT = { OK: 0, FAILED: 1, UNCERTAIN: 2, NEEDS_RESTART: 3 };
 const listCherryProcesses = () => listProcesses(APP);
@@ -100,61 +101,8 @@ const readState = () => { try { return JSON.parse(readFileSync(STATE_FILE, 'utf8
 const writeState = (s) => writeFileSync(STATE_FILE, JSON.stringify(s, null, 2), 'utf8');
 const say = (word, msg) => console.log(`${word}: ${msg}`);
 
-// Cherry 自己的 <style id="user-defined-custom-css"> 可能之后才插入；始终把皮肤挪回最后，预览块再排在皮肤之后。
-// 观察器带版本号：旧版注入的观察器会被换掉（旧版只认皮肤一块，会把预览块压到下面）。
-const KEEP_LAST = `if (window.__dreamSkinObserverV !== 2) {
-      if (window.__dreamSkinObserver) window.__dreamSkinObserver.disconnect();
-      const order = () => {
-        for (const id of [${JSON.stringify(STYLE_ID)}, ${JSON.stringify(LIVE_ID)}]) {
-          const el = document.getElementById(id);
-          if (el && el.parentNode === head) head.appendChild(el);
-        }
-      };
-      window.__dreamSkinObserver = new MutationObserver(() => {
-        const a = document.getElementById(${JSON.stringify(STYLE_ID)}), b = document.getElementById(${JSON.stringify(LIVE_ID)});
-        const last = head.lastElementChild;
-        if ((b && last !== b) || (!b && a && last !== a)) order();
-      });
-      window.__dreamSkinObserver.observe(head, { childList: true });
-      window.__dreamSkinObserverV = 2;
-    }`;
-
-// 注入 / 移除脚本。appendChild 每次都把我们的 <style> 挪到 <head> 最后，压过 Cherry 自己的自定义 CSS。
-const injectExpr = (css) => `(() => {
-  const put = () => {
-    let s = document.getElementById(${JSON.stringify(STYLE_ID)});
-    if (!s) { s = document.createElement('style'); s.id = ${JSON.stringify(STYLE_ID)}; }
-    s.textContent = ${JSON.stringify(css)};
-    const head = document.head || document.documentElement;
-    head.appendChild(s);
-    const lv = document.getElementById(${JSON.stringify(LIVE_ID)}); if (lv) head.appendChild(lv);
-    ${KEEP_LAST}
-    return s.textContent.length;
-  };
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', put, { once: true }); return -1; }
-  return put();
-})()`;
-const removeExpr = `(() => { if (window.__dreamSkinObserver) { window.__dreamSkinObserver.disconnect(); window.__dreamSkinObserver = null; window.__dreamSkinObserverV = 0; } for (const id of [${JSON.stringify(STYLE_ID)}, ${JSON.stringify(LIVE_ID)}]) { const s = document.getElementById(id); if (s) s.remove(); } return !document.getElementById(${JSON.stringify(STYLE_ID)}); })()`;
-// 实时预览：变量段写进 LIVE_ID，始终排在 <head> 最后。css 为空串 = 撤掉预览。
-const liveExpr = (css) => `(() => {
-  const css = ${JSON.stringify(css || '')};
-  const head = document.head || document.documentElement;
-  ${KEEP_LAST}
-  let s = document.getElementById(${JSON.stringify(LIVE_ID)});
-  if (!css) { if (s) s.remove(); return 0; }
-  if (!s) { s = document.createElement('style'); s.id = ${JSON.stringify(LIVE_ID)}; }
-  s.textContent = css;
-  head.appendChild(s);
-  return css.length;
-})()`;
-const verifyExpr = `(() => {
-  const s = document.getElementById(${JSON.stringify(STYLE_ID)});
-  const bg = getComputedStyle(document.body, '::before').backgroundImage || '';
-  const user = ${JSON.stringify(APP.userCssId)} ? document.getElementById(${JSON.stringify(APP.userCssId)}) : null;
-  return { len: s ? s.textContent.length : 0, last: !!s && s === document.head.lastElementChild,
-           userCss: user ? user.textContent.length : 0,
-           sidebar: !!document.querySelector(${JSON.stringify(READY)}), wallpaper: bg.includes('url(') };
-})()`;
+// 注入 / 移除 / 预览 / 校验脚本在 core/inject.mjs（T3-2 分层：部件层 / 变量层 / 额外层三个 <style> + live 预览层）。
+const { IDS, injectLayersExpr, removeExpr, liveExpr, verifyExpr } = makeInjectors(APP);
 
 async function withSession(target, port, fn) {
   const session = await new CdpSession(target, port).open();
@@ -234,10 +182,10 @@ async function apply(o) {
   let slim = o.image;
   if (o.image) { try { slim = await withSession(targets[0], port, (s) => slimImage(o.image, s)); } catch {} }
   const imageUri = slim ? imageDataUri(slim, MAX_IMAGE_BYTES_CDP) : '';
-  const css = RULES + '\n' + buildVarsCss(palette, imageUri, values);
+  const layers = buildSkinLayers(APP, palette, imageUri, values);
 
-  // 先落盘，守护进程和后续刷新都读这一份。
-  writeFileSync(SKIN_FILE, css, 'utf8');
+  // 先落盘（三层 JSON），守护进程和后续刷新都读这一份。
+  writeFileSync(SKIN_FILE, serializeSkinFile(layers), 'utf8');
   let verified = 0, leftoverUserCss = false;
   for (const t of targets) {
     try {
@@ -247,11 +195,11 @@ async function apply(o) {
           if (await s.evaluate(`!!document.querySelector(${JSON.stringify(READY)})`)) break;
           await new Promise((r) => setTimeout(r, 500));
         }
-        await s.evaluate(injectExpr(css));
+        await s.evaluate(injectLayersExpr(layers));
         await s.evaluate(liveExpr(''));
         return s.evaluate(verifyExpr);
       });
-      if (v.len === css.length && v.sidebar && (!imageUri || v.wallpaper)) verified++;
+      if (v.len === layersLength(layers) && v.sidebar && (!imageUri || v.wallpaper)) verified++;
       if (v.userCss > 0) leftoverUserCss = true;
     } catch {}
   }
@@ -392,9 +340,9 @@ async function live() {
       } else if (m.op === 'commit') {
         while (busy || pending) await new Promise((r) => setTimeout(r, 30));
         if (!current) { reply({ op: 'commit', ok: false, msg: '还没有预览内容。' }); continue; }
-        const css = RULES + '\n' + buildVarsCss(current.palette, await uriOf(current.image), current.values);
-        writeFileSync(SKIN_FILE, css, 'utf8');
-        await everywhere(injectExpr(css));
+        const layers = buildSkinLayers(APP, current.palette, await uriOf(current.image), current.values);
+        writeFileSync(SKIN_FILE, serializeSkinFile(layers), 'utf8');
+        await everywhere(injectLayersExpr(layers));
         await everywhere(liveExpr(''));
         const st = readState() || {};
         if (!st.watcherPid) st.watcherPid = startWatcher(port);
@@ -491,19 +439,19 @@ async function status() {
 const WATCH_HEARTBEAT_MS = 30000;
 async function watch(o) {
   const port = o.port;
-  const sessions = new Map(); // targetId → { session, scriptId, css, timer }
+  const sessions = new Map(); // targetId → { session, scriptId, key, layers, timer }
   let browser = null, misses = 0, running = false, again = false, timer = null, stopped = false;
   let finish;
   const done = new Promise((r) => { finish = r; });
 
-  const readCss = () => { try { return readFileSync(SKIN_FILE, 'utf8'); } catch { return null; } };
+  const readLayers = () => { try { return parseSkinFile(readFileSync(SKIN_FILE, 'utf8')); } catch { return null; } };
   const stop = () => { if (stopped) return; stopped = true; finish(); };
   const schedule = (ms = 120) => { if (stopped) return; clearTimeout(timer); timer = setTimeout(reconcile, ms); };
 
   // 同一窗口短时间内连着来几个事件（导航 + 新上下文）只补一次。
   const reinject = (entry) => {
     clearTimeout(entry.timer);
-    entry.timer = setTimeout(() => { if (entry.css && !entry.session.closed) entry.session.evaluate(injectExpr(entry.css)).catch(() => {}); }, 80);
+    entry.timer = setTimeout(() => { if (entry.layers && !entry.session.closed) entry.session.evaluate(injectLayersExpr(entry.layers)).catch(() => {}); }, 80);
   };
 
   async function openBrowser() {
@@ -524,8 +472,8 @@ async function watch(o) {
     if (running) { again = true; return; }
     running = true;
     try {
-      const css = readCss();
-      if (css === null) return stop(); // 已还原
+      const layers = readLayers();
+      if (layers === null) return stop(); // 已还原
       let targets;
       try { targets = await listCherryMainTargets(port); misses = 0; }
       catch { if (++misses >= 3) return stop(); schedule(1000); return; }
@@ -539,19 +487,21 @@ async function watch(o) {
         try {
           if (!entry) {
             const session = await new CdpSession(t, port).open();
-            entry = { session, scriptId: null, css: null, timer: null };
+            entry = { session, scriptId: null, key: null, layers: null, timer: null };
             const e = entry;
             session.on('Page.frameNavigated', (p) => { if (!p.frame?.parentId) reinject(e); });
             session.on('Runtime.executionContextCreated', (p) => { if (p.context?.auxData?.isDefault !== false) reinject(e); });
             session.ws.addEventListener('close', () => { if (!stopped) schedule(500); });
             sessions.set(t.id, entry);
           }
-          if (entry.css !== css) {
+          const key = serializeSkinFile(layers);
+          if (entry.key !== key) {
             if (entry.scriptId) await entry.session.send('Page.removeScriptToEvaluateOnNewDocument', { identifier: entry.scriptId });
-            const r = await entry.session.send('Page.addScriptToEvaluateOnNewDocument', { source: injectExpr(css) });
+            const r = await entry.session.send('Page.addScriptToEvaluateOnNewDocument', { source: injectLayersExpr(layers) });
             entry.scriptId = r.identifier;
-            await entry.session.evaluate(injectExpr(css));
-            entry.css = css;
+            await entry.session.evaluate(injectLayersExpr(layers));
+            entry.key = key;
+            entry.layers = layers;
           }
         } catch {
           if (entry) { clearTimeout(entry.timer); entry.session.close(); sessions.delete(t.id); }
@@ -620,7 +570,7 @@ async function check() {
     const has = (q) => { try { return !!document.querySelector(q); } catch { return false; } };
     const probes = ${JSON.stringify(APP.probes || [])};
     const missing = probes.filter(([q, , when]) => (!when || has(when)) && !has(q)).map(([q, label]) => label + '（' + q + '）');
-    return { skin: !!document.getElementById(${JSON.stringify(STYLE_ID)}), live: (document.getElementById(${JSON.stringify(LIVE_ID)}) || {}).textContent ? true : false,
+    return { skin: ${JSON.stringify([IDS.parts, IDS.vars, IDS.extra])}.some((id) => !!document.getElementById(id)), live: (document.getElementById(${JSON.stringify(LIVE_ID)}) || {}).textContent ? true : false,
       wall: getComputedStyle(document.body, '::before').backgroundImage.slice(0, 30), bg: v('--ds-bg'), text: v('--ds-text'), muted: v('--ds-muted'),
       ready: has(${JSON.stringify(READY)}), missing, ua: navigator.userAgent };
   })()`));

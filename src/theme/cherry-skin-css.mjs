@@ -24,6 +24,8 @@
 import { readFileSync, statSync } from 'node:fs';
 import { extname } from 'node:path';
 import { VERSION } from '../core/version.mjs';
+import { renderPartsCss } from '../parts/parts.mjs';
+import { CHERRY_PARTS_MAP } from '../parts/maps.mjs';
 
 // 精选预设：少而精。配色取自口碑最好的几套开源主题（Catppuccin、Rosé Pine、Tokyo Night、Nord、Kanagawa、
 // Everforest、Gruvbox Material、Dracula、Ayu、Oxocarbon，均 MIT），按 Theme Station 的做法做了莫兰迪式降饱和，
@@ -265,105 +267,13 @@ body:has(#app-sidebar)::before, body:has([data-workspace-shell])::before { backg
 ` : ''}`;
 }
 
-// 规则段：只用 var(--ds-*)。壁纸画在 body::before 上，才能单独模糊 / 调亮度而不影响界面。
-export const RULES = `/* ===== Cherry Dream Skin ${VERSION} · 规则段 · for Cherry Studio v2 ===== */
+// 规则段（T3-2 分层）：部件层由 parts/ 模板按 CHERRY_PARTS_MAP 渲染（选择器不再手写在这里），
+// 额外层只放没有语义部件可归的个别规则；变量层仍是 buildVarsCss。三层分别注入（不同 style id，见 core/inject.mjs）。
+// RULES 保留为「部件层 + 额外层」的组合导出，兼容 buildCherryCss 与 live 预览；与 2.1 的等价性由夹具测试守住。
+export const CHERRY_PARTS_CSS = renderPartsCss(CHERRY_PARTS_MAP);
+export const CHERRY_EXTRA_CSS = `/* ===== Cherry Dream Skin ${VERSION} · 额外层 ===== */
 
-/* 1. 整窗壁纸：只给主窗口（有 #app-sidebar 的窗口），划词工具条 / 快捷助手等小窗不受影响 */
-html:has(#app-sidebar) {
-  background: var(--ds-bg) !important;
-}
-body:has(#app-sidebar) {
-  background: transparent !important;
-  color: var(--ds-text);
-}
-body:has(#app-sidebar)::before {
-  content: "";
-  position: fixed;
-  inset: -40px;
-  z-index: -1;
-  pointer-events: none;
-  background: var(--ds-art) var(--ds-focus) / cover no-repeat;
-  filter: var(--ds-wall-filter);
-}
-body:has(#app-sidebar)::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background: var(--ds-scrim);
-}
-
-/* 2. 外壳层全部透明，让壁纸从图标栏一直贯穿到聊天区 */
-body:has(#app-sidebar) #root,
-body:has(#app-sidebar) [data-ui="app.main"],
-body:has(#app-sidebar) .h-screen.w-screen,
-#app-sidebar,
-[data-ui="app.sidebar"],
-[data-ui="app.tab-bar"],
-[data-ui="chat.view"],
-#chat,
-#home-page,
-[data-ui="chat.message-list"],
-[data-ui="chat.topic-list"],
-#messages {
-  background: transparent !important;
-  background-color: transparent !important;
-}
-
-/* 3. 内容卡片：保留原生圆角边框，只留一层很薄的底色（外层 div 与 main 都叫 app.content，只给 main 上色） */
-div[data-ui="app.content"] {
-  background: transparent !important;
-}
-main[data-ui="app.content"] {
-  background: var(--ds-content-bg) !important;
-  border-color: var(--ds-line) !important;
-  border-radius: var(--ds-radius) !important;
-  box-shadow: var(--ds-content-shadow) !important;
-}
-
-/* 4. 助手 / 话题栏：磨砂玻璃 */
-[class*="resource-list-pane"] {
-  background: var(--ds-pane-bg) !important;
-  backdrop-filter: var(--ds-blur);
-  -webkit-backdrop-filter: var(--ds-blur);
-  border-right: 1px solid var(--ds-line);
-}
-
-/* 5. 中间聊天区：上浅下深的渐变遮罩，露出壁纸又保证正文清楚 */
-[data-ui="part:conversation-main"] {
-  background: linear-gradient(180deg, var(--ds-chat-top) 0%, var(--ds-chat-top) 55%, var(--ds-chat-bottom) 100%) !important;
-}
-/* 正文压一层很淡的阴影，浅色壁纸上也看得清 */
-[data-ui="chat.message-list"] {
-  text-shadow: var(--ds-text-shadow);
-}
-
-/* 6. 用户消息气泡 */
-.message-user .message-content-container {
-  border: 1px solid rgba(var(--ds-accent-rgb), 0.22);
-}
-
-/* 7. 输入框：浮起的磨砂卡片 */
-#inputbar,
-[data-ui="chat.composer"] {
-  background: var(--ds-composer-bg) !important;
-  backdrop-filter: var(--ds-blur);
-  -webkit-backdrop-filter: var(--ds-blur);
-  border: 1px solid rgba(var(--ds-accent-rgb), 0.28) !important;
-  box-shadow: var(--ds-composer-shadow) !important;
-}
-#inputbar:focus-within,
-[data-ui="chat.composer"]:focus-within {
-  border-color: rgba(var(--ds-accent-rgb), 0.55) !important;
-}
-
-/* 8. 代码块别被壁纸干扰 */
-[data-ui="part:code-block"] {
-  background: var(--ds-code-bg) !important;
-}
-
-/* 9. 文字选中 */
+/* 文字选中 */
 ::selection { background: rgba(var(--ds-accent-rgb), 0.35); }
 
 /* 滚动条：细、圆、跟主色走（只改外观，不改滚动容器本身） */
@@ -372,6 +282,11 @@ body ::-webkit-scrollbar-track, body ::-webkit-scrollbar-corner { background: tr
 body ::-webkit-scrollbar-thumb { background-color: rgba(var(--ds-accent-rgb), 0.26); border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
 body ::-webkit-scrollbar-thumb:hover { background-color: rgba(var(--ds-accent-rgb), 0.55); }
 `;
+export const RULES = `/* ===== Cherry Dream Skin ${VERSION} · 规则段 · for Cherry Studio v2 ===== */
+
+${CHERRY_PARTS_CSS}
+
+${CHERRY_EXTRA_CSS}`;
 
 /**
  * 兼容旧接口：buildCherryCss(presetKey | palette, imageUri, values)
