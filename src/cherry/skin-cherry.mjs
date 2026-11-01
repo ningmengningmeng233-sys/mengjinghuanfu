@@ -18,7 +18,6 @@
 //   node skin-cherry.mjs skin-delete --id my-xxx
 //   node skin-cherry.mjs skin-export --id my-xxx --out 文件.dsskin
 //   node skin-cherry.mjs skin-import --file 文件.dsskin
-//   桌宠（Codex 桌宠格式，放进 Cherry / ZCode 窗口里）：
 //   主题库（dreamskin.cc 社区主题，下载到本机自用）：
 //   node skin-cherry.mjs gallery-list [--sort popular|favorites|recent] [--offset 0] [--limit 24] [--q 关键词] [--style 二次元|真人|风景|城市|国风|游戏影视|科幻|极简|萌趣|其他]
 //   node skin-cherry.mjs gallery-get  --id ver_xxx      下载后可用 --preset ds-ver_xxx 应用 / 预览 / 存为我的皮肤
@@ -417,6 +416,7 @@ async function live() {
 }
 
 // 旧版本（带桌宠的 2.1 测试版）留在页面里的桌宠：关皮肤时顺手清掉。
+// 兼容保留说明（T0-2）：桌宠功能本身已删除，这里只负责清理旧版残留节点，保留到 3.1 后删除。
 const PET_CLEANUP = `(() => { try { window.__dsPet && window.__dsPet.destroy && window.__dsPet.destroy(); } catch {} document.getElementById('dream-skin-pet')?.remove(); delete window.__dsPet; return 1; })()`;
 
 async function restore() {
