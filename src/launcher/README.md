@@ -43,12 +43,26 @@
 - 版本口径：AssemblyVersion / FileVersion 均为 2.1.0.0、InformationalVersion（ProductVersion）2.1.0，
   与 Node 侧 `src/core/version.mjs` 的 VERSION=2.1.0 一致，由 `tools/check-version.mjs` 校验
   （已走 launcher 校验分支，全 PASS）。窗口标题与界面标签是原版短版式「2.1」（与原 exe 逐字一致，未改）。
+- NuGet 依赖新增 Microsoft.Windows.SDK.Contracts 10.0.26100.1742（第二批）：
+  `--resolve-aumid` 用 Windows.Management.Deployment.PackageManager 解析已注册包。
+
+## 第二批已落地（launcher 桥与内置 Node，2026-11-02）
+
+- 无界面子命令在 `DreamSkin/HeadlessCommands.cs`，Main 在开 GUI 前分发：
+  `--resolve-aumid <packageFamilyPrefix> [--exe <exeName>]`（只读解析已注册包 -> AUMID，
+  标准输出一行 JSON，退出码 0/1）、`--activate <aumid> --args "<args>"`（经 COM
+  IApplicationActivationManager 激活，退出码 0/1/2；真激活会启动目标应用，须主人同意后才验，
+  本批只测错误路径）、`--which-node`（只读诊断，输出 Node 三档定位结果）。
+  Node 端 `channels/msix.mjs` 的包查询已改为总控台优先、PowerShell 兜底（同一输出契约）。
+- Node 定位改为 payload 自带优先（`MainForm.ResolveNodePath`，T0-6 收口）：
+  先 `<appRoot>/src/runtime/node.exe`，其次数据目录下载的 runtime，最后 PATH 上的 node.exe；
+  GUI 与无界面启动（LaunchCore）同口径，子进程的 PATH 前置目录随解析结果走。
+  原「安装 / 修复 Node.js 22」下载流程原样保留，排在自带运行时之后。
 
 ## 待后续批次
 
-- `--activate <aumid> --args` / `--resolve-aumid` 总控台子命令（T2-2 的 msix 通道桥在等它，U 系列一并做）。
-- 启动脚本时优先用 payload 的 `runtime/node.exe`（T0-6 遗留；现逻辑是数据目录 runtime 优先、PATH 兜底）。
 - U-1 / U-2 / U-3 的总控台界面改动（应用列表与状态点、多端同步、兼容矩阵页、冲突弹窗、DSH 插件开关）。
+- `--activate` 真激活与 msix 通道真机启动验证（V-CH-msix）：等主人同意带调试端口启动 Codex 一次。
 - 总控台 GUI 的真人目视验收（待人工验收）：原程序没有无副作用的无界面参数——无参直接开 GUI，
   `--launch <app>` 会真的带皮肤启动目标应用，两者都不在本批冒烟范围内；本批只做了构建成功与
   静态核验（文件版本、内嵌资源清单），未运行重建 exe、未替换用户现装的 2.1.0 exe。

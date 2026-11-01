@@ -1746,8 +1746,34 @@ public class MainForm : Form
 
 	private string ResolveNode()
 	{
-		string text = Path.Combine(NodeRuntimeDir, "node.exe");
-		return File.Exists(text) ? text : "node.exe";
+		return ResolveNodePath(appRoot, dataRoot);
+	}
+
+	// Node 定位（launcher 第二批，T0-6 收口）：payload 自带的 runtime/node.exe 最优先，
+	// 其次是「安装 / 修复 Node.js 22」下载到数据目录的 runtime，最后 PATH 上的 node.exe。
+	// appRoot 是 FindAppRoot 的结果（其下有 src/ 子目录，payload 的 node 在 src/runtime/node.exe，
+	// 与脚本同在释放目录里）；appRoot 为空（尚未定位脚本目录）时跳过第一档。
+	// 原下载修复流程（InstallNode 一整套）原样不动，只是排在自带运行时之后。
+	internal static string ResolveNodePath(string appRootPath, string dataRootPath)
+	{
+		if (!string.IsNullOrEmpty(appRootPath))
+		{
+			string bundled = Path.Combine(appRootPath, "src", "runtime", "node.exe");
+			if (File.Exists(bundled))
+			{
+				return bundled;
+			}
+		}
+		string downloaded = Path.Combine(dataRootPath, "runtime", "node", "node.exe");
+		return File.Exists(downloaded) ? downloaded : "node.exe";
+	}
+
+	// 与 ResolveNode 同口径的 PATH 前置目录：解析结果是带路径的 node.exe 时返回其所在目录，
+	// 让子进程里裸呼 node 时也用同一个；解析结果就是 PATH 上的 "node.exe" 时返回 null（不前置）。
+	private string NodePathDir()
+	{
+		string node = ResolveNode();
+		return Path.IsPathRooted(node) ? Path.GetDirectoryName(node) : null;
 	}
 
 	private async Task<int> NodeMajor()
@@ -2015,9 +2041,10 @@ public class MainForm : Form
 					StandardOutputEncoding = Encoding.UTF8,
 					StandardErrorEncoding = Encoding.UTF8
 				};
-				if (File.Exists(Path.Combine(NodeRuntimeDir, "node.exe")))
+				string nodeDir = NodePathDir();
+				if (nodeDir != null)
 				{
-					processStartInfo.EnvironmentVariables["PATH"] = NodeRuntimeDir + ";" + processStartInfo.EnvironmentVariables["PATH"];
+					processStartInfo.EnvironmentVariables["PATH"] = nodeDir + ";" + processStartInfo.EnvironmentVariables["PATH"];
 				}
 				using Process process = new Process();
 				process.StartInfo = processStartInfo;
@@ -2079,6 +2106,11 @@ public class MainForm : Form
 	{
 		Application.EnableVisualStyles();
 		Application.SetCompatibleTextRenderingDefault(defaultValue: false);
+		if (args.Length >= 1 && HeadlessCommands.IsHeadlessCommand(args[0]))
+		{
+			Environment.Exit(HeadlessCommands.Run(args));
+			return;
+		}
 		if (args.Length >= 2 && args[0] == "--launch")
 		{
 			Environment.Exit(HeadlessLaunch(args[1]));
@@ -2380,7 +2412,7 @@ public class MainForm : Form
 		};
 		try
 		{
-			live.Start(ResolveNode(), Path.Combine(cherryDir, "skin-cherry.mjs"), File.Exists(Path.Combine(NodeRuntimeDir, "node.exe")) ? NodeRuntimeDir : null, app);
+			live.Start(ResolveNode(), Path.Combine(cherryDir, "skin-cherry.mjs"), NodePathDir(), app);
 		}
 		catch (Exception ex)
 		{
@@ -3305,11 +3337,7 @@ public class MainForm : Form
 			failMsg = "找不到换肤脚本。请重新下载梦境换肤。";
 			return 1;
 		}
-		string text2 = Path.Combine(dataRootPath, "runtime", "node", "node.exe");
-		if (!File.Exists(text2))
-		{
-			text2 = "node.exe";
-		}
+		string text2 = ResolveNodePath(text, dataRootPath);
 		string text3 = Path.Combine(text, "src", "cherry", "skin-cherry.mjs");
 		ProcessStartInfo processStartInfo = new ProcessStartInfo(text2, "\"" + text3 + "\" launch --restart --app " + app);
 		processStartInfo.UseShellExecute = false;
