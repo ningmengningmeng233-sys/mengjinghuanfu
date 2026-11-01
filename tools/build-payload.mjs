@@ -61,8 +61,11 @@ if (platform === 'win32') {
     runtime = { file: 'runtime/node.exe', version: v, size: statSync(dest).size };
     files.push({ path: 'runtime/node.exe', size: runtime.size, sha256: createHash('sha256').update(readFileSync(dest)).digest('hex') });
     console.log('内置 Node 运行时: ' + v + ' <- ' + nodeExe);
+    const lic = join(nodeExe, '..', 'LICENSE');
+    if (existsSync(lic)) cpSync(lic, join(outDir, 'runtime', 'LICENSE'));
   } else if (!skipRuntime) {
-    console.log('WARN: 没找到便携 node.exe（先运行 tools/fetch-node-runtime.ps1 下载到 build/cache/，或用 --node-exe 指定）；本次产物不带运行时');
+    console.error('构建失败：Windows 正式包必须内置 Node 运行时。先运行 tools/fetch-node-runtime.ps1，或用 --node-exe 指定便携 node.exe；开发/测试可用 --skip-runtime');
+    process.exit(1);
   } else {
     console.log('跳过运行时（--skip-runtime，开发/测试用）');
   }
