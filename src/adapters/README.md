@@ -36,3 +36,10 @@ same directory or the adapter is rejected by the loader.
   Skin's exact style id is also unconfirmed - page-level conflict
   detection (`src/core/conflicts.mjs`) matches its public brand prefix
   for now and must be corrected with the measured id at V-A10.
+- `minimax-design` (A-3): install shape verified read-only by S-3
+  (Electron, Velopack layout; the uninstall registry InstallLocation
+  points at the install root and the launcher exe sits in that root -
+  the exe channel's registry fallback resolves it, the static candidate
+  covers the per-user default location). DOM anchors and the main
+  window URL are unverified, so `parts-map.json` is empty and no
+  target / readySelector is declared yet.

@@ -1,0 +1,21 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "minimax-design",
+  "name": "MiniMax Design",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\MiniMax Design\\MiniMax Design.exe"
+    ],
+    "envExe": "DREAMSKIN_MINIMAX_DESIGN_EXE",
+    "exeNames": [
+      "MiniMax Design.exe"
+    ],
+    "uninstallDisplayName": "MiniMax Design"
+  },
+  "testedVersions": [
+    "3.0.13"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}
