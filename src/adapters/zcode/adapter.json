@@ -1,0 +1,51 @@
+{
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\ZCode\\ZCode.exe",
+      "%ProgramFiles%\\ZCode\\ZCode.exe"
+    ],
+    "envExe": "DREAMSKIN_ZCODE_EXE",
+    "exeNames": [
+      "ZCode.exe"
+    ],
+    "uninstallDisplayName": "ZCode"
+  },
+  "id": "zcode",
+  "name": "ZCode",
+  "probes": [
+    [
+      "[data-root-workspace-surface]",
+      "工作区底板"
+    ],
+    [
+      "[data-workspace-sidebar-panel]",
+      "侧边栏"
+    ],
+    [
+      "#sidebar",
+      "侧边栏列表"
+    ],
+    [
+      "[data-v4-composer-dock]",
+      "输入区",
+      "[data-workspace-conversation-frame]"
+    ],
+    [
+      "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute)",
+      "输入框",
+      "[data-v4-composer-dock]"
+    ]
+  ],
+  "process": {
+    "helperCmdPattern": "\\.cjs\\b|__zcode-plugin-host|app-server"
+  },
+  "readySelector": "[data-workspace-shell]",
+  "restartNote": "正在跑的任务会被中断，项目和对话记录不受影响",
+  "schema": "dreamskin-adapter/1",
+  "target": {
+    "rejectPattern": "login|log-in|sign-in|auth|update|updater|settings|splash|welcome",
+    "uaToken": "ZCode",
+    "urlPattern": "^file://.*/index\\.html"
+  }
+}

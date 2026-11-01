@@ -1,0 +1,48 @@
+{
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\Cherry Studio\\Cherry Studio.exe",
+      "%ProgramFiles%\\Cherry Studio\\Cherry Studio.exe",
+      "%ProgramFiles(x86)%\\Cherry Studio\\Cherry Studio.exe"
+    ],
+    "envExe": "DREAMSKIN_CHERRY_EXE",
+    "exeNames": [
+      "Cherry Studio.exe"
+    ],
+    "uninstallDisplayName": "Cherry Studio"
+  },
+  "id": "cherry",
+  "name": "Cherry Studio",
+  "probes": [
+    [
+      "[data-ui=\"app.sidebar\"]",
+      "侧边栏"
+    ],
+    [
+      "[data-ui=\"app.tab-bar\"]",
+      "标签栏"
+    ],
+    [
+      "[data-ui=\"app.content\"]",
+      "内容区"
+    ],
+    [
+      "[data-ui=\"chat.message-list\"]",
+      "消息列表",
+      "#chat"
+    ],
+    [
+      "#inputbar",
+      "输入框",
+      "#chat"
+    ]
+  ],
+  "readySelector": "#app-sidebar",
+  "restartNote": "聊天记录不受影响，未发送的输入框内容会丢失",
+  "schema": "dreamskin-adapter/1",
+  "target": {
+    "uaToken": "CherryStudio",
+    "urlPattern": "^file://.*/windows/main/index\\.html"
+  }
+}

@@ -1,0 +1,166 @@
+// Adapter loader (T1-2, plan 4.2): scans adapters/*/adapter.json, validates
+// pure data, skips invalid adapters and collects their errors instead of
+// crashing. No external dependencies (zero-dependency project rule).
+// NOTE (transitional): core/apps.mjs is still the runtime source of truth.
+// The adapter.json files for cherry/zcode are transitional data copies;
+// the formal migration happens in T1-3.
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+export const ADAPTER_SCHEMA = 'dreamskin-adapter/1';
+export const CHANNELS = ['exe', 'msix', 'webview2', 'dsh-plugin', 'browser'];
+
+export const DEFAULT_ADAPTERS_DIR = fileURLToPath(new URL('../adapters/', import.meta.url));
+
+const ID_RE = /^[a-z0-9][a-z0-9-]*$/;
+const ABS_WIN_PATH_RE = /^[A-Za-z]:[\\/]/;
+const ENV_NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+
+function isPlainObject(v) {
+  return !!v && typeof v === 'object' && !Array.isArray(v);
+}
+
+// Recursively collect absolute Windows paths (drive letter or UNC) anywhere
+// in the data. Paths must use %ENV% placeholders or be relative (plan 4.2).
+function collectAbsolutePaths(value, trail, out) {
+  if (typeof value === 'string') {
+    if (ABS_WIN_PATH_RE.test(value) || value.startsWith('\\\\')) out.push(trail + ': ' + value);
+    return;
+  }
+  if (Array.isArray(value)) { value.forEach((v, i) => collectAbsolutePaths(v, trail + '[' + i + ']', out)); return; }
+  if (isPlainObject(value)) { for (const [k, v] of Object.entries(value)) collectAbsolutePaths(v, trail ? trail + '.' + k : k, out); }
+}
+
+function checkRelativeFileField(data, field, dir, exists, errors) {
+  const v = data[field];
+  if (v === undefined) return;
+  if (typeof v !== 'string' || !v) { errors.push(field + ' must be a non-empty string'); return; }
+  if (ABS_WIN_PATH_RE.test(v) || v.startsWith('/') || v.startsWith('\\\\')) {
+    errors.push(field + ' must be a path relative to the adapter directory: ' + v);
+    return;
+  }
+  if (dir && !exists(join(dir, v))) errors.push(field + ' declares a file that does not exist: ' + v);
+}
+
+// Pure-data validation. opts: { dirName, dir, exists } - exists is injectable
+// for tests. Returns an array of human readable error strings (empty = ok).
+export function validateAdapter(data, opts = {}) {
+  const exists = opts.exists || existsSync;
+  const errors = [];
+  if (!isPlainObject(data)) return ['adapter.json must contain a JSON object'];
+
+  // Required common fields: id / name / schema / channel.
+  if (typeof data.id !== 'string' || !ID_RE.test(data.id)) errors.push('id is required and must match ' + ID_RE);
+  if (opts.dirName && typeof data.id === 'string' && data.id !== opts.dirName) {
+    errors.push('id "' + data.id + '" does not match directory name "' + opts.dirName + '"');
+  }
+  if (typeof data.name !== 'string' || !data.name.trim()) errors.push('name is required (non-empty string)');
+  if (data.schema !== ADAPTER_SCHEMA) errors.push('schema is required and must be "' + ADAPTER_SCHEMA + '"');
+  if (!CHANNELS.includes(data.channel)) errors.push('channel is required and must be one of: ' + CHANNELS.join(' | '));
+
+  // Absolute paths are forbidden anywhere (dev machine path lesson, T0).
+  const abs = [];
+  collectAbsolutePaths(data, '', abs);
+  for (const a of abs) errors.push('absolute path is not allowed (use %ENV% placeholder or a relative path): ' + a);
+
+  // discover block + channel specific required fields.
+  const d = data.discover;
+  if (d !== undefined && !isPlainObject(d)) errors.push('discover must be an object');
+  const exeNamesOk = isPlainObject(d) && Array.isArray(d.exeNames) && d.exeNames.length > 0
+    && d.exeNames.every((s) => typeof s === 'string' && s.length > 0);
+  if (isPlainObject(d) && d.exeNames !== undefined && !exeNamesOk) errors.push('discover.exeNames must be a non-empty array of strings');
+  if (isPlainObject(d) && d.candidates !== undefined
+    && !(Array.isArray(d.candidates) && d.candidates.every((s) => typeof s === 'string'))) {
+    errors.push('discover.candidates must be an array of strings');
+  }
+  if (isPlainObject(d) && d.envExe !== undefined && (typeof d.envExe !== 'string' || !ENV_NAME_RE.test(d.envExe))) {
+    errors.push('discover.envExe must be an environment variable name');
+  }
+  if (data.channel === 'exe' || data.channel === 'webview2') {
+    if (!exeNamesOk) errors.push('channel ' + data.channel + ' requires discover.exeNames (non-empty array)');
+  }
+  if (data.channel === 'msix') {
+    if (!isPlainObject(d) || typeof d.msixPackageFamily !== 'string' || !d.msixPackageFamily) {
+      errors.push('channel msix requires discover.msixPackageFamily');
+    }
+  }
+  if (data.channel === 'browser') {
+    if (!isPlainObject(data.target) || typeof data.target.urlPattern !== 'string' || !data.target.urlPattern) {
+      errors.push('channel browser requires target.urlPattern');
+    }
+  }
+  // dsh-plugin has no extra required fields in plan 4.2.
+
+  // Optional blocks: check shapes when present.
+  if (data.target !== undefined) {
+    if (!isPlainObject(data.target)) errors.push('target must be an object');
+    else for (const k of ['urlPattern', 'rejectPattern', 'uaToken']) {
+      if (data.target[k] !== undefined && typeof data.target[k] !== 'string') errors.push('target.' + k + ' must be a string');
+    }
+  }
+  if (data.process !== undefined && !isPlainObject(data.process)) errors.push('process must be an object');
+  if (data.readySelector !== undefined && typeof data.readySelector !== 'string') errors.push('readySelector must be a string');
+  if (data.probes !== undefined) {
+    const okProbe = (p) => Array.isArray(p) && p.length >= 2 && p.length <= 3 && p.every((s) => typeof s === 'string');
+    if (!Array.isArray(data.probes) || !data.probes.every(okProbe)) {
+      errors.push('probes must be an array of [selector, label, requiredWhen?] string tuples');
+    }
+  }
+  if (data.testedVersions !== undefined
+    && !(Array.isArray(data.testedVersions) && data.testedVersions.every((s) => typeof s === 'string'))) {
+    errors.push('testedVersions must be an array of strings');
+  }
+  if (data.conflicts !== undefined
+    && !(Array.isArray(data.conflicts) && data.conflicts.every((s) => typeof s === 'string'))) {
+    errors.push('conflicts must be an array of strings');
+  }
+
+  checkRelativeFileField(data, 'partsMap', opts.dir, exists, errors);
+  checkRelativeFileField(data, 'extraCss', opts.dir, exists, errors);
+  return errors;
+}
+
+// Scan an adapters root directory. Returns { adapters, errors } where
+// adapters is an array of valid adapter data objects (each with an added
+// `adapterDir` property: its directory name) and errors is an array of
+// { dir, id, errors } for skipped ones. Never throws on bad adapter data.
+export function loadAdapters(dir = DEFAULT_ADAPTERS_DIR) {
+  const adapters = [];
+  const errors = [];
+  let names = [];
+  try { names = readdirSync(dir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort(); }
+  catch { return { adapters, errors }; }
+  for (const name of names) {
+    const sub = join(dir, name);
+    const file = join(sub, 'adapter.json');
+    if (!existsSync(file)) continue; // a directory without adapter.json is not an adapter
+    let data;
+    try { data = JSON.parse(readFileSync(file, 'utf8')); }
+    catch (e) { errors.push({ dir: name, id: null, errors: ['adapter.json is not valid JSON: ' + e.message] }); continue; }
+    const errs = validateAdapter(data, { dirName: name, dir: sub });
+    if (errs.length) { errors.push({ dir: name, id: isPlainObject(data) && typeof data.id === 'string' ? data.id : null, errors: errs }); continue; }
+    adapters.push({ ...data, adapterDir: name });
+  }
+  return { adapters, errors };
+}
+
+export function listAdapters(dir = DEFAULT_ADAPTERS_DIR) {
+  return loadAdapters(dir).adapters;
+}
+
+// Collected validation errors from the last scan shape (for V-C3 style
+// reporting in logs / environment page). Returns [] when everything is fine.
+export function adapterErrors(dir = DEFAULT_ADAPTERS_DIR) {
+  return loadAdapters(dir).errors;
+}
+
+export function adapterById(id, dir = DEFAULT_ADAPTERS_DIR) {
+  const { adapters } = loadAdapters(dir);
+  const hit = adapters.find((a) => a.id === String(id || '').toLowerCase());
+  if (!hit) {
+    const known = adapters.map((a) => a.id).join(', ') || '(none)';
+    throw new Error('Unknown adapter: ' + id + ' (registered: ' + known + ')');
+  }
+  return hit;
+}
