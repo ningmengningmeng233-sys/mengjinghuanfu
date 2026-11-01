@@ -163,7 +163,8 @@ test('channelFor resolves implemented channels and refuses the rest', () => {
   assert.equal(channelFor('exe'), exeChannel);
   assert.equal(channelFor({ channel: 'exe' }), exeChannel);
   assert.equal(channelFor('msix').kind, 'msix'); // T2-2 起 msix 已实现，细节见 t2-2 单测
-  assert.throws(() => channelFor({ channel: 'webview2' }), /尚未实现/);
+  assert.equal(channelFor('webview2').kind, 'webview2'); // T2-3 起 webview2 已实现，细节见 t2-3 单测
+  assert.throws(() => channelFor({ channel: 'dsh-plugin' }), /尚未实现/);
 });
 
 test('freePort really avoids occupied ports (V-CH-exe, loopback only)', async () => {
