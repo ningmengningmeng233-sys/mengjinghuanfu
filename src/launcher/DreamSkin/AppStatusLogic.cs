@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Web.Script.Serialization;
 
 namespace DreamSkin;
 
@@ -109,5 +112,75 @@ internal static class AppStatusLogic
 	public static bool IsFolded(AppRow r)
 	{
 		return !r.Installed;
+	}
+}
+
+// U-2 多端同步目标选择的纯逻辑（方案 §4.6：「两端同步」改为「同步到…」多选）。
+// 选择集存的是应用 id 的绝对列表（总控台落在数据根目录 sync-targets.json，是 UI 偏好；
+// 皮肤数据本身仍走各应用数据目录的 last-choice.json，不新开第二套存储）。
+// 使用时剔除当前应用自身；2.1 的旧口径（sync-off.flag 关 / 默认开）在 LoadSelection 里一次性迁移。
+public static class SyncTargetsLogic
+{
+	public static readonly string[] DefaultSelection = new string[2] { "cherry", "zcode" };
+
+	// jsonText 为 null 表示选择文件不存在：旧关闭标记在 -> 空选（尊重旧「关」）；不在 -> 默认两端。
+	// 文本损坏也回默认两端，避免同步被静默丢掉。
+	public static List<string> LoadSelection(string jsonText, bool offFlagExists)
+	{
+		if (jsonText == null)
+		{
+			return offFlagExists ? new List<string>() : new List<string>(DefaultSelection);
+		}
+		try
+		{
+			object parsed = new JavaScriptSerializer().DeserializeObject(jsonText);
+			System.Collections.IEnumerable arr = parsed as System.Collections.IEnumerable;
+			if (arr == null || parsed is string)
+			{
+				return new List<string>(DefaultSelection);
+			}
+			List<string> outp = new List<string>();
+			foreach (object o in arr)
+			{
+				string s = Convert.ToString(o);
+				if (!string.IsNullOrEmpty(s) && !outp.Contains(s))
+				{
+					outp.Add(s);
+				}
+			}
+			return outp;
+		}
+		catch
+		{
+			return new List<string>(DefaultSelection);
+		}
+	}
+
+	public static string SaveSelection(List<string> selection)
+	{
+		return new JavaScriptSerializer().Serialize(selection ?? new List<string>());
+	}
+
+	// 使用时解析：剔除当前应用自身与重复项；installedIds 非空时只保留已安装的；保持选择顺序。
+	public static List<string> ResolveTargets(List<string> selection, string currentId, List<string> installedIds)
+	{
+		List<string> outp = new List<string>();
+		if (selection == null)
+		{
+			return outp;
+		}
+		foreach (string id in selection)
+		{
+			if (id == currentId || outp.Contains(id))
+			{
+				continue;
+			}
+			if (installedIds != null && installedIds.Count > 0 && !installedIds.Contains(id))
+			{
+				continue;
+			}
+			outp.Add(id);
+		}
+		return outp;
 	}
 }

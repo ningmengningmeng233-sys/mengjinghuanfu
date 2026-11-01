@@ -48,6 +48,8 @@ import { partChecksOf, partsProbeExpr, evaluateHealth, degradeLayers, wallpaperP
 import { writeCompatRecord, compatRecordOf } from './store/compat.mjs';
 import { conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMessage } from './core/conflicts.mjs';
 import { collectAppsStatus } from './core/apps-status.mjs';
+import { syncFanout, parseTargets } from './core/sync.mjs';
+import { listAdapters } from './core/adapters.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -81,6 +83,7 @@ function parseArgs(argv) {
     else if (a === '--all') o.all = true;
     else if (a === '--app' && v) { o.app = v; i++; }
     else if (a === '--from' && v) { o.from = v; i++; }
+    else if (a === '--to' && v) { o.to = v; i++; }
     else if (a === '--file' && v) { o.file = v; i++; }
     else if (a === '--id' && v) { o.id = v; i++; }
     else if (a === '--name' && v) { o.name = v; i++; }
@@ -332,9 +335,38 @@ async function galleryGet(o) {
   } catch (e) { process.stdout.write(JSON.stringify({ ok: false, msg: '下载主题失败：' + e.message }) + '\n'); return EXIT.FAILED; }
 }
 
+// 多端同步（U-2）：sync --from <来源> --to a,b,c —— 把来源最后保存的皮肤一次同步到多个目标。
+// 每个目标拉起一个子进程跑单目标 sync（老路径，行为与 2.1 逐字一致），逐个独立、互不影响；
+// 结果逐行打印并在最后一行给 JSON 汇总 { syncMulti: true, ok, from, results }（总控台按它汇报每个目标）。
+// 全部成功退出码 0，任一失败退出码 1（其余目标照常完成）。
+async function syncMulti(o, targets) {
+  const from = o.from || APP.id;
+  const self = fileURLToPath(import.meta.url);
+  const runOne = (id) => {
+    try {
+      const out = execFileSync(process.execPath, [self, 'sync', '--from', from, '--app', id],
+        { encoding: 'utf8', timeout: 180000, env: process.env, windowsHide: true });
+      const lines = String(out).trim().split(/\r?\n/).filter(Boolean);
+      return { ok: true, msg: lines.length ? lines[lines.length - 1] : '' };
+    } catch (e) {
+      const out = String((e && e.stdout) || '').trim().split(/\r?\n/).filter(Boolean);
+      return { ok: false, msg: out.length ? out[out.length - 1] : String((e && e.message) || e) };
+    }
+  };
+  const r = await syncFanout({ from, targets, runOne, knownIds: listAdapters().map((a) => a.id) });
+  for (const x of r.results) {
+    if (x.skipped) say('SUCCESS', `同步到 ${x.app}：${x.msg}。`);
+    else say(x.ok ? 'SUCCESS' : 'FAILED', `同步到 ${x.app}：${x.msg || (x.ok ? '完成' : '没成功')}`);
+  }
+  process.stdout.write(JSON.stringify({ syncMulti: true, ...r }) + '\n');
+  return r.ok ? EXIT.OK : EXIT.FAILED;
+}
+
 // 两端同步：把另一个应用（--from）最后保存的皮肤用到当前应用（--app）。
 // 当前应用正带皮肤运行 → 立即换；没运行或没带皮肤 → 只记下来，下次「用皮肤启动」就是这套（不会去重启它）。
 async function sync(o) {
+  const targets = parseTargets(o.to);
+  if (targets.length) return syncMulti(o, targets);
   const from = o.from || (APP.id === 'cherry' ? 'zcode' : 'cherry');
   let src;
   try { src = JSON.parse(readFileSync(join(dataDir(from), 'last-choice.json'), 'utf8')); }

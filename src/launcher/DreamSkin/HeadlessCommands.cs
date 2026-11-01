@@ -32,7 +32,7 @@ internal static class HeadlessCommands
 {
 	public static bool IsHeadlessCommand(string arg)
 	{
-		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node" || arg == "--selfcheck-u1";
+		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node" || arg == "--selfcheck-u1" || arg == "--selfcheck-u2";
 	}
 
 	public static int Run(string[] args)
@@ -50,6 +50,10 @@ internal static class HeadlessCommands
 			if (args[0] == "--selfcheck-u1")
 			{
 				return RunSelfcheckU1();
+			}
+			if (args[0] == "--selfcheck-u2")
+			{
+				return RunSelfcheckU2();
 			}
 			return RunWhichNode();
 		}
@@ -115,6 +119,52 @@ internal static class HeadlessCommands
 	}
 
 	// ---------- 控制台输出（WinExe 适配） ----------
+
+	// U-2 自检：同步目标选择的迁移口径与解析（纯逻辑，不读真实文件）。
+	private static int RunSelfcheckU2()
+	{
+		int pass = 0;
+		int fail = 0;
+		System.Action<string, bool> check = delegate(string name, bool ok)
+		{
+			if (ok)
+			{
+				pass++;
+				Out.WriteLine("PASS: " + name);
+			}
+			else
+			{
+				fail++;
+				Out.WriteLine("FAIL: " + name);
+			}
+		};
+		System.Func<List<string>, string[], bool> eq = delegate(List<string> a, string[] b)
+		{
+			if (a == null || a.Count != b.Length)
+			{
+				return false;
+			}
+			for (int i = 0; i < b.Length; i++)
+			{
+				if (a[i] != b[i])
+				{
+					return false;
+				}
+			}
+			return true;
+		};
+		check("无文件无旧标记 -> 默认两端", eq(SyncTargetsLogic.LoadSelection(null, false), new string[2] { "cherry", "zcode" }));
+		check("无文件有旧关闭标记 -> 空选", eq(SyncTargetsLogic.LoadSelection(null, true), new string[0]));
+		check("读已有选择", eq(SyncTargetsLogic.LoadSelection("[\"codex\",\"dsh\"]", false), new string[2] { "codex", "dsh" }));
+		check("损坏文本 -> 默认两端", eq(SyncTargetsLogic.LoadSelection("not-json", false), new string[2] { "cherry", "zcode" }));
+		check("保存再读回一致", eq(SyncTargetsLogic.LoadSelection(SyncTargetsLogic.SaveSelection(new List<string> { "zcode", "codex" }), false), new string[2] { "zcode", "codex" }));
+		check("Resolve 剔除自身", eq(SyncTargetsLogic.ResolveTargets(new List<string> { "cherry", "zcode", "codex" }, "cherry", new List<string> { "cherry", "zcode", "codex", "dsh" }), new string[2] { "zcode", "codex" }));
+		check("Resolve 只留已安装", eq(SyncTargetsLogic.ResolveTargets(new List<string> { "cherry", "zcode", "codex" }, "cherry", new List<string> { "zcode" }), new string[1] { "zcode" }));
+		check("Resolve 在册为空时不过滤", eq(SyncTargetsLogic.ResolveTargets(new List<string> { "cherry", "codex" }, "cherry", new List<string>()), new string[1] { "codex" }));
+		check("Resolve 空选择", eq(SyncTargetsLogic.ResolveTargets(null, "cherry", null), new string[0]));
+		Out.WriteLine("SELFCHECK-U2: " + pass + "/" + (pass + fail) + " PASS");
+		return (fail == 0) ? 0 : 1;
+	}
 
 	private static TextWriter _out;
 

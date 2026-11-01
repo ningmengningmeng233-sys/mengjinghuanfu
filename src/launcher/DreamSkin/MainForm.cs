@@ -205,7 +205,9 @@ public class MainForm : Form
 
 	private Color statusColor = Theme.Muted;
 
-	private ToggleSwitch syncToggle;
+	private FlatButton syncMenuButton;
+
+	private readonly List<string> syncTargets = new List<string>();
 
 	private bool suppressEvents;
 
@@ -248,6 +250,8 @@ public class MainForm : Form
 	};
 
 	private string SyncOffFile => Path.Combine(dataRoot, "sync-off.flag");
+
+	private string SyncTargetsFile => Path.Combine(dataRoot, "sync-targets.json");
 
 	private string AppName => (app == "zcode") ? "ZCode" : "Cherry Studio";
 
@@ -805,33 +809,20 @@ public class MainForm : Form
 		AddButton(pageCherry, "保存并应用", Theme.Gold, Color.FromArgb(25, 20, 10), new Rectangle(0, num, 140, 44), SaveCherry);
 		AddButton(pageCherry, "撤销预览", Theme.Card, Theme.Text, new Rectangle(148, num, 96, 44), CancelPreview);
 		AddButton(pageCherry, "★ 存为我的", Theme.Card, Theme.Gold, new Rectangle(252, num, 112, 44), SaveMine);
-		syncToggle = new ToggleSwitch
+		// U-2（§4.6）：「两端同步」开关改为「同步到…」多选按钮：点开菜单勾选目标应用，
+		// 选择存数据根目录 sync-targets.json（UI 偏好）；旧的 sync-off.flag 只在首次迁移时读一次。
+		LoadSyncTargets();
+		syncMenuButton = new FlatButton("同步到…", Theme.Card, Theme.Text)
 		{
-			Title = "两端同步",
-			Location = new Point(374, num + 5),
-			Size = new Size(126, 34)
+			Location = new Point(374, num),
+			Size = new Size(126, 44)
 		};
-		syncToggle.Checked = !File.Exists(SyncOffFile);
-		syncToggle.CheckedChanged += delegate
+		syncMenuButton.Click += delegate
 		{
-			try
-			{
-				Directory.CreateDirectory(dataRoot);
-				if (syncToggle.Checked)
-				{
-					File.Delete(SyncOffFile);
-				}
-				else
-				{
-					File.WriteAllText(SyncOffFile, "1");
-				}
-			}
-			catch
-			{
-			}
-			Log(syncToggle.Checked ? "两端同步已打开：保存的皮肤会同时用到 Cherry 和 ZCode。" : "两端同步已关闭：Cherry 和 ZCode 各用各的皮肤。");
+			OpenSyncMenu();
 		};
-		pageCherry.Controls.Add(syncToggle);
+		pageCherry.Controls.Add(syncMenuButton);
+		UpdateSyncButtonText();
 		btnLaunch = AddButton(pageCherry, "用皮肤启动 Cherry", Theme.Card, Theme.Text, new Rectangle(512, num, 156, 44), LaunchCherry);
 		AddButton(pageCherry, "还原原版", Theme.Card, Theme.Text, new Rectangle(676, num, 100, 44), RestoreCherry);
 		FlatButton more = AddButton(pageCherry, "更多 ▾", Theme.Card, Theme.Text, new Rectangle(784, num, 76, 44), () => Task.FromResult(0));
@@ -1977,6 +1968,7 @@ public class MainForm : Form
 				appRowsData.AddRange(rows);
 				lastAppListAt = DateTime.Now;
 				BuildAppNav(rows);
+				UpdateSyncButtonText();
 			}
 		}
 		catch
@@ -1994,10 +1986,11 @@ public class MainForm : Form
 		try
 		{
 			Dictionary<string, object> root = JsonSer.DeserializeObject(json) as Dictionary<string, object>;
-			if (root == null || !root.TryGetValue("apps", out object appsObj) || !(appsObj is ArrayList apps))
+			if (root == null || !root.TryGetValue("apps", out object appsObj))
 			{
 				return rows;
 			}
+			List<object> apps = AsList(appsObj);
 			foreach (object item in apps)
 			{
 				if (!(item is Dictionary<string, object> d))
@@ -2015,9 +2008,9 @@ public class MainForm : Form
 				row.AppVersion = StrOf(d, "appVersion");
 				row.Error = StrOf(d, "error");
 				row.CompatMode = row.Mode == "compat";
-				if (d.TryGetValue("testedVersions", out object tv) && tv is ArrayList list)
+				if (d.TryGetValue("testedVersions", out object tv))
 				{
-					foreach (object v in list)
+					foreach (object v in AsList(tv))
 					{
 						row.TestedVersions.Add(Convert.ToString(v));
 					}
@@ -2030,6 +2023,20 @@ public class MainForm : Form
 		{
 		}
 		return rows;
+	}
+
+	// JavaScriptSerializer 把 JSON 数组交回来时可能是 ArrayList 也可能是 object[]，统一走 IEnumerable 取。
+	private static List<object> AsList(object o)
+	{
+		List<object> r = new List<object>();
+		if (o is System.Collections.IEnumerable e && !(o is string))
+		{
+			foreach (object x in e)
+			{
+				r.Add(x);
+			}
+		}
+		return r;
 	}
 
 	private static string StrOf(Dictionary<string, object> d, string k)
@@ -2914,16 +2921,170 @@ public class MainForm : Form
 		}
 	}
 
+	// U-2：保存后把当前应用的皮肤同步到「同步到…」勾选的全部目标（入口 sync --to 多目标扇出）。
+	// 每个目标独立成败、逐个在日志里报告；某个目标没成功不影响其他目标，也不用重存。
 	private async Task SyncOther()
 	{
-		if (syncToggle != null && syncToggle.Checked && cherryDir != null)
+		if (cherryDir == null)
 		{
-			string other = ((app == "zcode") ? "cherry" : "zcode");
-			ProcResult r = await RunProcess(ResolveNode(), Q(Path.Combine(cherryDir, "skin-cherry.mjs")) + " sync --from " + app + " --app " + other, 120000);
-			string outp = r.Output.Trim();
-			Log((outp.Length > 0) ? outp : ((r.ExitCode == 0) ? ("SUCCESS: 已同步到 " + ((other == "zcode") ? "ZCode" : "Cherry Studio") + "。") : "WARN: 同步到另一个应用没成功。"));
-			await RefreshStatus();
+			return;
 		}
+		List<string> installed = appRowsData.FindAll((AppRow r) => r.Installed).ConvertAll((AppRow r) => r.Id);
+		List<string> targets = SyncTargetsLogic.ResolveTargets(syncTargets, app, installed);
+		if (targets.Count == 0)
+		{
+			return;
+		}
+		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+		ProcResult r = await RunProcess(ResolveNode(), script + " sync --from " + app + " --to " + string.Join(",", targets), 300000);
+		ReportSyncResults(r.Output);
+		await RefreshStatus();
+	}
+
+	private void ReportSyncResults(string output)
+	{
+		Dictionary<string, object> sum = null;
+		foreach (string raw in (output ?? "").Split('\n'))
+		{
+			string line = raw.Trim();
+			if (line.Contains("\"syncMulti\""))
+			{
+				try
+				{
+					sum = JsonSer.DeserializeObject(line) as Dictionary<string, object>;
+				}
+				catch
+				{
+				}
+			}
+		}
+		if (sum == null || !sum.TryGetValue("results", out object ro))
+		{
+			Log("WARN: 多端同步没拿到逐项结果，原始输出如下：");
+			if (!string.IsNullOrWhiteSpace(output))
+			{
+				Log(output.Trim());
+			}
+			return;
+		}
+		List<object> results = AsList(ro);
+		foreach (object item in results)
+		{
+			if (!(item is Dictionary<string, object> d))
+			{
+				continue;
+			}
+			string id = StrOf(d, "app");
+			bool ok = BoolOf(d, "ok");
+			string msg = StrOf(d, "msg");
+			bool skipped = BoolOf(d, "skipped");
+			string name = id;
+			AppRow row = appRowsData.Find((AppRow x) => x.Id == id);
+			if (row != null && row.Name.Length > 0)
+			{
+				name = row.Name;
+			}
+			if (skipped)
+			{
+				continue;
+			}
+			Log(ok ? ("SUCCESS: 已同步到 " + name + "。") : ("WARN: 同步到 " + name + " 没成功：" + msg));
+		}
+	}
+
+	private void LoadSyncTargets()
+	{
+		try
+		{
+			string text = File.Exists(SyncTargetsFile) ? File.ReadAllText(SyncTargetsFile) : null;
+			syncTargets.Clear();
+			syncTargets.AddRange(SyncTargetsLogic.LoadSelection(text, File.Exists(SyncOffFile)));
+		}
+		catch
+		{
+		}
+	}
+
+	private void SaveSyncTargets()
+	{
+		try
+		{
+			Directory.CreateDirectory(dataRoot);
+			File.WriteAllText(SyncTargetsFile, SyncTargetsLogic.SaveSelection(syncTargets));
+			File.Delete(SyncOffFile);
+		}
+		catch
+		{
+		}
+	}
+
+	private void UpdateSyncButtonText()
+	{
+		if (syncMenuButton == null)
+		{
+			return;
+		}
+		List<string> installed = appRowsData.FindAll((AppRow r) => r.Installed).ConvertAll((AppRow r) => r.Id);
+		int n = SyncTargetsLogic.ResolveTargets(syncTargets, app, installed).Count;
+		syncMenuButton.Text = (n > 0) ? ("同步到…（" + n + " 个）") : "同步到…";
+		syncMenuButton.Invalidate();
+	}
+
+	private void OpenSyncMenu()
+	{
+		ContextMenuStrip menu = DarkMenu();
+		ToolStripMenuItem header = new ToolStripMenuItem("保存后同步到（可多选）：")
+		{
+			Enabled = false
+		};
+		menu.Items.Add(header);
+		List<AppRow> pool = appRowsData;
+		if (pool.Count == 0)
+		{
+			pool = new List<AppRow>
+			{
+				new AppRow { Id = "cherry", Name = "Cherry Studio", Installed = true },
+				new AppRow { Id = "zcode", Name = "ZCode", Installed = true }
+			};
+		}
+		int added = 0;
+		foreach (AppRow row in pool)
+		{
+			if (row.Id == app || !row.Installed)
+			{
+				continue;
+			}
+			AppRow captured = row;
+			ToolStripMenuItem item = new ToolStripMenuItem(row.Name)
+			{
+				CheckOnClick = true,
+				Checked = syncTargets.Contains(row.Id)
+			};
+			item.CheckedChanged += delegate
+			{
+				if (item.Checked && !syncTargets.Contains(captured.Id))
+				{
+					syncTargets.Add(captured.Id);
+				}
+				if (!item.Checked)
+				{
+					syncTargets.Remove(captured.Id);
+				}
+				SaveSyncTargets();
+				UpdateSyncButtonText();
+				Log(item.Checked ? ("同步目标已加上 " + captured.Name + "：以后保存皮肤会一并同步过去。") : ("同步目标已去掉 " + captured.Name + "。"));
+			};
+			menu.Items.Add(item);
+			added++;
+		}
+		if (added == 0)
+		{
+			menu.Items.Add(new ToolStripMenuItem("（暂无其他已安装应用）")
+			{
+				Enabled = false
+			});
+		}
+		menu.Show(syncMenuButton, new Point(0, syncMenuButton.Height));
 	}
 
 	private Task CancelPreview()
