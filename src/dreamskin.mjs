@@ -12,6 +12,7 @@
 //   node dreamskin.mjs launch     用上次的皮肤启动 Cherry（桌面快捷方式就调它）
 //   node dreamskin.mjs shortcut   在桌面创建「Cherry Studio (Dream Skin)」快捷方式
 //   node dreamskin.mjs status
+//   node dreamskin.mjs apps-status   全部已注册应用的状态（JSON，总控台应用列表与状态点用，U-1）
 //   我的皮肤（两端共用）：
 //   node dreamskin.mjs skin-save   --file state.json   （{name, preset|palette, values, image, overwrite}）
 //   node dreamskin.mjs skin-rename --id my-xxx --name 新名字
@@ -46,6 +47,7 @@ import { listProcesses, debugPortOf, findExe, freePort, portAlive, launchWithPor
 import { partChecksOf, partsProbeExpr, evaluateHealth, degradeLayers, wallpaperPartsCss, bumpScrim } from './core/health.mjs';
 import { writeCompatRecord, compatRecordOf } from './store/compat.mjs';
 import { conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMessage } from './core/conflicts.mjs';
+import { collectAppsStatus } from './core/apps-status.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -511,6 +513,14 @@ async function status() {
   return EXIT.OK;
 }
 
+// U-1：一次输出全部已注册应用的状态（总控台应用列表的数据来源，core/apps-status.mjs）。
+// 只读聚合：不启动、不关闭任何应用；单个应用查询失败只影响它自己那一行。
+async function appsStatus() {
+  const r = await collectAppsStatus();
+  process.stdout.write(JSON.stringify({ apps: r.apps, errors: r.errors }, null, 2) + '\n');
+  return EXIT.OK;
+}
+
 // 守护（事件驱动）：
 //  · 浏览器级 CDP 会话订阅 Target.targetCreated / targetInfoChanged / targetDestroyed → 新开或换页的主窗口立刻补皮肤；
 //  · 每个主窗口注册 addScriptToEvaluateOnNewDocument（刷新时文档一建好就带皮肤），
@@ -699,7 +709,7 @@ async function check() {
 }
 
 const o = parseArgs(process.argv.slice(2));
-const run = { apply, sync, check, restore, status, watch, launch, live, presets: async () => presets(o), schema: async () => schema(), shortcut: async () => shortcut(),
+const run = { apply, sync, check, restore, status, 'apps-status': appsStatus, watch, launch, live, presets: async () => presets(o), schema: async () => schema(), shortcut: async () => shortcut(),
   'skin-save': skinSave, 'skin-rename': skinRename, 'skin-delete': skinDelete, 'skin-export': skinExport, 'skin-import': skinImport,
   'gallery-list': galleryList, 'gallery-get': galleryGet, 'gallery-remove': galleryRemove }[o.cmd];
 if (!run) { say('FAILED', '未知命令：' + o.cmd + '（可用 apply / launch / restore / shortcut / status / presets / schema / live / skin-*）'); process.exit(EXIT.FAILED); }

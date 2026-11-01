@@ -32,7 +32,7 @@ internal static class HeadlessCommands
 {
 	public static bool IsHeadlessCommand(string arg)
 	{
-		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node";
+		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node" || arg == "--selfcheck-u1";
 	}
 
 	public static int Run(string[] args)
@@ -47,6 +47,10 @@ internal static class HeadlessCommands
 			{
 				return RunActivate(args);
 			}
+			if (args[0] == "--selfcheck-u1")
+			{
+				return RunSelfcheckU1();
+			}
 			return RunWhichNode();
 		}
 		catch (Exception ex)
@@ -54,6 +58,60 @@ internal static class HeadlessCommands
 			Error("ERROR: " + ex.Message);
 			return 1;
 		}
+	}
+
+	// U-1 自检：状态点判定表 / 排序 / 折叠 / 颜色与文案，与 Node 侧 u-1 单测同一组用例。
+	// 只跑纯逻辑，不读真实应用状态。全部通过退出码 0，否则 1。
+	private static int RunSelfcheckU1()
+	{
+		int pass = 0;
+		int fail = 0;
+		System.Action<string, bool> check = delegate(string name, bool ok)
+		{
+			if (ok)
+			{
+				pass++;
+				Out.WriteLine("PASS: " + name);
+			}
+			else
+			{
+				fail++;
+				Out.WriteLine("FAIL: " + name);
+			}
+		};
+		check("Decide 未装", AppStatusLogic.Decide(false, false, false, false) == AppDotState.NotInstalled);
+		check("Decide 没装时兼容记录不作数", AppStatusLogic.Decide(false, false, true, true) == AppDotState.NotInstalled);
+		check("Decide 未运行", AppStatusLogic.Decide(true, false, false, false) == AppDotState.NotRunning);
+		check("Decide 运行中", AppStatusLogic.Decide(true, true, false, false) == AppDotState.Running);
+		check("Decide 皮肤生效", AppStatusLogic.Decide(true, false, true, false) == AppDotState.SkinActive);
+		check("Decide 皮肤生效优先于运行中", AppStatusLogic.Decide(true, true, true, false) == AppDotState.SkinActive);
+		check("Decide 兼容模式（运行中）", AppStatusLogic.Decide(true, true, false, true) == AppDotState.Compat);
+		check("Decide 兼容模式（皮肤生效）", AppStatusLogic.Decide(true, false, true, true) == AppDotState.Compat);
+		check("Decide 没跑没皮肤时兼容记录不点亮", AppStatusLogic.Decide(true, false, false, true) == AppDotState.NotRunning);
+		List<AppRow> rows = new List<AppRow>
+		{
+			new AppRow { Id = "a" },
+			new AppRow { Id = "b", Installed = true },
+			new AppRow { Id = "c" },
+			new AppRow { Id = "d", Installed = true }
+		};
+		List<AppRow> sorted = AppStatusLogic.SortForList(rows);
+		check("SortForList 已装优先且稳定", sorted[0].Id == "b" && sorted[1].Id == "d" && sorted[2].Id == "a" && sorted[3].Id == "c");
+		check("IsFolded 未装折叠", AppStatusLogic.IsFolded(new AppRow()) && !AppStatusLogic.IsFolded(new AppRow { Installed = true }));
+		HashSet<int> colors = new HashSet<int>();
+		bool texts = true;
+		foreach (AppDotState s in System.Enum.GetValues(typeof(AppDotState)))
+		{
+			colors.Add(AppStatusLogic.DotColor(s).ToArgb());
+			if (string.IsNullOrEmpty(AppStatusLogic.StateText(s)))
+			{
+				texts = false;
+			}
+		}
+		check("DotColor 六态互不相同", colors.Count == 6);
+		check("StateText 六态都有文案", texts);
+		Out.WriteLine("SELFCHECK-U1: " + pass + "/" + (pass + fail) + " PASS");
+		return (fail == 0) ? 0 : 1;
 	}
 
 	// ---------- 控制台输出（WinExe 适配） ----------

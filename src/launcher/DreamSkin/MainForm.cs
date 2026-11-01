@@ -112,7 +112,19 @@ public class MainForm : Form
 
 	private Panel pageEnv;
 
-	private readonly List<FlatButton> navButtons = new List<FlatButton>();
+	private readonly List<Panel> appNavRows = new List<Panel>();
+
+	private readonly List<AppRow> appRowsData = new List<AppRow>();
+
+	private bool appListExpanded;
+
+	private FlatButton envNavButton;
+
+	private int currentPage;
+
+	private DateTime lastAppListAt = DateTime.MinValue;
+
+	private bool appListBusy;
 
 	private RichTextBox log;
 
@@ -445,23 +457,10 @@ public class MainForm : Form
 		Label value2 = label2;
 		navPanel.Controls.Add(value);
 		navPanel.Controls.Add(value2);
-		string[] array = new string[3] { "Cherry Studio", "ZCode", "环境与日志" };
-		for (int i = 0; i < array.Length; i++)
-		{
-			int idx = i;
-			FlatButton flatButton = new FlatButton(array[i], Theme.Nav, Theme.Text);
-			flatButton.Width = 178;
-			flatButton.Height = 42;
-			flatButton.Location = new Point(16, 100 + i * 50);
-			FlatButton flatButton2 = flatButton;
-			flatButton2.Tag = "nav";
-			flatButton2.Click += delegate
-			{
-				ShowPage(idx);
-			};
-			navButtons.Add(flatButton2);
-			navPanel.Controls.Add(flatButton2);
-		}
+		// U-1（§4.6）：顶部应用切换改为适配器驱动的应用列表（状态点 + 名称，
+		// 未安装的折叠到「更多应用」），数据来自 Node 的 apps-status 命令；
+		// 列表在 RefreshAppList 拿到真实数据后重建，这里先用兜底行占位。
+		BuildAppNav(new List<AppRow>());
 		lblNode = StatusLabel(navPanel, 560);
 		lblCherryState = StatusLabel(navPanel, 588);
 		lblZCodeState = StatusLabel(navPanel, 616);
@@ -566,19 +565,14 @@ public class MainForm : Form
 
 	private void ShowPage(int i)
 	{
+		currentPage = i;
 		pageCherry.Visible = i == 0 || i == 1;
 		pageEnv.Visible = i == 2;
 		if (i == 0 || i == 1)
 		{
 			SwitchApp((i == 1) ? "zcode" : "cherry");
 		}
-		for (int j = 0; j < navButtons.Count; j++)
-		{
-			navButtons[j].Fill = ((j == i) ? Theme.CardHover : Theme.Nav);
-			navButtons[j].Fore = ((j == i) ? Theme.Gold : Theme.Text);
-			navButtons[j].Border = navButtons[j].Fill;
-			navButtons[j].Invalidate();
-		}
+		HighlightNav();
 	}
 
 	private Label Heading(Control parent, string title, string sub)
@@ -1782,6 +1776,272 @@ public class MainForm : Form
 		return m.Success ? int.Parse(m.Groups[1].Value) : 0;
 	}
 
+	// ---------- U-1：适配器驱动的应用列表（§4.6） ----------
+
+	private void BuildAppNav(List<AppRow> rows)
+	{
+		foreach (Panel p in appNavRows)
+		{
+			navPanel.Controls.Remove(p);
+			p.Dispose();
+		}
+		appNavRows.Clear();
+		if (envNavButton != null)
+		{
+			navPanel.Controls.Remove(envNavButton);
+			envNavButton.Dispose();
+			envNavButton = null;
+		}
+		List<AppRow> sorted = AppStatusLogic.SortForList(rows);
+		if (sorted.Count == 0)
+		{
+			// 还没拿到 apps-status 数据时的兜底行（状态未知，不冒充已安装检测结果）。
+			sorted = new List<AppRow>
+			{
+				new AppRow { Id = "cherry", Name = "Cherry Studio", Installed = true },
+				new AppRow { Id = "zcode", Name = "ZCode", Installed = true }
+			};
+		}
+		int y = 100;
+		int hidden = 0;
+		foreach (AppRow row in sorted)
+		{
+			if (AppStatusLogic.IsFolded(row))
+			{
+				hidden++;
+				if (!appListExpanded)
+				{
+					continue;
+				}
+			}
+			Panel p = MakeAppNavRow(row, y);
+			appNavRows.Add(p);
+			navPanel.Controls.Add(p);
+			y += 50;
+		}
+		if (hidden > 0)
+		{
+			Panel more = new Panel
+			{
+				Location = new Point(16, y),
+				Size = new Size(178, 42),
+				BackColor = Theme.Nav,
+				Cursor = Cursors.Hand,
+				Tag = "__more"
+			};
+			Label l = new Label
+			{
+				Text = (appListExpanded ? "收起未安装的应用" : ("更多应用（" + hidden + " 个未安装）")),
+				ForeColor = Theme.Muted,
+				Font = Theme.F(9f),
+				Location = new Point(34, 13),
+				AutoSize = true
+			};
+			more.Controls.Add(l);
+			EventHandler h = delegate
+			{
+				appListExpanded = !appListExpanded;
+				BuildAppNav(appRowsData);
+			};
+			more.Click += h;
+			l.Click += h;
+			appNavRows.Add(more);
+			navPanel.Controls.Add(more);
+			y += 50;
+		}
+		envNavButton = new FlatButton("环境与日志", Theme.Nav, Theme.Text)
+		{
+			Width = 178,
+			Height = 42,
+			Location = new Point(16, y)
+		};
+		envNavButton.Tag = "nav";
+		envNavButton.Click += delegate
+		{
+			ShowPage(2);
+		};
+		navPanel.Controls.Add(envNavButton);
+		HighlightNav();
+	}
+
+	private Panel MakeAppNavRow(AppRow row, int y)
+	{
+		Panel p = new Panel
+		{
+			Location = new Point(16, y),
+			Size = new Size(178, 42),
+			BackColor = Theme.Nav,
+			Cursor = Cursors.Hand,
+			Tag = row.Id
+		};
+		Label dot = new Label
+		{
+			Text = "●",
+			ForeColor = AppStatusLogic.DotColor(row.State),
+			Font = Theme.F(11f),
+			Location = new Point(8, 10),
+			Size = new Size(22, 22)
+		};
+		Label name = new Label
+		{
+			Text = row.Name,
+			ForeColor = Theme.Text,
+			Font = Theme.F(9.5f, FontStyle.Bold),
+			Location = new Point(34, 4),
+			Size = new Size(140, 18)
+		};
+		Label state = new Label
+		{
+			Text = AppStatusLogic.StateText(row.State),
+			ForeColor = Theme.Muted,
+			Font = Theme.F(8f),
+			Location = new Point(34, 23),
+			Size = new Size(140, 16)
+		};
+		p.Controls.Add(dot);
+		p.Controls.Add(name);
+		p.Controls.Add(state);
+		EventHandler h = delegate
+		{
+			SelectAppRow(row);
+		};
+		p.Click += h;
+		dot.Click += h;
+		name.Click += h;
+		state.Click += h;
+		return p;
+	}
+
+	private void SelectAppRow(AppRow row)
+	{
+		if (row.Id == "cherry")
+		{
+			ShowPage(0);
+			return;
+		}
+		if (row.Id == "zcode")
+		{
+			ShowPage(1);
+			return;
+		}
+		// 其余适配器先进环境页（兼容矩阵在那里）；编辑页仍只有 Cherry / ZCode 两端，日志里如实说明。
+		ShowPage(2);
+		Log("应用状态：" + row.Name + " —— " + AppStatusLogic.StateText(row.State) + ((row.AppVersion.Length > 0) ? ("，当前版本 " + row.AppVersion) : "") + "。它的换肤编辑页尚未接入总控台，先在下方「兼容矩阵」看体检结果。");
+	}
+
+	private void HighlightNav()
+	{
+		string sel = ((currentPage == 0) ? "cherry" : ((currentPage == 1) ? "zcode" : ""));
+		foreach (Panel p in appNavRows)
+		{
+			string id = p.Tag as string;
+			bool on = id != null && id == sel;
+			p.BackColor = (on ? Theme.CardHover : Theme.Nav);
+			foreach (Control c in p.Controls)
+			{
+				Label l = c as Label;
+				if (l != null && l.Font.Bold)
+				{
+					l.ForeColor = (on ? Theme.Gold : Theme.Text);
+				}
+			}
+		}
+		if (envNavButton != null)
+		{
+			envNavButton.Fill = ((currentPage == 2) ? Theme.CardHover : Theme.Nav);
+			envNavButton.Fore = ((currentPage == 2) ? Theme.Gold : Theme.Text);
+			envNavButton.Border = envNavButton.Fill;
+			envNavButton.Invalidate();
+		}
+	}
+
+	private async Task RefreshAppList(bool force = false)
+	{
+		if (cherryDir == null || appListBusy)
+		{
+			return;
+		}
+		if (!force && (DateTime.Now - lastAppListAt).TotalSeconds < 30)
+		{
+			return;
+		}
+		appListBusy = true;
+		try
+		{
+			string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+			ProcResult r = await RunProcess(ResolveNode(), script + " apps-status", 90000);
+			List<AppRow> rows = ParseAppRows(r.Output);
+			if (rows.Count > 0)
+			{
+				appRowsData.Clear();
+				appRowsData.AddRange(rows);
+				lastAppListAt = DateTime.Now;
+				BuildAppNav(rows);
+			}
+		}
+		catch
+		{
+		}
+		finally
+		{
+			appListBusy = false;
+		}
+	}
+
+	private static List<AppRow> ParseAppRows(string json)
+	{
+		List<AppRow> rows = new List<AppRow>();
+		try
+		{
+			Dictionary<string, object> root = JsonSer.DeserializeObject(json) as Dictionary<string, object>;
+			if (root == null || !root.TryGetValue("apps", out object appsObj) || !(appsObj is ArrayList apps))
+			{
+				return rows;
+			}
+			foreach (object item in apps)
+			{
+				if (!(item is Dictionary<string, object> d))
+				{
+					continue;
+				}
+				AppRow row = new AppRow();
+				row.Id = StrOf(d, "id");
+				row.Name = StrOf(d, "name");
+				row.Channel = StrOf(d, "channel");
+				row.Installed = BoolOf(d, "installed");
+				row.Running = BoolOf(d, "running");
+				row.SkinActive = BoolOf(d, "skinActive");
+				row.Mode = StrOf(d, "mode");
+				row.AppVersion = StrOf(d, "appVersion");
+				row.Error = StrOf(d, "error");
+				row.CompatMode = row.Mode == "compat";
+				if (d.TryGetValue("testedVersions", out object tv) && tv is ArrayList list)
+				{
+					foreach (object v in list)
+					{
+						row.TestedVersions.Add(Convert.ToString(v));
+					}
+				}
+				row.State = ((row.Error.Length > 0) ? AppDotState.Unknown : AppStatusLogic.Decide(row.Installed, row.Running, row.SkinActive, row.CompatMode));
+				rows.Add(row);
+			}
+		}
+		catch
+		{
+		}
+		return rows;
+	}
+
+	private static string StrOf(Dictionary<string, object> d, string k)
+	{
+		return (d.TryGetValue(k, out object v) && v != null) ? Convert.ToString(v) : "";
+	}
+
+	private static bool BoolOf(Dictionary<string, object> d, string k)
+	{
+		return d.TryGetValue(k, out object v) && v is bool b && b;
+	}
+
 	private async Task RefreshStatus()
 	{
 		int major = await NodeMajor();
@@ -1797,6 +2057,7 @@ public class MainForm : Form
 			Task<ProcResult> tz = RunProcess(ResolveNode(), script + " status --app zcode", 30000);
 			cherrySkinActive = ShowStatus(await tc, lblCherryState, "Cherry");
 			zcodeSkinActive = ShowStatus(await tz, lblZCodeState, "ZCode");
+			await RefreshAppList();
 		}
 	}
 
