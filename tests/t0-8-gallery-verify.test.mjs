@@ -14,7 +14,7 @@ process.env.DREAMSKIN_DATA_DIR = join(tmpBase, 'cherry');
 let gallery;
 before(async () => {
   rmSync(tmpBase, { recursive: true, force: true });
-  gallery = await import('../src/cherry/lib/gallery.mjs');
+  gallery = await import('../src/store/gallery.mjs');
 });
 
 const sha = (buf) => createHash('sha256').update(buf).digest('hex');

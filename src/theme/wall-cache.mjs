@@ -3,7 +3,7 @@
 import { existsSync, mkdirSync, statSync, writeFileSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
-import { dataDir } from './cherry-env.mjs';
+import { dataDir } from '../core/env.mjs';
 import { imageDataUri, MAX_IMAGE_BYTES_CDP } from './cherry-skin-css.mjs';
 
 export const SLIM_THRESHOLD = 700 * 1024; // 小于这个直接用原图

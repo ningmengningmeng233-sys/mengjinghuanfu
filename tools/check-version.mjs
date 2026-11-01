@@ -1,10 +1,10 @@
-// T0-3 构建校验：版本号以 src/cherry/lib/version.mjs 为单一来源。
+// T0-3 构建校验：版本号以 src/core/version.mjs 为单一来源。
 // 检查：① 主题库 UA 不许再写死版本；② status 输出带 version；③ 规则段用 ${VERSION} 生成；
 // ④ 若总控台源码（src/launcher/，由反编译重建）已存在，其 AssemblyVersion / FileVersion 必须与 VERSION 一致，否则构建失败。
 // 用法：node tools/check-version.mjs（在源码/ 目录运行）。全部通过退出码 0，否则 1。
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { VERSION, USER_AGENT } from '../src/cherry/lib/version.mjs';
+import { VERSION, USER_AGENT } from '../src/core/version.mjs';
 
 let fail = 0;
 const ok = (m) => console.log('PASS: ' + m);
@@ -14,14 +14,14 @@ const read = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 if (!/^\d+\.\d+\.\d+$/.test(VERSION)) bad('VERSION 不是 x.y.z 形式：' + VERSION); else ok('VERSION = ' + VERSION);
 if (!USER_AGENT.includes(VERSION)) bad('USER_AGENT 没带 VERSION'); else ok('USER_AGENT = ' + USER_AGENT);
 
-const gallery = read('src/cherry/lib/gallery.mjs');
+const gallery = read('src/store/gallery.mjs');
 if (/DreamSkin-\d/.test(gallery)) bad('gallery.mjs 里还有写死的 DreamSkin-<版本>'); else ok('gallery.mjs 无写死版本');
 if (!gallery.includes('USER_AGENT')) bad('gallery.mjs 没用 USER_AGENT'); else ok('gallery.mjs 使用 USER_AGENT');
 
-const main = read('src/cherry/skin-cherry.mjs');
-if (!main.includes('version: VERSION')) bad('skin-cherry.mjs 的 status 输出没带 version'); else ok('status 输出带 version（日志头口径）');
+const main = read('src/dreamskin.mjs');
+if (!main.includes('version: VERSION')) bad('dreamskin.mjs 的 status 输出没带 version'); else ok('status 输出带 version（日志头口径）');
 
-for (const f of ['src/cherry/lib/cherry-skin-css.mjs', 'src/cherry/lib/zcode-skin-css.mjs']) {
+for (const f of ['src/theme/cherry-skin-css.mjs', 'src/theme/zcode-skin-css.mjs']) {
   const t = read(f);
   if (!t.includes('Dream Skin ${VERSION}')) bad(f + ' 规则段没用 ${VERSION}'); else ok(f + ' 规则段版本来自 version.mjs');
 }

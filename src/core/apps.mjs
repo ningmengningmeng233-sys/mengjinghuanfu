@@ -1,9 +1,9 @@
 // 支持换肤的应用。一个 profile 讲清楚：怎么找到它、哪个窗口是主窗口、主界面画好的标志、用哪段规则 CSS。
 // 配色（palettes.mjs）、参数（SETTINGS）、变量段（buildVarsCss）、我的皮肤（user-skins.mjs）两端完全共用。
 import { join } from 'node:path';
-import { isCherryMainTarget, validatedDebuggerUrl } from '../cdp/cdp-core.mjs';
-import { RULES as CHERRY_RULES } from './cherry-skin-css.mjs';
-import { ZCODE_RULES } from './zcode-skin-css.mjs';
+import { isCherryMainTarget, validatedDebuggerUrl } from './cdp-core.mjs';
+import { RULES as CHERRY_RULES } from '../theme/cherry-skin-css.mjs';
+import { ZCODE_RULES } from '../theme/zcode-skin-css.mjs';
 
 import { homedir } from 'node:os';
 

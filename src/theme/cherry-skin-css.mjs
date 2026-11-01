@@ -23,7 +23,7 @@
 //   输入框       #inputbar[data-ui="chat.composer"]
 import { readFileSync, statSync } from 'node:fs';
 import { extname } from 'node:path';
-import { VERSION } from './version.mjs';
+import { VERSION } from '../core/version.mjs';
 
 // 精选预设：少而精。配色取自口碑最好的几套开源主题（Catppuccin、Rosé Pine、Tokyo Night、Nord、Kanagawa、
 // Everforest、Gruvbox Material、Dracula、Ayu、Oxocarbon，均 MIT），按 Theme Station 的做法做了莫兰迪式降饱和，
@@ -115,7 +115,7 @@ export function defaultValues(palette) {
   return v;
 }
 
-// 壁纸大小上限：CDP 通道（skin-cherry.mjs）走 WebSocket 直接注入 <style>，可以用原图（大图先由 wall-cache 瘦身）。
+// 壁纸大小上限：CDP 通道（dreamskin.mjs）走 WebSocket 直接注入 <style>，可以用原图（大图先由 wall-cache 瘦身）。
 export const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024;
 export const MAX_IMAGE_BYTES_CDP = 25 * 1024 * 1024;
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };

@@ -1,5 +1,5 @@
 // 梦境换肤 · 浏览器控制台（macOS 版的界面；Windows 也能用）。
-// 只监听 127.0.0.1 的随机端口，带一次性令牌；所有动作都转给 skin-cherry.mjs 命令行，和 Windows 总控台走同一套逻辑。
+// 只监听 127.0.0.1 的随机端口，带一次性令牌；所有动作都转给 dreamskin.mjs 命令行，和 Windows 总控台走同一套逻辑。
 //   node panel.mjs [--no-open]
 // 页面关掉约 2 分钟后自动退出。
 import { createServer } from 'node:http';
@@ -8,17 +8,17 @@ import { randomBytes, createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, createReadStream } from 'node:fs';
 import { join, resolve, extname, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { rootDir } from './lib/cherry-env.mjs';
+import { rootDir } from './core/env.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const SCRIPT = join(HERE, 'skin-cherry.mjs');
+const SCRIPT = join(HERE, 'dreamskin.mjs');
 const TOKEN = randomBytes(16).toString('hex');
 const ROOT = resolve(rootDir());
 const UPLOADS = join(ROOT, 'uploads');
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 const STYLES = ['全部', '二次元', '真人', '风景', '城市', '国风', '游戏影视', '科幻', '极简', '萌趣', '其他'];
 
-// 跑一条 skin-cherry.mjs 命令。apply 会拉起常驻 watch 子进程，所以等 exit 而不是 close。
+// 跑一条 dreamskin.mjs 命令。apply 会拉起常驻 watch 子进程，所以等 exit 而不是 close。
 function run(args, timeout = 150000) {
   return new Promise((done) => {
     const child = spawn(process.execPath, [SCRIPT, ...args], { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });

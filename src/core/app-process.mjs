@@ -1,7 +1,7 @@
 // 找到 / 关闭 / 带调试端口启动一个 Electron 应用（Cherry Studio、ZCode 共用）。
 // 思路取自 Fei-Away/Codex-Dream-Skin 的 Windows 启动流程：
 // 正常关闭 → 随机空闲端口 → --remote-debugging-port 启动 → 轮询 /json/list 等主窗口。
-// 应用差异全部放在 profile（lib/apps.mjs）里：exe 名、安装位置、主进程判定、主窗口判定。
+// 应用差异全部放在 profile（core/apps.mjs）里：exe 名、安装位置、主进程判定、主窗口判定。
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';

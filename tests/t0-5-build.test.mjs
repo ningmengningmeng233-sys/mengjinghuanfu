@@ -19,6 +19,7 @@ test('Windows 包无 panel.mjs 且无入口引用它', () => {
     assert.ok(!existsSync(join(root, out, 'panel.mjs')));
     assert.ok(!m.files.some((f) => f.path === 'panel.mjs'));
     assert.ok(m.files.some((f) => f.path === 'skin-cherry.mjs'));
+    assert.ok(m.files.some((f) => f.path === 'dreamskin.mjs'));
     const main = readFileSync(join(root, out, 'skin-cherry.mjs'), 'utf8');
     assert.ok(!main.includes('panel.mjs'));
   } finally { rmSync(join(root, out), { recursive: true, force: true }); }

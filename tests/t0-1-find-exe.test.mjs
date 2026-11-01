@@ -2,8 +2,8 @@
 // 注册表与文件存在性都用 deps 注入模拟，不碰真机注册表。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { findExe, exeFromInstallLocation } from '../src/cherry/cdp/app-process.mjs';
-import { APPS } from '../src/cherry/lib/apps.mjs';
+import { findExe, exeFromInstallLocation } from '../src/core/app-process.mjs';
+import { APPS } from '../src/core/apps.mjs';
 
 const sep = '\\';
 const customDir = ['X:', 'CustomApps', 'ZCode'].join(sep); // 测试夹具路径，拼出来避免出现真实盘符字面量

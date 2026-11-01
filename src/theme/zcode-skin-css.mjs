@@ -4,7 +4,7 @@
 // 全部取自 docs/zcode-dom-map.md 的实测 SAFE / CAUTION 清单；
 // DO NOT TOUCH 清单（富文本编辑器本体、滚动容器、分栏容器、svg/img、monaco、xterm、iframe/canvas/webview）一概不写。
 // 作用域：只在有 [data-workspace-shell] 的主窗口生效。
-import { VERSION } from './version.mjs';
+import { VERSION } from '../core/version.mjs';
 
 const W = 'html:has([data-workspace-shell])';
 const B = 'body:has([data-workspace-shell])';

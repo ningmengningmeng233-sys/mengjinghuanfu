@@ -8,8 +8,8 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, statSync, copyFileSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { basename, extname, join, resolve } from 'node:path';
-import { rootDir } from './cherry-env.mjs';
-import { normalizePalette, SETTINGS, MAX_IMAGE_BYTES_CDP } from './cherry-skin-css.mjs';
+import { rootDir } from '../core/env.mjs';
+import { normalizePalette, SETTINGS, MAX_IMAGE_BYTES_CDP } from '../theme/cherry-skin-css.mjs';
 
 export const SCHEMA = 'dream-skin-user-skin/1';
 const SHARE_SCHEMA = 'dream-skin-share/1';

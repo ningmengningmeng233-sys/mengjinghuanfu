@@ -4,7 +4,7 @@
 不改应用官方文件，可一键还原。配色、参数、我的皮肤和 dreamskin.cc 主题库跨应用共用。
 
 当前状态：2.1.0 修正版（3.0 多应用适配开发中，进度见上级目录的 `工单状态.md`）。
-版本号以 `src/cherry/lib/version.mjs` 为单一来源，发布时只改这一处。
+版本号以 `src/core/version.mjs` 为单一来源，发布时只改这一处。
 
 ## 构建（Windows payload）
 

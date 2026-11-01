@@ -1,4 +1,4 @@
-// 构建 payload：把 src/cherry 打成某个平台的分发目录，并生成 payload-manifest.json（文件清单 + 哈希）。
+// 构建 payload：把 src/ 打成某个平台的分发目录，并生成 payload-manifest.json（文件清单 + 哈希）。
 // T0-5：按平台筛选文件——panel.mjs 是 macOS 浏览器版控制台，只进 darwin 包，Windows 包不带、也没有任何入口引用它。
 // T0-6：Windows 包可把便携 Node 运行时打进 runtime/node.exe（见 fetch-node-runtime.ps1 下载到本地缓存）；
 //        --skip-runtime 只供开发/测试，正式构建不要用。
@@ -8,18 +8,18 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { VERSION } from '../src/cherry/lib/version.mjs';
+import { VERSION } from '../src/core/version.mjs';
 
 const args = process.argv.slice(2);
 const argAt = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : undefined; };
 const platform = argAt('--platform') || 'win32';
 if (!['win32', 'darwin'].includes(platform)) { console.error('未知平台: ' + platform); process.exit(1); }
 const root = fileURLToPath(new URL('..', import.meta.url));
-const srcDir = join(root, 'src', 'cherry');
+const srcDir = join(root, 'src');
 const outDir = join(root, argAt('--out') || ('build/payload-' + (platform === 'win32' ? 'win' : 'mac')));
 const skipRuntime = args.includes('--skip-runtime');
 
-// 平台筛选规则（相对 src/cherry 的路径，正斜杠）。
+// 平台筛选规则（相对 src/ 的路径，正斜杠）。
 const EXCLUDE = {
   win32: new Set(['panel.mjs']),
   darwin: new Set([]),

@@ -14,8 +14,8 @@ import { existsSync, rmSync, mkdirSync, readFileSync, readdirSync, writeFileSync
 import { createHash } from 'node:crypto';
 import { inflateRawSync } from 'node:zlib';
 import { join } from 'node:path';
-import { rootDir } from './cherry-env.mjs';
-import { USER_AGENT } from './version.mjs';
+import { rootDir } from '../core/env.mjs';
+import { USER_AGENT } from '../core/version.mjs';
 
 const API = 'https://api.dreamskin.cc/v1/themes';
 export const SITE = 'https://dreamskin.cc/themes/';
@@ -123,7 +123,7 @@ export const STYLES = ['二次元', '真人', '风景', '城市', '国风', '游
 let styleMap = null;
 function styleTable() {
   if (styleMap) return styleMap;
-  try { styleMap = JSON.parse(readFileSync(new URL('./data/gallery-styles.json', import.meta.url), 'utf8')); } catch { styleMap = {}; }
+  try { styleMap = JSON.parse(readFileSync(new URL('../theme/data/gallery-styles.json', import.meta.url), 'utf8')); } catch { styleMap = {}; }
   return styleMap;
 }
 const KEYWORDS = [

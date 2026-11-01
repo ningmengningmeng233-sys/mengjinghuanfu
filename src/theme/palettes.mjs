@@ -4,9 +4,9 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CHERRY_PRESETS, PRESET_ALIASES, normalizePalette } from './cherry-skin-css.mjs';
-import { rootDir } from './cherry-env.mjs';
-import { listSkins } from './user-skins.mjs';
-import { listDownloaded } from './gallery.mjs';
+import { rootDir } from '../core/env.mjs';
+import { listSkins } from '../store/user-skins.mjs';
+import { listDownloaded } from '../store/gallery.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const WP_FILE = () => join(rootDir(), 'wallpaper-palettes.json'); // 两端共用
@@ -45,7 +45,7 @@ export function resolvePalette(key) {
   if (key && typeof key === 'object') return normalizePalette(key);
   key = PRESET_ALIASES[key] || key;
   const hit = listPalettes({ all: true }).find((p) => p.key === key);
-  if (!hit) throw new Error('未知配色：' + key + '（运行 skin-cherry.mjs presets 查看全部）');
+  if (!hit) throw new Error('未知配色：' + key + '（运行 dreamskin.mjs presets 查看全部）');
   return { ...normalizePalette(hit), key: hit.key };
 }
 
