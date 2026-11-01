@@ -9,10 +9,9 @@ import { listSkins } from './user-skins.mjs';
 import { listDownloaded } from './gallery.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
-export const WALL_DIR = join(here, '..', 'assets', 'wallpapers');
 const WP_FILE = () => join(rootDir(), 'wallpaper-palettes.json'); // 两端共用
 
-export const GROUPS = { mine: '我的皮肤', anime: '二次元', builtin: '精选', base16: 'base16 配色库', wallpaper: '壁纸取色', gallery: '主题库' };
+export const GROUPS = { mine: '我的皮肤', builtin: '精选', base16: 'base16 配色库', wallpaper: '壁纸取色', gallery: '主题库' };
 
 let base16Cache = null;
 function base16() {
@@ -24,10 +23,9 @@ function base16() {
 }
 
 function builtin() {
-  // 带 wallpaper 的是「二次元」组：自带壁纸，选中即连壁纸一起换。
-  return Object.entries(CHERRY_PRESETS).map(([key, p]) => (p.wallpaper
-    ? { key, group: 'anime', ...p, image: join(WALL_DIR, p.wallpaper) }
-    : { key, group: 'builtin', ...p })).sort((a, b) => (a.group === 'anime' ? 0 : 1) - (b.group === 'anime' ? 0 : 1)); // 二次元排最前
+  // T0-4：原「二次元自带壁纸」分组已删除——预设里没有任何一套带 wallpaper 字段、包里也没有自带壁纸资源，
+  // 该分组永远为空，是死代码。自带壁纸只剩主题库下载的主题（见 bundledImage）。
+  return Object.entries(CHERRY_PRESETS).map(([key, p]) => ({ key, group: 'builtin', ...p }));
 }
 
 export function savedWallpaperPalettes() {
@@ -72,11 +70,10 @@ export async function wallpaperPalettes(session, imageUri, imagePath = '') {
   return palettes;
 }
 
-// 自带壁纸的主题（主题库下载的、或带 wallpaper 的预设）：没另给壁纸时用它自己的。
+// 自带壁纸的主题（仅指主题库下载的主题）：没另给壁纸时用它自己的。
 export function bundledImage(key) {
   if (!key || typeof key !== 'string') return '';
   key = PRESET_ALIASES[key] || key;
   if (key.startsWith('ds-')) { try { const hit = listDownloaded().find((p) => p.key === key); return hit ? hit.image : ''; } catch { return ''; } }
-  const pp = CHERRY_PRESETS[key];
-  return pp && pp.wallpaper ? join(WALL_DIR, pp.wallpaper) : '';
+  return '';
 }

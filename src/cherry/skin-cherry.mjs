@@ -30,7 +30,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { dataDir } from './lib/cherry-env.mjs';
 import { SETTINGS, buildVarsCss, defaultValues, imageDataUri, MAX_IMAGE_BYTES_CDP, CHERRY_PRESETS, PRESET_ALIASES } from './lib/cherry-skin-css.mjs';
-import { listPalettes, resolvePalette, wallpaperPalettes, bundledImage, GROUPS, WALL_DIR } from './lib/palettes.mjs';
+import { listPalettes, resolvePalette, wallpaperPalettes, bundledImage, GROUPS } from './lib/palettes.mjs';
 import { saveSkin, renameSkin, deleteSkin, exportSkin, importSkin, getSkin } from './lib/user-skins.mjs';
 import { appById } from './lib/apps.mjs';
 import { VERSION } from './lib/version.mjs';
@@ -276,7 +276,6 @@ function presets(o) {
     desc: p.desc || '', from: p.from || p.author || '', accentText: p.accentText || '',
     tune: p.tune || {},
     ...(p.group === 'mine' ? { values: p.values || {}, image: p.image || '' } : {}),
-    ...(p.group === 'anime' ? { image: p.image || '' } : {}),
     ...(p.group === 'gallery' ? galleryFields(p) : {}) }));
   process.stdout.write(JSON.stringify({ count: list.length, palettes: list }) + '\n');
   return EXIT.OK;
