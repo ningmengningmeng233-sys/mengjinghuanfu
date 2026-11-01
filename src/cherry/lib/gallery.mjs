@@ -255,22 +255,45 @@ export function listDownloaded() {
   return out;
 }
 
-// 下载一套主题（已下载就直接用本地的）。meta 可由列表带进来，省一次请求；没有就只信主题包自己的 theme.json。
-export async function fetchTheme(id, meta = {}) {
+// 主题包校验（T0-8 收紧，方案 §4.8）：manifest 必须存在且能解析、必须登记每个文件的 sha256；
+// 包里每个文件（manifest.json 自身除外）都必须被登记；登记的文件必须都在包里且哈希一致。
+// 任一条不满足就抛错拒绝，且校验发生在任何落盘之前（见 importThemePackage 的顺序）。
+export function verifyPackage(files) {
+  const raw = files['manifest.json'];
+  if (!raw) throw new Error('主题包缺少 manifest.json，已拒绝导入');
+  let manifest;
+  try { manifest = JSON.parse(raw.toString('utf8')); } catch { throw new Error('主题包 manifest.json 无法解析，已拒绝导入'); }
+  const entries = manifest && Array.isArray(manifest.files) ? manifest.files : null;
+  if (!entries || entries.length === 0) throw new Error('主题包 manifest 没有登记任何文件，已拒绝导入');
+  const registered = new Map();
+  for (const f of entries) {
+    if (!f || typeof f.path !== 'string' || !/^[0-9a-f]{64}$/i.test(String(f.sha256 || ''))) {
+      throw new Error('主题包 manifest 登记不完整（缺 path 或 sha256）：' + (f && f.path ? f.path : '?'));
+    }
+    registered.set(f.path, String(f.sha256).toLowerCase());
+  }
+  for (const name of Object.keys(files)) {
+    if (name === 'manifest.json' || name.endsWith('/')) continue;
+    if (!registered.has(name)) throw new Error('主题包含未登记文件，已拒绝导入：' + name);
+  }
+  for (const [path, sha] of registered) {
+    const data = files[path];
+    if (!data) throw new Error('主题包缺少 manifest 登记的文件：' + path);
+    if (createHash('sha256').update(data).digest('hex') !== sha) throw new Error('主题包校验失败：' + path);
+  }
+  return manifest;
+}
+
+// 把已下载到内存的主题包校验并落盘（与 fetchTheme 分开，方便单测构造主题包验证「拒绝且不落盘」）。
+export function importThemePackage(buf, id, meta = {}) {
   safeId(id);
   const d = join(galleryDir(), id);
   if (existsSync(join(d, 'info.json'))) return readLocal(id);
-  const buf = await get(`${API}/${id}/download`, { binary: true, timeout: 60000 });
   if (buf.length > MAX_PKG) throw new Error('主题包太大');
   const files = unzip(buf);
+  const manifest = verifyPackage(files); // 先全量校验，通过了才往下走、才落盘
   const theme = files['theme.json'] ? JSON.parse(files['theme.json'].toString('utf8')) : null;
   if (!theme || !theme.colors) throw new Error('主题包里没有 theme.json');
-  let manifest = {};
-  try { manifest = JSON.parse(files['manifest.json'].toString('utf8')); } catch {}
-  // 校验 manifest 里登记的文件哈希（有就校验）。
-  for (const f of manifest.files || []) {
-    if (files[f.path] && f.sha256 && createHash('sha256').update(files[f.path]).digest('hex') !== f.sha256) throw new Error('主题包校验失败：' + f.path);
-  }
   mkdirSync(d, { recursive: true });
   let image = '';
   const imgBuf = theme.image && files[theme.image];
@@ -284,4 +307,13 @@ export async function fetchTheme(id, meta = {}) {
   };
   writeFileSync(join(d, 'info.json'), JSON.stringify(info, null, 2), 'utf8');
   return readLocal(id);
+}
+
+// 下载一套主题（已下载就直接用本地的）。meta 可由列表带进来，省一次请求；没有就只信主题包自己的 theme.json。
+export async function fetchTheme(id, meta = {}) {
+  safeId(id);
+  const d = join(galleryDir(), id);
+  if (existsSync(join(d, 'info.json'))) return readLocal(id);
+  const buf = await get(`${API}/${id}/download`, { binary: true, timeout: 60000 });
+  return importThemePackage(buf, id, meta);
 }
