@@ -1,0 +1,28 @@
+<!-- dreamskin-dom-snapshot/1 app=cherry synthetic=true -->
+<!-- 合成夹具：按 cherry 的 parts-map 已实证锚点手工搭的主窗口骨架，用于 Q-1 命中率框架自测；不是真机快照。 -->
+<html>
+  <body>
+    <div id="app-sidebar"></div>
+    <div id="root" class="h-screen w-screen">
+      <div data-ui="app.main">
+        <div data-ui="app.tab-bar"></div>
+        <div data-ui="app.content">
+          <main data-ui="app.content">
+            <div id="chat" data-ui="chat.view">
+              <div data-ui="part:conversation-main">
+                <div id="messages" data-ui="chat.message-list">
+                  <div class="message-user">
+                    <div class="message-content-container"></div>
+                  </div>
+                  <div data-ui="part:code-block"></div>
+                </div>
+              </div>
+              <div id="inputbar" data-ui="chat.composer"></div>
+            </div>
+          </main>
+        </div>
+        <div class="resource-list-pane"></div>
+      </div>
+    </div>
+  </body>
+</html>
