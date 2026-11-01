@@ -1,0 +1,31 @@
+/* part: app.root; require: scope, selector */
+/* 整窗底板：壁纸层挂在这里。scope 形态是窗口根作用域，默认形态是根容器本体。 */
+{{selector:scope}} {
+  background: var(--ds-bg) !important;
+}
+{{selector:scope}} > body {
+  background: transparent !important;
+  color: var(--ds-text);
+}
+{{selector:scope}} > body::before {
+  content: "";
+  position: fixed;
+  inset: -40px;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--ds-art) var(--ds-focus) / cover no-repeat;
+  filter: var(--ds-wall-filter);
+}
+{{selector:scope}} > body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--ds-scrim);
+}
+/* 根容器本体透明，让壁纸从外壳一直贯穿到内容区 */
+{{selector}} {
+  background: transparent !important;
+  background-color: transparent !important;
+}

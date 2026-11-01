@@ -1,0 +1,21 @@
+{
+  "schema": "dreamskin-parts/1",
+  "parts": [
+    { "id": "app.root", "name": "整窗底板（壁纸层挂在这里）", "scope": "all" },
+    { "id": "app.sidebar", "name": "左侧导航 / 会话列表", "scope": "all" },
+    { "id": "app.sidebar.item", "name": "列表项", "scope": "all" },
+    { "id": "app.sidebar.item.active", "name": "列表选中项", "scope": "all" },
+    { "id": "app.topbar", "name": "标题栏 / 标签栏", "scope": "all" },
+    { "id": "app.content", "name": "主内容区", "scope": "all" },
+    { "id": "chat.messages", "name": "消息列表", "scope": "chat" },
+    { "id": "chat.bubble.user", "name": "用户消息", "scope": "chat" },
+    { "id": "chat.bubble.assistant", "name": "助手消息", "scope": "chat" },
+    { "id": "chat.composer", "name": "输入区容器", "scope": "chat" },
+    { "id": "chat.composer.input", "name": "输入框本体", "scope": "chat" },
+    { "id": "code.block", "name": "代码块", "scope": "all" },
+    { "id": "overlay.panel", "name": "弹窗 / 下拉 / 菜单", "scope": "all" },
+    { "id": "ide.editor", "name": "编辑器（仅 IDE 类应用）", "scope": "ide" },
+    { "id": "ide.terminal", "name": "终端（仅 IDE 类应用）", "scope": "ide" },
+    { "id": "ide.panel", "name": "IDE 面板（仅 IDE 类应用）", "scope": "ide" }
+  ]
+}

@@ -1,0 +1,16 @@
+/* part: app.topbar */
+/* 标题栏 / 标签栏：bar 形态带底边线，foot 形态是底栏，active 形态是选中态文字。 */
+{{selector}} {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+{{selector:bar}} {
+  background: transparent !important;
+  border-bottom-color: var(--ds-line) !important;
+}
+{{selector:foot}} {
+  background: transparent !important;
+}
+{{selector:active}} {
+  color: var(--ds-accent) !important;
+}

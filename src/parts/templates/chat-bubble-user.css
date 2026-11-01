@@ -1,0 +1,5 @@
+/* part: chat.bubble.user */
+/* 用户消息气泡：只描一圈淡淡的主色边，底色继续用变量层给的气泡色。 */
+{{selector}} {
+  border: 1px solid rgba(var(--ds-accent-rgb), 0.22);
+}

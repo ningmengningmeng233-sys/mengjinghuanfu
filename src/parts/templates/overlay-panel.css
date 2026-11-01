@@ -1,0 +1,8 @@
+/* part: overlay.panel */
+/* 弹窗 / 下拉 / 菜单：header 形态是弹窗头，title 形态是弹窗标题文字。 */
+{{selector:header}} {
+  background: rgba(var(--ds-panel-rgb), 0.92) !important;
+}
+{{selector:title}} {
+  color: var(--ds-text) !important;
+}

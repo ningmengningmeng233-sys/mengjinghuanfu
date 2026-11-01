@@ -1,0 +1,5 @@
+/* part: code.block */
+/* 代码块：用变量层的实心代码底色，不被壁纸干扰。 */
+{{selector}} {
+  background: var(--ds-code-bg) !important;
+}

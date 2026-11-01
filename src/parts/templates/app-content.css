@@ -1,0 +1,18 @@
+/* part: app.content */
+/* 主内容区：外层容器透明；card 形态是实心内容卡片；main 形态是上浅下深的渐变遮罩主区。 */
+{{selector}} {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+{{selector:card}} {
+  background: var(--ds-content-bg) !important;
+  border-color: var(--ds-line) !important;
+  border-radius: var(--ds-radius) !important;
+  box-shadow: var(--ds-content-shadow) !important;
+}
+{{selector:main}} {
+  background: linear-gradient(180deg, var(--ds-chat-top) 0%, var(--ds-chat-top) 55%, var(--ds-chat-bottom) 100%) !important;
+  border-radius: var(--ds-radius) !important;
+  box-shadow: var(--ds-content-shadow) !important;
+  text-shadow: var(--ds-text-shadow);
+}

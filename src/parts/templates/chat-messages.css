@@ -1,0 +1,12 @@
+/* part: chat.messages */
+/* 消息列表：本体是上浅下深的渐变遮罩（露出壁纸又保证正文清楚）；list 形态压一层文字阴影；shell 形态是列表外壳透明。 */
+{{selector}} {
+  background: linear-gradient(180deg, var(--ds-chat-top) 0%, var(--ds-chat-top) 55%, var(--ds-chat-bottom) 100%) !important;
+}
+{{selector:list}} {
+  text-shadow: var(--ds-text-shadow);
+}
+{{selector:shell}} {
+  background: transparent !important;
+  background-color: transparent !important;
+}

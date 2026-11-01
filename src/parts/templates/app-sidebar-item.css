@@ -1,0 +1,8 @@
+/* part: app.sidebar.item */
+/* 列表项：本体透明融入侧栏；meta 形态是条目里的次要信息文字。 */
+{{selector}} {
+  background: transparent !important;
+}
+{{selector:meta}} {
+  color: var(--ds-muted) !important;
+}

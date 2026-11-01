@@ -1,0 +1,17 @@
+/* part: app.sidebar */
+/* 左侧导航 / 会话列表：外壳透明让壁纸贯穿；pane 形态是磨砂玻璃的列表栏，边框分普通 / 强两档。 */
+{{selector}} {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+{{selector:pane}} {
+  background: var(--ds-pane-bg) !important;
+  backdrop-filter: var(--ds-blur);
+  -webkit-backdrop-filter: var(--ds-blur);
+}
+{{selector:pane-border}} {
+  border-right: 1px solid var(--ds-line);
+}
+{{selector:pane-border-strong}} {
+  border-right: 1px solid var(--ds-line) !important;
+}
