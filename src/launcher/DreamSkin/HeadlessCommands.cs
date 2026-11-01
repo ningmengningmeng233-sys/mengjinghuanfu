@@ -32,7 +32,7 @@ internal static class HeadlessCommands
 {
 	public static bool IsHeadlessCommand(string arg)
 	{
-		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node" || arg == "--selfcheck-u1" || arg == "--selfcheck-u2";
+		return arg == "--resolve-aumid" || arg == "--activate" || arg == "--which-node" || arg == "--selfcheck-u1" || arg == "--selfcheck-u2" || arg == "--selfcheck-u3";
 	}
 
 	public static int Run(string[] args)
@@ -54,6 +54,10 @@ internal static class HeadlessCommands
 			if (args[0] == "--selfcheck-u2")
 			{
 				return RunSelfcheckU2();
+			}
+			if (args[0] == "--selfcheck-u3")
+			{
+				return RunSelfcheckU3();
 			}
 			return RunWhichNode();
 		}
@@ -121,6 +125,51 @@ internal static class HeadlessCommands
 	// ---------- 控制台输出（WinExe 适配） ----------
 
 	// U-2 自检：同步目标选择的迁移口径与解析（纯逻辑，不读真实文件）。
+	// U-3 自检：兼容矩阵行 / 冲突弹窗文案（与 Node foreignStyleMessage 逐字对照）/ 插件状态文案。
+	private static int RunSelfcheckU3()
+	{
+		int pass = 0;
+		int fail = 0;
+		System.Action<string, bool> check = delegate(string name, bool ok)
+		{
+			if (ok)
+			{
+				pass++;
+				Out.WriteLine("PASS: " + name);
+			}
+			else
+			{
+				fail++;
+				Out.WriteLine("FAIL: " + name);
+			}
+		};
+		AppRow codex = new AppRow { Id = "codex", Name = "Codex", Installed = true, AppVersion = "26.1021.3705.0" };
+		codex.TestedVersions.Add("26.1021.3705.0");
+		CompatEntry ce = new CompatEntry { Mode = "compat", PartsOkCount = 11, At = "2026-11-02T03:00:00.000Z" };
+		ce.PartsMissing.Add("sidebar");
+		ce.PartsMissing.Add("composer");
+		MatrixRow mr = MatrixLogic.BuildRow(codex, ce);
+		check("矩阵行版本", mr.Tested == "26.1021.3705.0" && mr.Current == "26.1021.3705.0");
+		check("矩阵行体检（兼容模式）", mr.Health.Contains("兼容模式") && mr.Health.Contains("命中 11") && mr.Health.Contains("缺失 2") && mr.Health.Contains("sidebar") && mr.Health.Contains("2026-11-02 03:00"));
+		MatrixRow mr2 = MatrixLogic.BuildRow(codex, null);
+		check("矩阵行无记录", mr2.Health == "暂无体检记录");
+		AppRow ghost = new AppRow { Id = "claude", Name = "Claude", Installed = false };
+		MatrixRow mr3 = MatrixLogic.BuildRow(ghost, null);
+		check("矩阵行未装占位", mr3.Tested == "—" && mr3.Current == "—");
+		string expect = "Codex 的页面里已经有 Codex-Dream-Skin 注入的样式（codex-dream-skin-main），两个换肤工具同时注入会互相打架。梦境换肤这次没有注入任何样式：请先在 Codex-Dream-Skin 里还原或退出，再用梦境换肤；或者继续用 Codex-Dream-Skin，二选一。";
+		check("冲突文案与 Node 逐字一致", MatrixLogic.ConflictMessage("Codex", "Codex-Dream-Skin", new List<string> { "codex-dream-skin-main" }) == expect);
+		HashSet<string> pts = new HashSet<string>
+		{
+			MatrixLogic.PluginStateText(false, false),
+			MatrixLogic.PluginStateText(true, false),
+			MatrixLogic.PluginStateText(false, true),
+			MatrixLogic.PluginStateText(true, true)
+		};
+		check("插件状态文案四态互异", pts.Count == 4);
+		Out.WriteLine("SELFCHECK-U3: " + pass + "/" + (pass + fail) + " PASS");
+		return (fail == 0) ? 0 : 1;
+	}
+
 	private static int RunSelfcheckU2()
 	{
 		int pass = 0;

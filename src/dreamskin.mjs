@@ -50,6 +50,9 @@ import { conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMes
 import { collectAppsStatus } from './core/apps-status.mjs';
 import { syncFanout, parseTargets } from './core/sync.mjs';
 import { listAdapters } from './core/adapters.mjs';
+import { selectChannelKind } from './core/channel-select.mjs';
+import { pluginBridge } from './core/plugin-bridge.mjs';
+import { dshPluginChannel } from './channels/index.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -123,7 +126,11 @@ const OWN_STYLE_IDS = [IDS.parts, IDS.vars, IDS.extra, IDS.live, APP.userCssId].
 
 // 启动 / 注入通道（T1-3 起入口改走适配器 + 通道）：发现、关闭、主窗口列表走 CHANNEL；
 // CHANNEL_ADAPTER 由运行时 profile 适配成通道形状（channels/exe.mjs 的 profileToChannelAdapter）。
-const CHANNEL = channelFor(APP);
+// U-3 接线：--shell <id> 时按适配器 shells 声明换通道（如 DSH 的 web 外壳 -> dsh-plugin）；
+// 不带 --shell 时就是默认通道，行为与接线前一致。外壳不存在直接报错退出，不静默降级。
+let SHELL_SEL;
+try { SHELL_SEL = selectChannelKind(APP, argAt('--shell')); } catch (e) { console.log('FAILED: ' + e.message); process.exit(EXIT.FAILED); }
+const CHANNEL = channelFor(SHELL_SEL.kind);
 const CHANNEL_ADAPTER = profileToChannelAdapter(APP, { skinActive: () => existsSync(SKIN_FILE) });
 
 async function withSession(target, port, fn) {
@@ -535,6 +542,18 @@ function shortcut() {
 
 async function status() {
   const cs = await CHANNEL.status(CHANNEL_ADAPTER);
+  if (Array.isArray(APP.shells) && APP.shells.length) {
+    // U-3：声明了多外壳的应用（如 DSH）在状态里带上外壳清单、当前通道与插件通道开关 / 安装状态
+    // （只读文件检查，不启动任何东西）；旧字段口径不变。
+    const port2 = (await currentPort()) || cs.debugPort;
+    const st2 = readState();
+    const out = { app: APP.id, version: VERSION, cherryRunning: cs.running, running: cs.running, debugPort: port2,
+      skinActive: existsSync(SKIN_FILE), preset: st2?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null,
+      shells: APP.shells.map((s) => ({ id: s.id, channel: s.channel })), channel: CHANNEL.kind };
+    try { const ps = await dshPluginChannel.status(CHANNEL_ADAPTER); out.pluginChannel = { enabled: !!ps.enabled, installed: !!ps.pluginInstalled }; } catch {}
+    console.log(JSON.stringify(out, null, 2));
+    return EXIT.OK;
+  }
   // debugPort 口径合并（T1-3）：以会话文件口径 currentPort() 为准——那是梦境换肤自己启动 / 守护的端口，
   // live / check / watch 都靠它定位；通道口径（进程命令行扫描）作兜底。梦境换肤启动的场景下两者恒等。
   const port = (await currentPort()) || cs.debugPort;
@@ -547,6 +566,36 @@ async function status() {
 
 // U-1：一次输出全部已注册应用的状态（总控台应用列表的数据来源，core/apps-status.mjs）。
 // 只读聚合：不启动、不关闭任何应用；单个应用查询失败只影响它自己那一行。
+// U-3：DSH 插件通道的开关 / 安装 / 卸载命令（数据面在 core/plugin-bridge.mjs，红线在通道实现里）。
+// plugin-install 必须显式带 --consent 才会把同意传给通道（总控台点「安装」时先弹确认框再带上）；
+// 缺了 --consent 通道会拒装并原样报错。本批不真装：这些命令只在用户 / 总控台明确调用时才动。
+async function pluginStatus() {
+  try { process.stdout.write(JSON.stringify(await pluginBridge.status(APP.id), null, 2) + '\n'); return EXIT.OK; }
+  catch (e) { say('FAILED', e.message); return EXIT.FAILED; }
+}
+async function pluginSetEnabled(on) {
+  try {
+    const r = await pluginBridge.setEnabled(APP.id, on);
+    say('SUCCESS', on ? '插件通道开关已打开（只是允许使用；插件还没装时 apply 会如实报错）。' : '插件通道开关已关闭，插件侧的皮肤覆盖已移除。');
+    process.stdout.write(JSON.stringify(r) + '\n');
+    return EXIT.OK;
+  } catch (e) { say('FAILED', e.message); return EXIT.FAILED; }
+}
+async function pluginInstall() {
+  try {
+    const r = await pluginBridge.install(APP.id, process.argv.includes('--consent'));
+    say('SUCCESS', `DSH 插件已安装（版本 ${r.version}），文件：${(r.files || []).join('、')}。`);
+    return EXIT.OK;
+  } catch (e) { say('FAILED', e.message); return EXIT.FAILED; }
+}
+async function pluginUninstall() {
+  try {
+    const r = await pluginBridge.uninstall(APP.id);
+    say('SUCCESS', r.removed && r.removed.length ? `DSH 插件已卸载，移除 ${r.removed.length} 个文件。` : 'DSH 插件本来就没装着，无需卸载。');
+    return EXIT.OK;
+  } catch (e) { say('FAILED', e.message); return EXIT.FAILED; }
+}
+
 async function appsStatus() {
   const r = await collectAppsStatus();
   process.stdout.write(JSON.stringify({ apps: r.apps, errors: r.errors }, null, 2) + '\n');
@@ -741,7 +790,7 @@ async function check() {
 }
 
 const o = parseArgs(process.argv.slice(2));
-const run = { apply, sync, check, restore, status, 'apps-status': appsStatus, watch, launch, live, presets: async () => presets(o), schema: async () => schema(), shortcut: async () => shortcut(),
+const run = { apply, sync, check, restore, status, 'apps-status': appsStatus, 'plugin-status': pluginStatus, 'plugin-enable': async () => pluginSetEnabled(true), 'plugin-disable': async () => pluginSetEnabled(false), 'plugin-install': pluginInstall, 'plugin-uninstall': pluginUninstall, watch, launch, live, presets: async () => presets(o), schema: async () => schema(), shortcut: async () => shortcut(),
   'skin-save': skinSave, 'skin-rename': skinRename, 'skin-delete': skinDelete, 'skin-export': skinExport, 'skin-import': skinImport,
   'gallery-list': galleryList, 'gallery-get': galleryGet, 'gallery-remove': galleryRemove }[o.cmd];
 if (!run) { say('FAILED', '未知命令：' + o.cmd + '（可用 apply / launch / restore / shortcut / status / presets / schema / live / skin-*）'); process.exit(EXIT.FAILED); }

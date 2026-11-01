@@ -126,6 +126,16 @@ public class MainForm : Form
 
 	private bool appListBusy;
 
+	private RichTextBox matrixBox;
+
+	private Label pluginStatusLabel;
+
+	private ToggleSwitch pluginToggle;
+
+	private bool pluginUiBusy;
+
+	private Task conflictCheckTask;
+
 	private RichTextBox log;
 
 	private Label lblNode;
@@ -1517,6 +1527,7 @@ public class MainForm : Form
 			Size = new Size(640, 120),
 			Location = new Point(0, 230)
 		});
+		BuildEnvExtras();
 	}
 
 	private void Log(string msg)
@@ -1918,6 +1929,11 @@ public class MainForm : Form
 		// 其余适配器先进环境页（兼容矩阵在那里）；编辑页仍只有 Cherry / ZCode 两端，日志里如实说明。
 		ShowPage(2);
 		Log("应用状态：" + row.Name + " —— " + AppStatusLogic.StateText(row.State) + ((row.AppVersion.Length > 0) ? ("，当前版本 " + row.AppVersion) : "") + "。它的换肤编辑页尚未接入总控台，先在下方「兼容矩阵」看体检结果。");
+		if (row.Running)
+		{
+			// 顺手做一次只读体检：页面里若有其他换肤工具的样式，CheckSkin 会走冲突弹窗（每应用只弹首次）。
+			conflictCheckTask = CheckSkin(row.Id, startup: false);
+		}
 	}
 
 	private void HighlightNav()
@@ -1969,6 +1985,7 @@ public class MainForm : Form
 				lastAppListAt = DateTime.Now;
 				BuildAppNav(rows);
 				UpdateSyncButtonText();
+				RefreshMatrix();
 			}
 		}
 		catch
@@ -2049,6 +2066,280 @@ public class MainForm : Form
 		return d.TryGetValue(k, out object v) && v is bool b && b;
 	}
 
+	// ---------- U-3：兼容矩阵 / 冲突弹窗 / DSH 插件开关（§4.6） ----------
+
+	private void BuildEnvExtras()
+	{
+		Label mt = new Label
+		{
+			Text = "兼容矩阵",
+			ForeColor = Theme.Gold,
+			Font = Theme.F(11f, FontStyle.Bold),
+			Location = new Point(0, 366),
+			AutoSize = true
+		};
+		pageEnv.Controls.Add(mt);
+		AddButton(pageEnv, "刷新矩阵", Theme.Card, Theme.Text, new Rectangle(880, 360, 110, 32), async delegate
+		{
+			await RefreshAppList(true);
+			RefreshMatrix();
+		});
+		matrixBox = new RichTextBox
+		{
+			BackColor = Theme.Card,
+			ForeColor = Theme.Text,
+			BorderStyle = BorderStyle.None,
+			ReadOnly = true,
+			Font = Theme.F(9f),
+			Location = new Point(0, 400),
+			Size = new Size(990, 116),
+			ScrollBars = RichTextBoxScrollBars.Vertical
+		};
+		pageEnv.Controls.Add(matrixBox);
+		Label pt = new Label
+		{
+			Text = "DSH 插件通道（可选）",
+			ForeColor = Theme.Gold,
+			Font = Theme.F(11f, FontStyle.Bold),
+			Location = new Point(0, 528),
+			AutoSize = true
+		};
+		pageEnv.Controls.Add(pt);
+		pageEnv.Controls.Add(new Label
+		{
+			Text = "DSH 默认走 CDP 通道换肤；插件通道是给浏览器模式（dsh web）用的兜底：插件只读梦境换肤数据目录里的皮肤文件，经 DSH 官方插槽注入，不联网、不读对话内容。开关打开只是「允许使用」，真正安装还要再点「安装插件」并确认；插件目录还没配置好时，安装会如实报错、不会乱放文件。卸载按安装清单精确移除，装过什么删什么。",
+			ForeColor = Theme.Muted,
+			AutoSize = false,
+			Size = new Size(990, 40),
+			Location = new Point(0, 554)
+		});
+		pluginStatusLabel = new Label
+		{
+			Text = "插件通道状态：尚未检测",
+			ForeColor = Theme.Text,
+			Font = Theme.F(9f),
+			Location = new Point(0, 600),
+			AutoSize = true
+		};
+		pageEnv.Controls.Add(pluginStatusLabel);
+		pluginToggle = new ToggleSwitch
+		{
+			Title = "允许使用插件通道",
+			Location = new Point(0, 624),
+			Size = new Size(200, 34)
+		};
+		pluginToggle.CheckedChanged += async delegate
+		{
+			if (pluginUiBusy)
+			{
+				return;
+			}
+			await SetPluginEnabled(pluginToggle.Checked);
+		};
+		pageEnv.Controls.Add(pluginToggle);
+		AddButton(pageEnv, "安装插件", Theme.Card, Theme.Text, new Rectangle(216, 624, 110, 34), InstallPlugin);
+		AddButton(pageEnv, "卸载插件", Theme.Card, Theme.Text, new Rectangle(338, 624, 110, 34), UninstallPlugin);
+		RefreshMatrix();
+	}
+
+	private Dictionary<string, object> ReadCompatFile()
+	{
+		try
+		{
+			string p = Path.Combine(dataRoot, "compat.json");
+			if (!File.Exists(p))
+			{
+				return null;
+			}
+			return JsonSer.DeserializeObject(File.ReadAllText(p)) as Dictionary<string, object>;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private static CompatEntry CompatEntryOf(Dictionary<string, object> compat, string id)
+	{
+		if (compat == null || !compat.TryGetValue(id, out object o) || !(o is Dictionary<string, object> d))
+		{
+			return null;
+		}
+		CompatEntry c = new CompatEntry();
+		c.Mode = StrOf(d, "mode");
+		if (c.Mode.Length == 0)
+		{
+			c.Mode = "full";
+		}
+		c.At = StrOf(d, "at");
+		if (d.TryGetValue("partsOk", out object ok))
+		{
+			c.PartsOkCount = AsList(ok).Count;
+		}
+		if (d.TryGetValue("partsMissing", out object miss))
+		{
+			foreach (object x in AsList(miss))
+			{
+				c.PartsMissing.Add(Convert.ToString(x));
+			}
+		}
+		return c;
+	}
+
+	private void RefreshMatrix()
+	{
+		if (matrixBox == null)
+		{
+			return;
+		}
+		Dictionary<string, object> compat = ReadCompatFile();
+		List<AppRow> rows = appRowsData;
+		if (rows.Count == 0)
+		{
+			rows = new List<AppRow>
+			{
+				new AppRow { Id = "cherry", Name = "Cherry Studio", Installed = true },
+				new AppRow { Id = "zcode", Name = "ZCode", Installed = true }
+			};
+		}
+		List<string> lines = new List<string>();
+		foreach (AppRow row in AppStatusLogic.SortForList(rows))
+		{
+			MatrixRow mr = MatrixLogic.BuildRow(row, CompatEntryOf(compat, row.Id));
+			lines.Add(mr.Name + "  ｜  已测版本：" + mr.Tested + "  ｜  当前版本：" + mr.Current + "  ｜  体检：" + mr.Health);
+		}
+		matrixBox.Text = (lines.Count > 0) ? string.Join("\r\n", lines) : "暂无数据";
+	}
+
+	private string DisplayNameOf(string id)
+	{
+		AppRow row = appRowsData.Find((AppRow x) => x.Id == id);
+		if (row != null && row.Name.Length > 0)
+		{
+			return row.Name;
+		}
+		return (id == "zcode") ? "ZCode" : ((id == "cherry") ? "Cherry Studio" : id);
+	}
+
+	// §4.6：首次检测到冲突工具时弹窗说明并让用户二选一（每个应用只弹首次，标记文件在数据根目录）。
+	// 文案与 Node 侧 foreignStyleMessage 逐字一致（MatrixLogic.ConflictMessage）；弹窗只告知，不替用户动对方工具。
+	private void MaybeNotifyConflict(string which, Dictionary<string, object> cd)
+	{
+		string tool = StrOf(cd, "name");
+		if (tool.Length == 0)
+		{
+			return;
+		}
+		List<string> hits = new List<string>();
+		if (cd.TryGetValue("hits", out object hv))
+		{
+			foreach (object x in AsList(hv))
+			{
+				hits.Add(Convert.ToString(x));
+			}
+		}
+		string msg = MatrixLogic.ConflictMessage(DisplayNameOf(which), tool, hits);
+		Log("WARN: " + msg);
+		string flag = Path.Combine(dataRoot, "conflict-notified-" + which + ".flag");
+		try
+		{
+			if (File.Exists(flag))
+			{
+				return;
+			}
+			Directory.CreateDirectory(dataRoot);
+			File.WriteAllText(flag, "1");
+		}
+		catch
+		{
+		}
+		MessageBox.Show(msg, "梦境换肤 · 换肤冲突", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+	}
+
+	private async Task RefreshPluginPanel()
+	{
+		if (cherryDir == null || pluginStatusLabel == null || pluginUiBusy)
+		{
+			return;
+		}
+		pluginUiBusy = true;
+		try
+		{
+			string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+			ProcResult r = await RunProcess(ResolveNode(), script + " plugin-status --app dsh", 60000);
+			Dictionary<string, object> d = JsonSer.DeserializeObject(r.Output) as Dictionary<string, object>;
+			if (d != null)
+			{
+				bool en = BoolOf(d, "enabled");
+				bool ins = BoolOf(d, "installed");
+				pluginToggle.Checked = en;
+				pluginStatusLabel.Text = "插件通道状态：" + MatrixLogic.PluginStateText(en, ins);
+			}
+		}
+		catch
+		{
+		}
+		finally
+		{
+			pluginUiBusy = false;
+		}
+	}
+
+	private async Task SetPluginEnabled(bool on)
+	{
+		if (cherryDir == null)
+		{
+			return;
+		}
+		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+		ProcResult r = await RunProcess(ResolveNode(), script + (on ? " plugin-enable --app dsh" : " plugin-disable --app dsh"), 60000);
+		string outp = r.Output.Trim();
+		if (outp.Length > 0)
+		{
+			Log(outp);
+		}
+		await RefreshPluginPanel();
+	}
+
+	private async Task InstallPlugin()
+	{
+		if (cherryDir == null)
+		{
+			return;
+		}
+		// §4.3 / §4.6：安装插件必须用户明确同意——先弹确认框讲清写到哪里，用户点「是」才带 --consent 调入口。
+		DialogResult dr = MessageBox.Show("要把梦境换肤的 DSH 插件装进 DSH 的插件目录吗？\n\n插件只做一件事：读梦境换肤数据目录里的皮肤文件，经 DSH 官方插槽（shell.overlay）把样式注入 Web UI。不联网、不读对话内容、不碰 Cookie。\n随时可以点「卸载插件」按清单删干净。\n\n注意：本机若还没配置好 DSH 插件目录，安装会如实报错、不会乱放文件。", "梦境换肤 · 安装 DSH 插件", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+		if (dr != DialogResult.Yes)
+		{
+			Log("已取消安装 DSH 插件。");
+			return;
+		}
+		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+		ProcResult r = await RunProcess(ResolveNode(), script + " plugin-install --app dsh --consent", 60000);
+		string outp = r.Output.Trim();
+		if (outp.Length > 0)
+		{
+			Log(outp);
+		}
+		await RefreshPluginPanel();
+	}
+
+	private async Task UninstallPlugin()
+	{
+		if (cherryDir == null)
+		{
+			return;
+		}
+		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+		ProcResult r = await RunProcess(ResolveNode(), script + " plugin-uninstall --app dsh", 60000);
+		string outp = r.Output.Trim();
+		if (outp.Length > 0)
+		{
+			Log(outp);
+		}
+		await RefreshPluginPanel();
+	}
+
 	private async Task RefreshStatus()
 	{
 		int major = await NodeMajor();
@@ -2065,6 +2356,7 @@ public class MainForm : Form
 			cherrySkinActive = ShowStatus(await tc, lblCherryState, "Cherry");
 			zcodeSkinActive = ShowStatus(await tz, lblZCodeState, "ZCode");
 			await RefreshAppList();
+			await RefreshPluginPanel();
 		}
 	}
 
@@ -2867,7 +3159,7 @@ public class MainForm : Form
 		{
 			return;
 		}
-		string name = ((which == "zcode") ? "ZCode" : "Cherry Studio");
+		string name = DisplayNameOf(which);
 		ProcResult r = await RunProcess(ResolveNode(), Q(Path.Combine(cherryDir, "skin-cherry.mjs")) + " check --app " + which, 30000);
 		try
 		{
@@ -2882,6 +3174,10 @@ public class MainForm : Form
 			string text = ((dictionary2 != null && dictionary2.TryGetValue("version", out value4) && value4 != null) ? value4.ToString() : "");
 			object value5;
 			string text2 = ((dictionary2 != null && dictionary2.TryGetValue("lastOkVersion", out value5) && value5 != null) ? value5.ToString() : "");
+			if (dictionary.TryGetValue("conflict", out object cv) && cv is Dictionary<string, object> cd)
+			{
+				MaybeNotifyConflict(which, cd);
+			}
 			if (flag)
 			{
 				if (flag2)
@@ -2891,12 +3187,12 @@ public class MainForm : Form
 			}
 			else
 			{
-				if (!dictionary.TryGetValue("problems", out var value6) || !(value6 is ArrayList))
+				if (!dictionary.TryGetValue("problems", out var value6))
 				{
 					return;
 				}
 				{
-					foreach (object item in (ArrayList)value6)
+					foreach (object item in AsList(value6))
 					{
 						Log("WARN: " + (startup ? (name + " 自检：") : "体检：") + item);
 					}

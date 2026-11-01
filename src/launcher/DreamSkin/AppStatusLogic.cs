@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Web.Script.Serialization;
 
 namespace DreamSkin;
@@ -182,5 +183,70 @@ public static class SyncTargetsLogic
 			outp.Add(id);
 		}
 		return outp;
+	}
+}
+
+// U-3 的展示纯逻辑：兼容矩阵行、冲突弹窗文案、DSH 插件通道状态文案。
+// 冲突文案与 Node 侧 core/conflicts.mjs 的 foreignStyleMessage 逐字一致（同一口径，不另编一套）。
+sealed class CompatEntry
+{
+	public string Mode = "full";
+	public int PartsOkCount;
+	public List<string> PartsMissing = new List<string>();
+	public string At = "";
+}
+
+sealed class MatrixRow
+{
+	public string Name = "";
+	public string Tested = "";
+	public string Current = "";
+	public string Health = "";
+}
+
+static class MatrixLogic
+{
+	public static MatrixRow BuildRow(AppRow app, CompatEntry c)
+	{
+		MatrixRow r = new MatrixRow();
+		r.Name = app.Name;
+		r.Tested = (app.TestedVersions != null && app.TestedVersions.Count > 0) ? string.Join("、", app.TestedVersions) : "—";
+		r.Current = !string.IsNullOrEmpty(app.AppVersion) ? app.AppVersion : (app.Installed ? "未知" : "—");
+		if (c == null)
+		{
+			r.Health = "暂无体检记录";
+		}
+		else
+		{
+			string mode = (c.Mode == "compat") ? "兼容模式" : "完整模式";
+			string miss = (c.PartsMissing != null && c.PartsMissing.Count > 0)
+				? ("：" + string.Join("、", c.PartsMissing.Take(5)))
+				: "";
+			r.Health = mode + "（部件命中 " + c.PartsOkCount + "、缺失 " + ((c.PartsMissing == null) ? 0 : c.PartsMissing.Count) + miss + "，" + FormatAt(c.At) + "）";
+		}
+		return r;
+	}
+
+	// 体检时间只做展示裁剪（ISO 前 16 位、T 换空格），不做时区换算。
+	public static string FormatAt(string at)
+	{
+		if (string.IsNullOrEmpty(at)) return "时间未知";
+		return (at.Length >= 16) ? at.Substring(0, 16).Replace('T', ' ') : at;
+	}
+
+	// 与 Node foreignStyleMessage 逐字一致：{app} 的页面里已经有 {tool} 注入的样式（{hits}），……
+	public static string ConflictMessage(string appName, string toolName, List<string> hits)
+	{
+		string h = (hits == null) ? "" : string.Join("、", hits);
+		return appName + " 的页面里已经有 " + toolName + " 注入的样式（" + h + "），两个换肤工具同时注入会互相打架。"
+			+ "梦境换肤这次没有注入任何样式：请先在 " + toolName + " 里还原或退出，再用梦境换肤；或者继续用 " + toolName + "，二选一。";
+	}
+
+	public static string PluginStateText(bool enabled, bool installed)
+	{
+		if (installed && enabled) return "已启用：DSH 的 web 外壳会走插件通道";
+		if (installed) return "插件已安装，但开关关着（当前走 CDP 通道）";
+		if (enabled) return "已允许使用，但插件还没安装";
+		return "未启用、未安装（默认走 CDP 通道）";
 	}
 }
