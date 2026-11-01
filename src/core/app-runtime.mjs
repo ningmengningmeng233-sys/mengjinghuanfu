@@ -3,7 +3,8 @@
 // 全仓不再有第二份应用数据。入口（dreamskin.mjs）与通道（channels/）只消费这里组装出的 profile：
 //   { id, name, channel, exeName, envExe, uninstallName, macBundle, candidates(), isHelperCmd?,
 //     isMainTarget(item, port), readySelector, uaToken, probes, partsMap, partsCss, extraCss, rules,
-//     styleId, liveId, userCssId, shortcutName, restartNote, testedVersions, adapter }
+//     styleId, liveId, userCssId, shortcutName, restartNote, testedVersions, msixPackageFamily,
+//     conflicts, adapter }
 // 其中 styleId / liveId / shortcutName 是由 id / name 推导的固定规则（不是第二份数据）：
 //   styleId = 'dream-skin-2-' + id，liveId = styleId + '-live'，shortcutName = name + ' (梦境换肤)'。
 import { readFileSync } from 'node:fs';
@@ -101,6 +102,10 @@ function buildProfile(data, rootDir) {
     shortcutName: data.name + ' (梦境换肤)',
     restartNote: data.restartNote || '',
     testedVersions: data.testedVersions || [],
+    // msix 通道用（T2-2）：包族名只在 msix 适配器的 discover 里有，其余通道为空串。
+    msixPackageFamily: (data.discover && data.discover.msixPackageFamily) || '',
+    // 已知冲突的其他换肤工具（§4.2 conflicts，如 codex 的 codex-dream-skin），通道做冲突检测时用。
+    conflicts: data.conflicts || [],
     adapter: data,
   };
 }

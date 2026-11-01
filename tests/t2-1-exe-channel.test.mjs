@@ -159,10 +159,10 @@ test('profileToChannelAdapter carries the runtime profile facts', () => {
   assert.equal(b.isHelperCmd, APPS.zcode.isHelperCmd);
 });
 
-test('channelFor resolves exe and refuses unimplemented channels', () => {
+test('channelFor resolves implemented channels and refuses the rest', () => {
   assert.equal(channelFor('exe'), exeChannel);
   assert.equal(channelFor({ channel: 'exe' }), exeChannel);
-  assert.throws(() => channelFor('msix'), /尚未实现/);
+  assert.equal(channelFor('msix').kind, 'msix'); // T2-2 起 msix 已实现，细节见 t2-2 单测
   assert.throws(() => channelFor({ channel: 'webview2' }), /尚未实现/);
 });
 
