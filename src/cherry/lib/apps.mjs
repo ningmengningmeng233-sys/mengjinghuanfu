@@ -53,7 +53,7 @@ export const APPS = {
     id: 'zcode', name: 'ZCode', exeName: IS_MAC ? 'ZCode' : 'ZCode.exe', envExe: 'DREAMSKIN_ZCODE_EXE', uninstallName: 'ZCode',
     macBundle: 'ZCode',
     candidates: () => IS_MAC ? macBins('ZCode', 'ZCode')
-      : [join(local(), 'Programs', 'ZCode', 'ZCode.exe'), join(pf(), 'ZCode', 'ZCode.exe'), 'F:\\AI\\ZCode\\ZCode.exe', 'D:\\AI\\ZCode\\ZCode.exe'],
+      : [join(local(), 'Programs', 'ZCode', 'ZCode.exe'), join(pf(), 'ZCode', 'ZCode.exe')],
     // ZCode 用自己的 exe 以 node 模式跑后台服务（zcode.cjs app-server / plugin-host），这些不是窗口进程。
     isHelperCmd: (cmd) => /\.cjs\b|__zcode-plugin-host|app-server/i.test(cmd),
     isMainTarget: isZCodeMainTarget,

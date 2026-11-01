@@ -60,28 +60,39 @@ export function debugPortOf(proc) {
   return m ? Number(m[1]) : 0;
 }
 
-// exe 路径：环境变量 → 正在运行的进程 → 常见安装位置 → 卸载注册表。
-export function findExe(app, running = listProcesses(app)) {
+// exe 路径：环境变量 → 正在运行的进程 → 常见安装位置 → 卸载注册表（InstallLocation）。
+// 注册表这一步抽成可注入的纯逻辑（deps.queryInstallLocation / deps.exists），方便单测模拟注册表返回，不依赖真机。
+export function exeFromInstallLocation(loc, exeName, exists = existsSync) {
+  if (!loc) return '';
+  const p = join(loc, exeName);
+  return exists(p) ? p : '';
+}
+function registryInstallLocation(app) {
+  const out = ps("$k = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
+    "'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*','HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | " +
+    `Where-Object { $_.DisplayName -like '${app.uninstallName}*' -and $_.InstallLocation } | Select-Object -First 1; ` +
+    "if ($k) { [Console]::Out.Write($k.InstallLocation) }");
+  return out || '';
+}
+export function findExe(app, running = listProcesses(app), deps = {}) {
+  const exists = deps.exists || existsSync;
   const env = process.env[app.envExe];
-  if (env && existsSync(env)) return env;
-  const live = running.find((p) => p.isMain && p.path && existsSync(p.path));
+  if (env && exists(env)) return env;
+  const live = running.find((p) => p.isMain && p.path && exists(p.path));
   if (live) return live.path;
-  for (const c of app.candidates()) if (c && existsSync(c)) return c;
+  for (const c of app.candidates()) if (c && exists(c)) return c;
   if (process.platform === 'darwin') {
     // 装在别处时用 Spotlight 找应用包。
     try {
       const hit = execFileSync('/usr/bin/mdfind', [`kMDItemFSName == '${app.macBundle}.app'`], { encoding: 'utf8', timeout: 8000 }).split('\n').find(Boolean);
       const bin = hit && join(hit, 'Contents', 'MacOS', app.exeName);
-      if (bin && existsSync(bin)) return bin;
+      if (bin && exists(bin)) return bin;
     } catch {}
     return '';
   }
   try {
-    const loc = ps("$k = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
-      "'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*','HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | " +
-      `Where-Object { $_.DisplayName -like '${app.uninstallName}*' -and $_.InstallLocation } | Select-Object -First 1; ` +
-      "if ($k) { [Console]::Out.Write($k.InstallLocation) }");
-    if (loc && existsSync(join(loc, app.exeName))) return join(loc, app.exeName);
+    const loc = deps.queryInstallLocation ? deps.queryInstallLocation(app) : registryInstallLocation(app);
+    return exeFromInstallLocation(loc, app.exeName, exists);
   } catch {}
   return '';
 }
