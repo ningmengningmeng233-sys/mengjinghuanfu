@@ -43,3 +43,12 @@ same directory or the adapter is rejected by the loader.
   covers the per-user default location). DOM anchors and the main
   window URL are unverified, so `parts-map.json` is empty and no
   target / readySelector is declared yet.
+- `minimax-code` (A-4): install shape verified read-only by S-4
+  (Electron, electron-builder per-user install; the exe name comes from
+  the Start Menu shortcut target). Note the measured limits of static
+  discovery on this machine: it is installed in a custom directory and
+  its uninstall entry has an EMPTY InstallLocation, so neither the
+  static candidate nor the registry fallback can find it while it is
+  not running - discovery then relies on the running process or the
+  DREAMSKIN_MINIMAX_CODE_EXE override. DOM anchors and the main window
+  URL are unverified; `parts-map.json` is empty.

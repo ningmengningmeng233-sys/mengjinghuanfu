@@ -1,0 +1,21 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "minimax-code",
+  "name": "MiniMax Code",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\MiniMax Code\\MiniMax Code.exe"
+    ],
+    "envExe": "DREAMSKIN_MINIMAX_CODE_EXE",
+    "exeNames": [
+      "MiniMax Code.exe"
+    ],
+    "uninstallDisplayName": "MiniMax Code"
+  },
+  "testedVersions": [
+    "3.1.0"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}
