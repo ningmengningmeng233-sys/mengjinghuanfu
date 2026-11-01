@@ -4,6 +4,7 @@
 // 用法：node tools/check-version.mjs（在源码/ 目录运行）。全部通过退出码 0，否则 1。
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { VERSION, USER_AGENT } from '../src/core/version.mjs';
 
 let fail = 0;
@@ -29,11 +30,13 @@ for (const id of ['cherry', 'zcode']) {
   if (p.rules.includes('{{version}}')) bad(id + ' 的运行时规则段残留 {{version}} 占位');
 }
 
-const launcherDir = new URL('../src/launcher/', import.meta.url);
+// 注意：必须用 fileURLToPath 取本地路径——URL.pathname 在 Windows 上带前导斜杠且中文被百分号编码，
+// 直接拼给 readdirSync 会得到 C:\C:\... 的坏路径（launcher 分支第一次真正执行时实测踩到）。
+const launcherDir = fileURLToPath(new URL('../src/launcher/', import.meta.url));
 if (existsSync(launcherDir)) {
   const files = [];
   const walk = (d) => { for (const e of readdirSync(d, { withFileTypes: true })) { const p = join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(cs|csproj)$/.test(e.name)) files.push(p); } };
-  walk(launcherDir.pathname);
+  walk(launcherDir);
   let found = 0;
   for (const f of files) {
     const t = readFileSync(f, 'utf8');

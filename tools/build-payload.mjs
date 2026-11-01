@@ -28,11 +28,17 @@ const EXCLUDE = {
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 const files = [];
+// 总控台工程（src/launcher）与 .NET 构建产物（bin/obj）不属于 Node payload，整目录跳过：
+// 否则 payload 会把总控台 exe 和它内嵌的 zip 又打回去，自引用无限膨胀（launcher 反编译重建时实测踩到）。
+const EXCLUDE_DIRS = new Set(['launcher', 'bin', 'obj']);
 const walk = (dir) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, e.name);
     const rel = relative(srcDir, p).split('\\').join('/');
-    if (e.isDirectory()) { walk(p); continue; }
+    if (e.isDirectory()) {
+      if (EXCLUDE_DIRS.has(e.name)) { console.log('排除（非 payload 目录）: ' + rel); continue; }
+      walk(p); continue;
+    }
     if (EXCLUDE.has(rel)) { console.log('排除（平台筛选）: ' + rel); continue; }
     const dest = join(outDir, rel);
     mkdirSync(join(dest, '..'), { recursive: true });

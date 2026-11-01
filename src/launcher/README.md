@@ -1,0 +1,54 @@
+# 总控台（launcher）—— 由 2.1.0 exe 反编译重建
+
+本目录是梦境换肤总控台（.NET WinForms）的 C# 源码，**由 2.1.0 发布 exe 反编译重建，不是原始源码**
+（原仓库只有 exe、无 C# 源码；2026-11-02 用 ilspycmd 导出项目后修通构建，过程与证据见
+`06-梦境换肤/证据/launcher-反编译重建基础.txt`）。原始文件 `2.1.0原始文件/` 保持只读。
+
+## 工具链
+
+- .NET SDK：本机已全局安装 9.0.314，直接可用，不需要另装。
+- ilspycmd 是本仓库的**本地 dotnet 工具**：清单在 `源码/.config/dotnet-tools.json`（ilspycmd 9.1.0.7988），
+  在 `源码/` 目录下以 `dotnet ilspycmd` 调用，不进 PATH、没装全局命令。换机器先 `dotnet tool restore`。
+- 目标框架 net48；本机没有 .NET Framework 本地引用程序集目录，靠 NuGet 包
+  `Microsoft.NETFramework.ReferenceAssemblies` 1.0.3 还原（PrivateAssets=all，不进产物）。
+
+## 构建
+
+正式构建一条命令（在 `源码/` 目录下）：
+
+    powershell -ExecutionPolicy Bypass -File tools/build-launcher.ps1
+
+它依次做三件事：
+
+1. `tools/build-payload.mjs` 构建 win32 payload（带便携 Node 运行时）到 `build/payload-win`；
+2. 按 2.1 的 zip 版式把 payload 打成 `src/launcher/DreamSkin.payload.zip`
+   （payload 文件放在 `src/` 前缀下，LICENSE 与 THIRD-PARTY-NOTICES.md 在 zip 根部）——
+   总控台首次运行释放这个 zip 后按 `src/cherry/skin-cherry.mjs` 定位脚本，**版式不能变**；
+3. `dotnet build src/launcher -c Release`，产物在 `src/launcher/bin/Release/net48/`。
+
+注意：直接 `dotnet build` 嵌进去的是当前 `DreamSkin.payload.zip` 文件的内容；该文件是构建生成物
+（已 gitignore），发版与验收一律走上面的脚本，避免嵌到旧包。
+
+## 与原 exe 的差异（仅构建层，行为不变）
+
+- csproj：反编译导出的 `Microsoft.NET.Sdk.WindowsDesktop` / net40 改为 `Microsoft.NET.Sdk` / net48。
+  原代码用到 `System.IO.Compression.ZipArchive`（.NET 4.5 起才有），真实下限本就高于 net40；
+  net48 与原 exe 同属 .NET Framework 4.x（就地升级系、同一 CLR），用户侧运行环境不变。
+- 两处反编译作用域冲突（CS0136）做改名修正，代码里有注释，逻辑不变：
+  ThemeTile 的尾段 `path`/`pen` 改为 `pathEnd`/`penEnd`；MainForm.LoadOwnIcon256 的第二个
+  `memoryStream` 改为 `memoryStream2`。
+- 内嵌 payload 不再是 2.1.0 的冻结快照，而是构建时由当前 `src/` 生成（见构建节）。
+  相应地 `tools/build-payload.mjs` 已把 `launcher`、`bin`、`obj` 整目录排除在 payload 之外——
+  payload 若把总控台工程打回去会自引用膨胀（本批实测踩到并已清理，见证据）。
+- 版本口径：AssemblyVersion / FileVersion 均为 2.1.0.0、InformationalVersion（ProductVersion）2.1.0，
+  与 Node 侧 `src/core/version.mjs` 的 VERSION=2.1.0 一致，由 `tools/check-version.mjs` 校验
+  （已走 launcher 校验分支，全 PASS）。窗口标题与界面标签是原版短版式「2.1」（与原 exe 逐字一致，未改）。
+
+## 待后续批次
+
+- `--activate <aumid> --args` / `--resolve-aumid` 总控台子命令（T2-2 的 msix 通道桥在等它，U 系列一并做）。
+- 启动脚本时优先用 payload 的 `runtime/node.exe`（T0-6 遗留；现逻辑是数据目录 runtime 优先、PATH 兜底）。
+- U-1 / U-2 / U-3 的总控台界面改动（应用列表与状态点、多端同步、兼容矩阵页、冲突弹窗、DSH 插件开关）。
+- 总控台 GUI 的真人目视验收（待人工验收）：原程序没有无副作用的无界面参数——无参直接开 GUI，
+  `--launch <app>` 会真的带皮肤启动目标应用，两者都不在本批冒烟范围内；本批只做了构建成功与
+  静态核验（文件版本、内嵌资源清单），未运行重建 exe、未替换用户现装的 2.1.0 exe。
