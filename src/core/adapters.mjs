@@ -133,6 +133,31 @@ export function validateAdapter(data, opts = {}) {
     && !(Array.isArray(data.conflicts) && data.conflicts.every((s) => typeof s === 'string'))) {
     errors.push('conflicts must be an array of strings');
   }
+  // Optional shells list (A-2, plan A-2: one app hosted by several shells,
+  // the channel is chosen per shell). Declarative only: a shell without
+  // exeNames can never be auto-detected and stays an explicit choice.
+  if (data.shells !== undefined) {
+    if (!Array.isArray(data.shells)) errors.push('shells must be an array');
+    else {
+      const seen = new Set();
+      data.shells.forEach((s, i) => {
+        const at = 'shells[' + i + ']';
+        if (!isPlainObject(s)) { errors.push(at + ' must be an object'); return; }
+        if (typeof s.id !== 'string' || !ID_RE.test(s.id)) errors.push(at + '.id is required and must match ' + ID_RE);
+        if (typeof s.id === 'string') {
+          if (seen.has(s.id)) errors.push(at + '.id duplicates "' + s.id + '"');
+          seen.add(s.id);
+        }
+        if (!CHANNELS.includes(s.channel)) errors.push(at + '.channel must be one of: ' + CHANNELS.join(' | '));
+        if (s.name !== undefined && typeof s.name !== 'string') errors.push(at + '.name must be a string');
+        if (s.exeNames !== undefined
+          && !(Array.isArray(s.exeNames) && s.exeNames.length > 0 && s.exeNames.every((x) => typeof x === 'string' && x.length > 0))) {
+          errors.push(at + '.exeNames must be a non-empty array of strings');
+        }
+        if (s.url !== undefined && typeof s.url !== 'string') errors.push(at + '.url must be a string');
+      });
+    }
+  }
 
   checkRelativeFileField(data, 'partsMap', opts.dir, exists, errors);
   checkRelativeFileField(data, 'extraCss', opts.dir, exists, errors);

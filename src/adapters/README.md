@@ -43,6 +43,23 @@ same directory or the adapter is rejected by the loader.
   covers the per-user default location). DOM anchors and the main
   window URL are unverified, so `parts-map.json` is empty and no
   target / readySelector is declared yet.
+- `dsh` (A-2): shell facts verified read-only by S-2 plus a registry /
+  directory recheck in this work order (DSH Desktop 2.0.18, community
+  Electron shell; exe name measured; the uninstall entry's
+  InstallLocation is EMPTY, so - like minimax-code - static discovery
+  relies on the running process, the per-user default candidate, or the
+  DREAMSKIN_DSH_EXE override; a read-only `status --app dsh` against the
+  running shell resolves the exe). The Web UI has no verified DOM
+  anchors, so `parts-map.json` is empty and no target / readySelector is
+  declared. `shells` declares the three host forms from S-2 (desktop ->
+  exe, tauri -> webview2, browser mode -> dsh-plugin); the tauri shell
+  declares no exeNames (never measured), so `selectShell` can only pick
+  it once real binaries are known. Still pending: the desktop shell's
+  main-window URL form (its UI is served by a local service, so the
+  file://-only main-target matcher may need a loopback extension), the
+  helper-process pattern (plugin child processes were not inspected),
+  and the with-debug-port restart check - all need a real-machine
+  session with the owner's consent.
 - `minimax-code` (A-4): install shape verified read-only by S-4
   (Electron, electron-builder per-user install; the exe name comes from
   the Start Menu shortcut target). Note the measured limits of static

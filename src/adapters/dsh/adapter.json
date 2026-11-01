@@ -1,0 +1,45 @@
+{
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\DSH Desktop\\DSH Desktop.exe"
+    ],
+    "envExe": "DREAMSKIN_DSH_EXE",
+    "exeNames": [
+      "DSH Desktop.exe"
+    ],
+    "uninstallDisplayName": "DSH Desktop"
+  },
+  "extraCss": "extra.css",
+  "id": "dsh",
+  "name": "DeepSeek Harness",
+  "partsMap": "parts-map.json",
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "schema": "dreamskin-adapter/1",
+  "shells": [
+    {
+      "channel": "exe",
+      "exeNames": [
+        "DSH Desktop.exe"
+      ],
+      "id": "desktop",
+      "name": "DSH Desktop（Electron 社区外壳）"
+    },
+    {
+      "channel": "webview2",
+      "id": "tauri",
+      "name": "Tauri 社区外壳（本机未装）"
+    },
+    {
+      "channel": "dsh-plugin",
+      "id": "web",
+      "name": "浏览器模式（dsh web）",
+      "url": "http://127.0.0.1:3080"
+    }
+  ],
+  "testedVersions": [
+    "2.0.18"
+  ]
+}

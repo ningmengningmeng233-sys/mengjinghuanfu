@@ -106,8 +106,31 @@ function buildProfile(data, rootDir) {
     msixPackageFamily: (data.discover && data.discover.msixPackageFamily) || '',
     // 已知冲突的其他换肤工具（§4.2 conflicts，如 codex 的 codex-dream-skin），通道做冲突检测时用。
     conflicts: data.conflicts || [],
+    // 多外壳声明（A-2）：同一应用的不同外壳各走自己的通道（见 selectShell）。
+    shells: (data.shells || []).map((s) => ({
+      id: s.id, name: s.name || s.id, channel: s.channel, exeNames: s.exeNames || [],
+      ...(s.url ? { url: s.url } : {}),
+    })),
     adapter: data,
   };
+}
+
+// 外壳自动选择（A-2，方案 A-2「按外壳自动选 exe / webview2 通道」）：只考虑带 exeNames 的
+// 进程型外壳——正在运行的优先，其次已安装的；浏览器模式（dsh-plugin 通道）没有可探测的
+// 进程，属显式选择，不参与自动探测。detect(shell) 由调用方注入，返回 { installed, running }
+// （真实环境接进程扫描 / findExe，单测用假实现）。选不中返回 null（未安装或该外壳暂不支持）。
+export function selectShell(profile, detect) {
+  const shells = (profile && profile.shells) || [];
+  const probed = [];
+  for (const s of shells) {
+    if (!s.exeNames || !s.exeNames.length) continue;
+    probed.push({ shell: s, state: detect(s) || {} });
+  }
+  const running = probed.find((p) => p.state.running);
+  if (running) return { ...running.shell, via: 'running' };
+  const installed = probed.find((p) => p.state.installed);
+  if (installed) return { ...installed.shell, via: 'installed' };
+  return null;
 }
 
 const cache = new Map();
