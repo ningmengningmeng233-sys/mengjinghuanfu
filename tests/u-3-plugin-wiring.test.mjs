@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -89,6 +89,31 @@ test('入口接线冒烟：plugin-status 只读、无 consent 的 plugin-install
     assert.equal(wj.channel, 'dsh-plugin');
     assert.deepEqual(wj.pluginChannel, { enabled: false, installed: false });
     assert.ok(!existsSync(join(root, 'dsh', 'plugin-install.json'))); // 全程没真装
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('入口 apply --shell web：未开开关时如实失败但选择已落盘，开开关+装插件后再 apply 成功', () => {
+  const root = mkdtempSync(join(tmpdir(), 'ds-u3a-'));
+  try {
+    const env = { ...process.env, DREAMSKIN_DATA_DIR: join(root, 'cherry'), DREAMSKIN_DSH_PLUGINS_DIR: join(root, 'plugins') };
+    // 1) 开关没开、插件没装：apply 应在通道 launch 的前置校验处如实 FAILED，不假装生效。
+    const r1 = runEntry(['apply', '--app', 'dsh', '--shell', 'web', '--preset', 'ink-gold'], env);
+    assert.equal(r1.code, 1, r1.out);
+    assert.match(r1.out, /插件通道默认关闭|插件尚未安装/);
+    // 但皮肤与选择已按普通流程落盘（补齐开关 / 安装后插件就会读到这份）。
+    assert.ok(existsSync(join(root, 'dsh', 'active-skin.css')));
+    const choice = JSON.parse(readFileSync(join(root, 'dsh', 'last-choice.json'), 'utf8'));
+    assert.ok(choice.preset);
+    // 2) 开开关 + 带 consent 装插件（都落临时目录），再 apply 应成功并把皮肤交给插件通道。
+    assert.equal(runEntry(['plugin-enable', '--app', 'dsh'], env).code, 0);
+    assert.equal(runEntry(['plugin-install', '--app', 'dsh', '--consent'], env).code, 0);
+    const r2 = runEntry(['apply', '--app', 'dsh', '--shell', 'web', '--preset', 'ink-gold'], env);
+    assert.equal(r2.code, 0, r2.out);
+    assert.match(r2.out, /已把皮肤交给 DSH 插件通道/);
+    const skin = readFileSync(join(root, 'dsh', 'active-skin.css'), 'utf8');
+    assert.ok(skin.includes('vars') && skin.includes('parts')); // 三层皮肤文件形状
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

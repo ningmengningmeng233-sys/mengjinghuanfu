@@ -202,6 +202,26 @@ async function apply(o) {
   const palette = o.palette ? resolvePalette(o.palette) : resolvePalette(o.preset);
   let values = { ...(mine ? mine.values : {}), ...choiceValues(o) };
 
+  if (CHANNEL.kind === 'dsh-plugin') {
+    // U-3 接线（插件通道早分支）：插件通道没有调试端口与 CDP 目标，ensurePort / 页面冲突清点 /
+    // 体检探针都不适用——在这里直接组装图层（壁纸不经渲染进程瘦身，用原图数据）、先落盘
+    // （皮肤文件 + 选择，与普通流程同一份口径），再调通道 launch 做双前置校验
+    // （开关已开 + 插件已装）：不满足时如实 FAILED（文件已保存，补齐开关 / 安装后插件就会读到），
+    // 满足时插件经 shell.overlay 在 DSH Web UI 里读这份皮肤注入。页面级体检与冲突检测走 check 流程。
+    const pluginImageUri = o.image ? imageDataUri(o.image, MAX_IMAGE_BYTES_CDP) : '';
+    const pluginLayers = buildSkinLayers(APP, palette, pluginImageUri, values);
+    writeFileSync(SKIN_FILE, serializeSkinFile(pluginLayers), 'utf8');
+    writeFileSync(CHOICE_FILE, JSON.stringify({ preset: palette.key || o.preset || '', palette, image: o.image || '', values }), 'utf8');
+    try {
+      await CHANNEL.launch(CHANNEL_ADAPTER, { layers: pluginLayers });
+    } catch (e) {
+      say('FAILED', e.message);
+      return EXIT.FAILED;
+    }
+    say('SUCCESS', `已把皮肤交给 DSH 插件通道（${palette.name}）：插件会在 DSH 的 Web UI 里读这份皮肤并注入。`);
+    return EXIT.OK;
+  }
+
   const ep = await ensurePort(o);
   if (!ep.port) return ep.code;
   const port = ep.port;
