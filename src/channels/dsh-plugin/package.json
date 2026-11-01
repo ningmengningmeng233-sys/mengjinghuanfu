@@ -1,0 +1,8 @@
+{
+  "name": "dsh-plugin-dreamskin",
+  "version": "{{version}}",
+  "description": "DreamSkin skin plugin for DeepSeek Harness: reads the local active-skin.css written by DreamSkin and injects it as layered <style> elements through the shell.overlay UI slot. Local files only; no network, no session access.",
+  "type": "module",
+  "main": "lib/main.js",
+  "license": "MIT"
+}
