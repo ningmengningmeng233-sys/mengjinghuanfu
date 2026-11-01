@@ -1,10 +1,12 @@
 // msix 通道（T2-2，方案 §4.3 / §6 T2-2）：Microsoft Store（MSIX）应用装在 WindowsApps 下（ACL 保护），
 // 不能直接执行它的 exe，只能用 AppUserModelId（AUMID）经应用激活接口传参启动。本通道的构成：
 // - AUMID 解析：PackageFamilyName 来自 adapter.json 的 discover.msixPackageFamily（不写死版本）；
-//   包信息与包内应用 Id 用只读 PowerShell 查询（Get-AppxPackage / Get-AppxPackageManifest）取得——
-//   与 core/app-process.mjs 用 PowerShell 查注册表 / 进程是同一口径。方案 §6 T2-2 把 --resolve-aumid
-//   定为总控台子命令，总控台（launcher）尚无 C# 源码、要等 U 系列反编译重建，本通道先用只读查询
-//   落地同一契约（解析结果一致），重建后可平移，判断记在证据里。
+//   包信息与包内应用 Id 优先经总控台子命令 --resolve-aumid 取得（方案 §6 T2-2 约定，
+//   launcher 第二批已落地），总控台不可用 / 查不到 / 结果不完整时回退只读 PowerShell 查询
+//   （Get-AppxPackage / Get-AppxPackageManifest）——两条路同一输出契约，parsePackageInfo 统一规范化。
+//   注意两者应用列表的来源不同：总控台给的是开始菜单应用条目（GetAppListEntries，如 Codex
+//   只有 App 一条），PowerShell 给的是包清单全部应用（还含 CodexCoreCommandRunner 这类
+//   非 UI 条目）；pickAppId 按可执行文件名挑选的结果一致，且总控台结果缺应用列表时不采信。
 // - 激活：COM IApplicationActivationManager 只能在 .NET 端做，Node 侧按方案约定经总控台子命令
 //   「梦境换肤.exe --activate <aumid> --args "<args>"」调用（deps.activate 可注入替换）。
 //   找不到总控台时如实报错，绝不假装启动成功，也绝不去直接执行 WindowsApps 下的 exe（§4.3）。
@@ -80,8 +82,25 @@ export function isMsixPort(port) {
   return Number.isInteger(port) && port >= MSIX_PORT_RANGE[0] && port <= MSIX_PORT_RANGE[1];
 }
 
-// 只读查询已注册包（默认实现，走 PowerShell；查不到返回 null，不抛错）。
-function queryPackageDefault(packageFamily) {
+// 经总控台 --resolve-aumid 只读查询（launcher 第二批）。launcherPath 为空 / 调用失败 /
+// 输出不可解析 / 结果缺应用列表时返回 null，由上层回退 PowerShell。run 可注入，方便单测。
+export function queryPackageViaLauncher(packageFamily, exeName, launcherPath, run = execFileSync) {
+  if (!launcherPath || !packageFamily) return null;
+  try {
+    const argv = ['--resolve-aumid', String(packageFamily)];
+    if (exeName) argv.push('--exe', String(exeName));
+    const out = run(launcherPath, argv, { encoding: 'utf8', windowsHide: true, timeout: 15000 });
+    const line = String(out || '').split(/\r?\n/).map((s) => s.trim()).filter((s) => s.startsWith('{')).pop();
+    const info = parsePackageInfo(line || null);
+    // 总控台的应用列表只含开始菜单条目：为空时不采信，交给能读全清单的 PowerShell 兜底。
+    return info && info.apps.length > 0 ? info : null;
+  } catch {
+    return null;
+  }
+}
+
+// 只读查询已注册包（PowerShell 实现；查不到返回 null，不抛错）。
+function queryPackageViaPs(packageFamily) {
   const fam = String(packageFamily || '').replace(/'/g, "''");
   if (!fam) return null;
   try {
@@ -94,6 +113,13 @@ function queryPackageDefault(packageFamily) {
   } catch {
     return null;
   }
+}
+
+// 只读查询已注册包（默认实现）：总控台可用时优先走它，不可用回退 PowerShell。io 可注入，方便单测。
+export function queryPackageDefault(packageFamily, exeName = '', io = {}) {
+  const via = queryPackageViaLauncher(packageFamily, exeName, (io.findLauncher || findLauncherDefault)(), io.run);
+  if (via) return via;
+  return (io.queryPs || queryPackageViaPs)(packageFamily);
 }
 
 // 总控台位置：环境变量 DREAMSKIN_LAUNCHER 优先，其次 payload 根目录与上一级（分发时的相对位置）。
@@ -173,7 +199,7 @@ export function createMsixChannel(deps = {}) {
   const activate = d.activate || ((aumid, args) => activateDefault(aumid, args, d.findLauncher));
 
   async function resolve(adapter) {
-    const pkg = await d.queryPackage(adapter.packageFamily);
+    const pkg = await d.queryPackage(adapter.packageFamily, adapter.exeName);
     if (!pkg) return { pkg: null, aumid: '' };
     return { pkg, aumid: aumidOf(pkg.packageFamilyName, pickAppId(pkg.apps, adapter.exeName)) };
   }
