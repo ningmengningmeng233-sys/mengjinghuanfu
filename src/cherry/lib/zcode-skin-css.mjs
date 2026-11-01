@@ -4,10 +4,12 @@
 // 全部取自 docs/zcode-dom-map.md 的实测 SAFE / CAUTION 清单；
 // DO NOT TOUCH 清单（富文本编辑器本体、滚动容器、分栏容器、svg/img、monaco、xterm、iframe/canvas/webview）一概不写。
 // 作用域：只在有 [data-workspace-shell] 的主窗口生效。
+import { VERSION } from './version.mjs';
+
 const W = 'html:has([data-workspace-shell])';
 const B = 'body:has([data-workspace-shell])';
 
-export const ZCODE_RULES = `/* ===== ZCode Dream Skin 2.1 · 规则段 ===== */
+export const ZCODE_RULES = `/* ===== ZCode Dream Skin ${VERSION} · 规则段 ===== */
 
 /* 0. ZCode 自己的 Tailwind v4 主题变量（--color-*，真机 3.15.3 读出）改接到配色上：卡片、弹窗、输入框、文字、边框一起换色。
       终端 / 编辑器只跟着实心底色走，不做透明。 */

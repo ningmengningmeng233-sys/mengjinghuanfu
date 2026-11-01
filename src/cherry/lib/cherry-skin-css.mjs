@@ -23,6 +23,7 @@
 //   输入框       #inputbar[data-ui="chat.composer"]
 import { readFileSync, statSync } from 'node:fs';
 import { extname } from 'node:path';
+import { VERSION } from './version.mjs';
 
 // 精选预设：少而精。配色取自口碑最好的几套开源主题（Catppuccin、Rosé Pine、Tokyo Night、Nord、Kanagawa、
 // Everforest、Gruvbox Material、Dracula、Ayu、Oxocarbon，均 MIT），按 Theme Station 的做法做了莫兰迪式降饱和，
@@ -265,7 +266,7 @@ body:has(#app-sidebar)::before, body:has([data-workspace-shell])::before { backg
 }
 
 // 规则段：只用 var(--ds-*)。壁纸画在 body::before 上，才能单独模糊 / 调亮度而不影响界面。
-export const RULES = `/* ===== Cherry Dream Skin 2.1 · 规则段 · for Cherry Studio v2 ===== */
+export const RULES = `/* ===== Cherry Dream Skin ${VERSION} · 规则段 · for Cherry Studio v2 ===== */
 
 /* 1. 整窗壁纸：只给主窗口（有 #app-sidebar 的窗口），划词工具条 / 快捷助手等小窗不受影响 */
 html:has(#app-sidebar) {

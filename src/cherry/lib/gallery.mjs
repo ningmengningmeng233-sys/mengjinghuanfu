@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { inflateRawSync } from 'node:zlib';
 import { join } from 'node:path';
 import { rootDir } from './cherry-env.mjs';
+import { USER_AGENT } from './version.mjs';
 
 const API = 'https://api.dreamskin.cc/v1/themes';
 export const SITE = 'https://dreamskin.cc/themes/';
@@ -28,7 +29,7 @@ async function get(url, { binary = false, timeout = 30000 } = {}) {
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(), timeout);
   try {
-    const r = await fetch(url, { signal: ac.signal, headers: { 'user-agent': 'DreamSkin-2.0 (theme gallery)' } });
+    const r = await fetch(url, { signal: ac.signal, headers: { 'user-agent': USER_AGENT } });
     if (!r.ok) throw new Error(`主题库返回 ${r.status}`);
     return binary ? Buffer.from(await r.arrayBuffer()) : await r.json();
   } catch (e) {

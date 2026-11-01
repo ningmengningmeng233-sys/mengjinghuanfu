@@ -33,6 +33,7 @@ import { SETTINGS, buildVarsCss, defaultValues, imageDataUri, MAX_IMAGE_BYTES_CD
 import { listPalettes, resolvePalette, wallpaperPalettes, bundledImage, GROUPS, WALL_DIR } from './lib/palettes.mjs';
 import { saveSkin, renameSkin, deleteSkin, exportSkin, importSkin, getSkin } from './lib/user-skins.mjs';
 import { appById } from './lib/apps.mjs';
+import { VERSION } from './lib/version.mjs';
 import { listGallery, fetchTheme, removeTheme } from './lib/gallery.mjs';
 import { createInterface } from 'node:readline';
 import { slimImage } from './lib/wall-cache.mjs';
@@ -477,7 +478,7 @@ async function status() {
   const st = readState();
   const running = listCherryProcesses();
   // cherryRunning / cherryExe 字段名保留（总控台旧版本按它解析），新增 app / running / exe。
-  console.log(JSON.stringify({ app: APP.id, cherryRunning: running.length > 0, running: running.length > 0, debugPort: port,
+  console.log(JSON.stringify({ app: APP.id, version: VERSION, cherryRunning: running.length > 0, running: running.length > 0, debugPort: port,
     skinActive: existsSync(SKIN_FILE), preset: st?.preset ?? null, cherryExe: findCherryExe(running) || null, exe: findCherryExe(running) || null }, null, 2));
   return EXIT.OK;
 }
