@@ -1,0 +1,31 @@
+{
+  "channel": "msix",
+  "conflicts": [
+    "codex-dream-skin"
+  ],
+  "discover": {
+    "envExe": "DREAMSKIN_CODEX_EXE",
+    "exeNames": [
+      "ChatGPT.exe"
+    ],
+    "msixPackageFamily": "OpenAI.Codex_2p2nqsd0c76g0",
+    "uninstallDisplayName": "Codex"
+  },
+  "extraCss": "extra.css",
+  "id": "codex",
+  "name": "Codex",
+  "partsMap": "parts-map.json",
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "restartNote": "正在运行的任务会被中断，对话记录不受影响",
+  "schema": "dreamskin-adapter/1",
+  "target": {
+    "rejectPattern": "login|auth|update|settings|splash",
+    "uaToken": "Codex",
+    "urlPattern": "^app://.*/index\\.html"
+  },
+  "testedVersions": [
+    "26.1021.3705.0"
+  ]
+}

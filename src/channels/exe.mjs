@@ -29,6 +29,9 @@ export function profileToChannelAdapter(profile, opts = {}) {
     candidates: profile.candidates, isMainTarget: profile.isMainTarget, isHelperCmd: profile.isHelperCmd,
     restartNote: profile.restartNote, uaToken: profile.uaToken,
     msixPackageFamily: profile.msixPackageFamily || '', conflicts: profile.conflicts || [],
+    // 入口对所有通道共用这一个 shaper（dreamskin.mjs 的 CHANNEL_ADAPTER）；msix 通道的
+    // assertAdapter 读的字段名是 packageFamily，与 msixPackageFamily 同值，A-1 接 Codex 时补齐。
+    packageFamily: profile.msixPackageFamily || '',
     ...(typeof opts.skinActive === 'function' ? { skinActive: opts.skinActive } : {}),
   };
 }

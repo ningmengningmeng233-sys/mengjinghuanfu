@@ -24,3 +24,15 @@ style ids derived as `dream-skin-2-<id>` / `dream-skin-2-<id>-live`.
 Only write fields confirmed by the 2.1 code or by a Spike report; when a
 field like `partsMap` is declared, the referenced file must exist in the
 same directory or the adapter is rejected by the loader.
+
+## Pending real-machine verification (A series)
+
+- `codex` (A-1): package facts verified read-only by S-1 (package family,
+  manifest entry executable, package version). DOM anchors are NOT
+  verified yet, so `parts-map.json` is intentionally empty and only the
+  variables layer (colors + wallpaper) can take effect until Q-1 captures
+  a sanitized DOM snapshot. `target` follows the plan 4.2 example and is
+  unconfirmed; the main-window URL form is still unknown. Codex-Dream-
+  Skin's exact style id is also unconfirmed - page-level conflict
+  detection (`src/core/conflicts.mjs`) matches its public brand prefix
+  for now and must be corrected with the measured id at V-A10.

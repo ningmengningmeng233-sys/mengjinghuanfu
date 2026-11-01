@@ -28,7 +28,10 @@ test('the old second source of app facts is gone', () => {
 test('formal adapters load clean and declare their parts-map / extra.css', () => {
   const { adapters, errors } = loadAdapters();
   assert.deepEqual(errors, []);
-  assert.deepEqual(adapters.map((a) => a.id).sort(), ['cherry', 'zcode']);
+  // 适配器集合随 A 系列增长，不再断言全表；下面的循环契约（每个适配器都声明并备齐
+  // parts-map.json + extra.css）对新适配器同样成立、照常守住。
+  const ids = adapters.map((a) => a.id).sort();
+  for (const id of ['cherry', 'zcode']) assert.ok(ids.includes(id), 'missing bundled adapter ' + id + ' in: ' + ids.join(', '));
   for (const a of adapters) {
     assert.equal(a.partsMap, 'parts-map.json');
     assert.equal(a.extraCss, 'extra.css');
@@ -168,6 +171,8 @@ test('unknown --app fails clearly (entry + shim)', () => {
     assert.notEqual(r.status, 0, rel + ' should fail');
     const out = (r.stdout || '') + (r.stderr || '');
     assert.ok(out.includes('Unknown adapter: no-such-app'), rel + ' output: ' + out.slice(0, 300));
-    assert.ok(out.includes('registered: cherry, zcode'), rel + ' output: ' + out.slice(0, 300));
+    // 注册清单随新适配器增长（A 系列起）：断言首尾与分隔形态，不再写死全表。
+    assert.ok(out.includes('registered: cherry'), rel + ' output: ' + out.slice(0, 300));
+    assert.ok(/, zcode\)/.test(out), rel + ' output: ' + out.slice(0, 300));
   }
 });

@@ -45,6 +45,7 @@ import { buildSkinLayers, layersLength, serializeSkinFile, parseSkinFile } from 
 import { listProcesses, debugPortOf, findExe, freePort, portAlive, launchWithPort, waitForMainTargets as waitTargets } from './core/app-process.mjs';
 import { partChecksOf, partsProbeExpr, evaluateHealth, degradeLayers, wallpaperPartsCss, bumpScrim } from './core/health.mjs';
 import { writeCompatRecord, compatRecordOf } from './store/compat.mjs';
+import { conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMessage } from './core/conflicts.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -109,6 +110,11 @@ const { IDS, injectLayersExpr, removeExpr, liveExpr, verifyExpr } = makeInjector
 
 // §4.5 体检清单：由本应用 parts-map 生成（哪些部件必需、各自的选择器），apply 与 check 共用。
 const PART_CHECKS = partChecksOf(APP.partsMap);
+
+// 已知冲突工具（A-1）：由 adapter.json 的 conflicts 字段经 core/conflicts.mjs 注册表解析。
+// 没声明冲突的适配器（cherry / zcode）为空清单，apply / check 的页面级冲突检测整体跳过，行为不变。
+const CONFLICT_TOOLS = conflictToolsOf(APP);
+const OWN_STYLE_IDS = [IDS.parts, IDS.vars, IDS.extra, IDS.live, APP.userCssId].filter(Boolean);
 
 // 启动 / 注入通道（T1-3 起入口改走适配器 + 通道）：发现、关闭、主窗口列表走 CHANNEL；
 // CHANNEL_ADAPTER 由运行时 profile 适配成通道形状（channels/exe.mjs 的 profileToChannelAdapter）。
@@ -191,6 +197,17 @@ async function apply(o) {
   let targets;
   try { targets = await waitForMainTargets(port, 60000); }
   catch (e) { say('FAILED', e.message); return EXIT.FAILED; }
+
+  // 页面级冲突检测（A-1，§3 共存 / V-A10）：声明了已知冲突工具的适配器，注入前先清点
+  // 主窗口里带 id 的 <style>，认出对方已在注入就停手提示二选一——不抢、不双重注入，
+  // 且停手发生在写皮肤文件之前，本次不落任何状态。与 msix 通道的端口层检测并存。
+  if (CONFLICT_TOOLS.length) {
+    let hit = null;
+    try {
+      hit = await withSession(targets[0], port, async (s) => detectForeignStyles(await s.evaluate(pageStyleIdsExpr()) || [], { ownIds: OWN_STYLE_IDS, tools: CONFLICT_TOOLS }));
+    } catch {}
+    if (hit) { say('FAILED', foreignStyleMessage(APP.name, hit)); return EXIT.FAILED; }
+  }
 
   // 大壁纸先瘦身（在应用自己的渲染进程里缩放转 WebP，带缓存），注入更快、内存更省。
   let slim = o.image;
@@ -638,6 +655,7 @@ async function check() {
     const probes = ${JSON.stringify(APP.probes || [])};
     const missing = probes.filter(([q, , when]) => (!when || has(when)) && !has(q)).map(([q, label]) => label + '（' + q + '）');
     return { skin: ${JSON.stringify([IDS.parts, IDS.vars, IDS.extra])}.some((id) => !!document.getElementById(id)), live: (document.getElementById(${JSON.stringify(LIVE_ID)}) || {}).textContent ? true : false,
+      styleIds: [...document.querySelectorAll('style[id]')].map((el) => el.id),
       partState: ${partsProbeExpr(PART_CHECKS)},
       wall: getComputedStyle(document.body, '::before').backgroundImage.slice(0, 30), bg: v('--ds-bg'), text: v('--ds-text'), muted: v('--ds-muted'),
       ready: has(${JSON.stringify(READY)}), missing, ua: navigator.userAgent };
@@ -660,6 +678,9 @@ async function check() {
   // §4.5 部件体检（T3-3）：用 parts-map 的必需部件清单裁决，要与上面的 probes 口径并存（probes 是 2.1 的逐项提示）。
   const health = evaluateHealth({ partStates: r.partState || {}, checks: PART_CHECKS, contrast: c || null });
   if (health.mode === 'compat') problems.push(`必需部件缺失 ${health.requiredMissing}/${health.requiredTotal}（超过三成），已自动降级为兼容模式：只保留配色和壁纸，这一版 ${APP.name} 还没适配好`);
+  // 页面级冲突（A-1 / V-A10）：对方换肤工具的样式还在页面里 = 双重注入，如实报出来让用户二选一。
+  const conflict = CONFLICT_TOOLS.length ? detectForeignStyles(r.styleIds || [], { ownIds: OWN_STYLE_IDS, tools: CONFLICT_TOOLS }) : null;
+  if (conflict) problems.push(`页面里有 ${conflict.name} 注入的样式（${conflict.hits.join('、')}），它和梦境换肤在同时给 ${APP.name} 换肤，请二选一：先在 ${conflict.name} 里还原或退出，再用梦境换肤`);
   const ok = problems.length === 0;
   if (ok && version) { try { writeFileSync(CHECKED_FILE, JSON.stringify({ version, at: new Date().toISOString() }), 'utf8'); } catch {} }
   // 自动降级落地：页面与皮肤文件还带着完整部件层 / 额外层时换成兼容模式三层（守护进程随后跟随皮肤文件）。
@@ -674,7 +695,7 @@ async function check() {
     } catch {}
   }
   try { writeCompatRecord(compatRecordOf(health, { adapterId: APP.id, appVersion: version })); } catch {}
-  return out({ ok, problems, partsOk: health.partsOk, partsMissing: health.partsMissing, mode: health.mode, info: { app: APP.id, version, versionChanged, lastOkVersion: lastOk.version || '', preview: r.live, wallpaper: r.wall !== 'none', contrast: c ? Number(c.toFixed(2)) : null, preset: choice.preset || '' } });
+  return out({ ok, problems, ...(CONFLICT_TOOLS.length ? { conflict } : {}), partsOk: health.partsOk, partsMissing: health.partsMissing, mode: health.mode, info: { app: APP.id, version, versionChanged, lastOkVersion: lastOk.version || '', preview: r.live, wallpaper: r.wall !== 'none', contrast: c ? Number(c.toFixed(2)) : null, preset: choice.preset || '' } });
 }
 
 const o = parseArgs(process.argv.slice(2));

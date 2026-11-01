@@ -14,7 +14,9 @@ const absPath = ['Q:', 'Apps', 'X', 'X.exe'].join(sep); // built, so no literal 
 test('bundled adapters load with no errors', () => {
   const { adapters, errors } = loadAdapters();
   assert.deepEqual(errors, []);
-  assert.deepEqual(adapters.map((a) => a.id).sort(), ['cherry', 'zcode']);
+  // 适配器集合随 A 系列增长，不再断言全表：T1-2 的契约是原两个必须在册且全树校验零错误。
+  const ids = adapters.map((a) => a.id).sort();
+  for (const id of ['cherry', 'zcode']) assert.ok(ids.includes(id), 'missing bundled adapter ' + id + ' in: ' + ids.join(', '));
 });
 
 test('formal adapter.json drives the runtime profile (T1-3: single source of facts)', () => {
