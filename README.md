@@ -13,7 +13,7 @@
 powershell -ExecutionPolicy Bypass -File tools/fetch-node-runtime.ps1   # 首次：下载便携 Node 22 到 build/cache/（只下一次）
 node tools/build-payload.mjs --platform win32 --out build/payload-win   # 产物含 runtime/node.exe，不含 panel.mjs
 node tools/check-version.mjs                                            # 版本一致性校验
-node --test tests/                                                      # 单测
+node --test "tests/*.test.mjs"                                        # 单测（全套）
 ```
 
 总控台 exe（.NET WinForms）目前只有 2.1.0 的成品 exe，没有 C# 源码；重建计划见上级目录 `工作日志.md`。

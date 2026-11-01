@@ -325,8 +325,8 @@ function schema() {
 }
 
 // 实时预览会话。stdin 每行一个 JSON：
-//   {"op":"set","preset":"b16-nord","image":"D:\\wall.jpg","values":{"blur":20}}  → 立即改 Cherry（只写变量段）
-//   {"op":"palette","image":"D:\\wall.jpg"}   → 从壁纸取色，回一行 {"op":"palette","palettes":[...]}
+//   {"op":"set","preset":"b16-nord","image":"<壁纸路径>","values":{"blur":20}}  → 立即改 Cherry（只写变量段）
+//   {"op":"palette","image":"<壁纸路径>"}   → 从壁纸取色，回一行 {"op":"palette","palettes":[...]}
 //   {"op":"commit"}  → 把当前预览保存为正式皮肤（等同 apply，守护进程接管）
 //   {"op":"cancel"}  → 撤掉预览，回到已保存的皮肤
 //   {"op":"quit"}
