@@ -40,13 +40,23 @@ function candidatesOf(data) {
 // url 尾段（最后两段路径 + hash）和窗口标题测试——ZCode 原逻辑就是这么做的：不看 query
 // （主窗口自带 supportsSettings=true 这类开关），也不拿整条 url 测，免得路径上层字样误杀。
 // 最后仍过 validatedDebuggerUrl，确认 ws 路径与 target id 一致（§4.8）。
+// 协议（scheme）由适配器数据驱动（A-1/A-3/A-4 真机回填）：urlPattern 头部声明的
+// scheme（如 ^app:// 或 ^file://）即该应用主窗口唯一允许的协议——Codex / MiniMax
+// Design / MiniMax Code 三家主窗口实测为 app:// 承载，靠各自落盘的 urlPattern 放行。
+// urlPattern 未声明 scheme（或没有 urlPattern，如 dsh）时维持 2.1 口径只认 file://，
+// cherry/zcode 行为逐字节不变。不做「任意 scheme 放行」：与声明不符的协议一律拒绝，
+// http(s) 等没有实测声明的协议同样拒绝。validatedDebuggerUrl 校的是调试 ws 端点
+// （须回环 + 端口对齐 + /devtools/page/<id>），与页面 url 的 scheme 无关、口径不变。
 export function makeIsMainTarget(target = {}) {
   const urlRe = target.urlPattern ? new RegExp(target.urlPattern + '(?:[?#].*)?$', 'i') : null;
   const rejectRe = target.rejectPattern ? new RegExp(target.rejectPattern, 'i') : null;
+  const declared = /^\^?([A-Za-z][A-Za-z0-9+.-]*):\/\//.exec(String(target.urlPattern || ''));
+  const scheme = declared ? declared[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : 'file';
+  const schemeRe = new RegExp('^' + scheme + '://', 'i');
   return (item, port) => {
     if (item?.type !== 'page' || typeof item.id !== 'string' || !item.webSocketDebuggerUrl) return false;
     const url = String(item.url ?? '');
-    if (!/^file:\/\//i.test(url)) return false;
+    if (!schemeRe.test(url)) return false;
     if (urlRe && !urlRe.test(url)) return false;
     if (rejectRe) {
       let tail = '';
