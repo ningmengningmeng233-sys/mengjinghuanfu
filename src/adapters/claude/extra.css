@@ -1,0 +1,14 @@
+/* DreamSkin for Claude {{version}} - extra layer.
+ *
+ * Status (A-5, measured 2026-11-02 on Claude 4.4212.0.0): the app is an
+ * MSIX-packaged Electron app and the package facts in adapter.json are
+ * verified (AUMID resolves through the launcher bridge). However the app
+ * refuses to start when --remote-debugging-port is passed via activation
+ * (controlled test: no args starts fine, a harmless custom flag starts
+ * fine, the debug-port flag means the process never appears), so no CDP
+ * session and no DOM snapshot are possible. No anchors are invented:
+ * parts-map.json stays empty and this file carries no rules until a
+ * future Claude version accepts the debug port. See the A-5 evidence
+ * file and spike report S-5 addendum. No asar / package modification is
+ * attempted (plan section 5).
+ */
