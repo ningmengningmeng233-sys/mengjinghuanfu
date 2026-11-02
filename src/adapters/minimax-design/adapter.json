@@ -13,6 +13,11 @@
     ],
     "uninstallDisplayName": "MiniMax Design"
   },
+  "target": {
+    "uaToken": "MiniMaxDesign",
+    "urlPattern": "^app://.*/workspace"
+  },
+  "readySelector": "aside.transparent-window-home-sidebar",
   "testedVersions": [
     "3.0.13"
   ],

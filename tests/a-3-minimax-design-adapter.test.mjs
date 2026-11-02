@@ -3,14 +3,21 @@
 // S-3 verified read-only: version 3.0.13, Electron, Velopack layout (root
 // exe + Update.exe + current/ + packages/), and the uninstall registry
 // InstallLocation pointing at the install ROOT with the launcher exe in
-// that root. DOM anchors and the main-window URL were NOT verified, so the
-// adapter declares no target/readySelector and parts-map.json stays empty:
-// only the variables layer can apply until Q-1 captures a sanitized DOM
-// snapshot. This file locks the loader facts, the profile assembly and the
-// exe-channel behavior against fake dependencies (no app is started).
+// that root. DOM anchors and the main-window URL were verified on
+// 2026-11-02 (real-machine verification, corrected round - see the A-3
+// evidence addendum): the settled main window is app://./workspace, the
+// UA token is MiniMaxDesign/<version>, and parts-map.json carries the
+// 9 parts present in the real workspace-view snapshot. Measured launch
+// behaviour is flaky: several debug-port launches produced no page
+// target and exited, while others reached the main window - the port
+// itself is accepted. This file locks the loader facts, the profile
+// assembly and the exe-channel behavior against fake dependencies.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { adapterById, loadAdapters } from '../src/core/adapters.mjs';
+import { parseSnapshotHtml } from '../src/core/dom-snapshot.mjs';
+import { hitReport } from '../src/core/parts-hit.mjs';
 import { appRuntimeById } from '../src/core/app-runtime.mjs';
 import { channelFor } from '../src/channels/index.mjs';
 import { exeChannel } from '../src/channels/index.mjs';
@@ -26,14 +33,13 @@ test('loader: minimax-design loads with the S-3 facts and no errors anywhere', (
   assert.deepEqual(a.discover.exeNames, ['MiniMax Design.exe']);
   assert.equal(a.discover.envExe, 'DREAMSKIN_MINIMAX_DESIGN_EXE');
   assert.deepEqual(a.testedVersions, ['3.0.13']); // S-3 read-only inventory; full flow unverified
-  // Nothing unverified is declared: DOM anchors + main-window URL wait for Q-1.
-  assert.equal(a.target, undefined);
-  assert.equal(a.readySelector, undefined);
+  assert.deepEqual(a.target, { uaToken: 'MiniMaxDesign', urlPattern: '^app://.*/workspace' });
+  assert.equal(a.readySelector, 'aside.transparent-window-home-sidebar');
   assert.equal(a.partsMap, 'parts-map.json');
   assert.equal(a.extraCss, 'extra.css');
 });
 
-test('profile: exe runtime facts, own style id, empty parts layer', () => {
+test('profile: exe runtime facts, own style id, measured parts layer', () => {
   const p = appRuntimeById('minimax-design');
   assert.equal(p.id, 'minimax-design');
   assert.equal(p.name, 'MiniMax Design');
@@ -43,13 +49,14 @@ test('profile: exe runtime facts, own style id, empty parts layer', () => {
   assert.equal(p.uninstallName, 'MiniMax Design');
   assert.equal(p.envExe, 'DREAMSKIN_MINIMAX_DESIGN_EXE');
   if (process.platform === 'win32') assert.equal(p.exeName, 'MiniMax Design.exe');
-  assert.deepEqual(p.partsMap, {});
-  assert.equal(p.partsCss, '');
-  // extra.css is header-comment only for now: rules text carries no rule block.
+  assert.deepEqual(Object.keys(p.partsMap), [
+    'app.root', 'app.sidebar', 'app.sidebar.item', 'app.topbar',
+    'app.content', 'chat.messages', 'chat.bubble.assistant',
+    'chat.composer', 'chat.composer.input',
+  ]);
+  assert.ok(p.partsCss.includes('aside.transparent-window-home-sidebar'), 'parts layer renders the measured anchors');
   assert.equal(typeof p.rules, 'string');
-  assert.ok(!p.rules.includes('{'), 'extra layer must not contain rules yet');
-  // No target facts yet: target matcher falls back to the plain file:// rule.
-  assert.equal(p.uaToken, '');
+  assert.equal(p.uaToken, 'MiniMaxDesign');
   assert.equal(p.restartNote, '');
 });
 
@@ -102,9 +109,17 @@ test('channel status three states with fake deps', async () => {
   assert.equal(running.installed, true);
   assert.equal(running.running, true);
   assert.equal(running.debugPort, 9222);
-  // The adapter declares no uaToken yet (unverified), so no version is parsed
-  // from the UA even though the fake UA carries one - honest until Q-1.
-  assert.equal(running.version, '');
+  assert.equal(running.version, '3.0.13'); // uaToken MiniMaxDesign measured on the real machine
+});
+
+test('real snapshot: every mapped part hits on the measured workspace DOM', () => {
+  const html = readFileSync(new URL('./fixtures/dom-minimax-design-real.html', import.meta.url), 'utf8');
+  const tree = parseSnapshotHtml(html);
+  const p = appRuntimeById('minimax-design');
+  const rep = hitReport(p.partsMap, tree);
+  assert.deepEqual(rep.partsMissing, []);
+  assert.equal(rep.requiredMissing, 0);
+  assert.equal(rep.mode, 'full');
 });
 
 test('channel launch: cold start goes through launchWithPort with a free port', async () => {
