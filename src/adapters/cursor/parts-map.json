@@ -1,8 +1,0 @@
-{
-  "app.root": {
-    "scope": "html:has(.monaco-workbench)",
-    "scopeBody": "body:has(.monaco-workbench)",
-    "selector": ".monaco-workbench",
-    "required": true
-  }
-}
