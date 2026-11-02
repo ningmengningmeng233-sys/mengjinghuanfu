@@ -1,0 +1,22 @@
+{
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\Kiro\\Kiro.exe"
+    ],
+    "envExe": "DREAMSKIN_KIRO_EXE",
+    "exeNames": [
+      "Kiro.exe"
+    ],
+    "uninstallDisplayName": "Kiro"
+  },
+  "extraCss": "extra.css",
+  "id": "kiro",
+  "name": "Kiro",
+  "partsMap": "parts-map.json",
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "restartNote": "未保存的文件会保留在编辑器中，重启会中断正在运行的任务",
+  "schema": "dreamskin-adapter/1"
+}

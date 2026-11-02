@@ -1,0 +1,12 @@
+/* DreamSkin for Windsurf {{version}} - extra layer.
+ *
+ * UNVERIFIED （未实测、待装后抓 DOM 订正） (A-7): Windsurf is not
+ * installed on this machine (owner decision: P2, install later). This
+ * adapter is written from the plan and the S-6 spike only: exe
+ * channel, the usual per-user Programs layout, and parts-map.json is
+ * a verbatim copy of the shared VS Code skeleton in
+ * adapters/vscode-base/. Nothing here is measured: no testedVersions,
+ * no target, no readySelector. After Windsurf is installed, capture a
+ * real DOM snapshot first and correct the map (and this file) against
+ * it before trusting any anchor.
+ */

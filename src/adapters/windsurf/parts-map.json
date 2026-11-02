@@ -1,0 +1,39 @@
+{
+  "app.root": {
+    "scope": "html:has(.monaco-workbench)",
+    "scopeBody": "body:has(.monaco-workbench)",
+    "selector": ".monaco-workbench",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": ".part.sidebar",
+    "required": true
+  },
+  "app.sidebar.item": {
+    "selector": ".monaco-list-row"
+  },
+  "app.topbar": {
+    "selector": ".part.titlebar",
+    "foot": ".part.statusbar"
+  },
+  "app.content": {
+    "selector": ".part.editor",
+    "required": true
+  },
+  "code.block": {
+    "selector": ".monaco-editor"
+  },
+  "overlay.panel": {
+    "selector": ".quick-input-widget"
+  },
+  "ide.editor": {
+    "selector": ".monaco-editor",
+    "required": true
+  },
+  "ide.terminal": {
+    "selector": ".xterm"
+  },
+  "ide.panel": {
+    "selector": ".part.panel"
+  }
+}
