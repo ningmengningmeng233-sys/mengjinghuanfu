@@ -153,7 +153,7 @@ internal static class HeadlessCommands
 		check("矩阵行体检（兼容模式）", mr.Health.Contains("兼容模式") && mr.Health.Contains("命中 11") && mr.Health.Contains("缺失 2") && mr.Health.Contains("sidebar") && mr.Health.Contains("2026-11-02 03:00"));
 		MatrixRow mr2 = MatrixLogic.BuildRow(codex, null);
 		check("矩阵行无记录", mr2.Health == "暂无体检记录");
-		AppRow ghost = new AppRow { Id = "claude", Name = "Claude", Installed = false };
+		AppRow ghost = new AppRow { Id = "ghost", Name = "Ghost", Installed = false };
 		MatrixRow mr3 = MatrixLogic.BuildRow(ghost, null);
 		check("矩阵行未装占位", mr3.Tested == "—" && mr3.Current == "—");
 		string expect = "Codex 的页面里已经有 Codex-Dream-Skin 注入的样式（codex-dream-skin-main），两个换肤工具同时注入会互相打架。梦境换肤这次没有注入任何样式：请先在 Codex-Dream-Skin 里还原或退出，再用梦境换肤；或者继续用 Codex-Dream-Skin，二选一。";
