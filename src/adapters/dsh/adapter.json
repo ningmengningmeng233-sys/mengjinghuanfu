@@ -17,6 +17,7 @@
   "process": {
     "gracefulCloseMs": 8000
   },
+  "readySelector": "[data-slot=\"sidebar\"]",
   "schema": "dreamskin-adapter/1",
   "shells": [
     {
@@ -39,6 +40,10 @@
       "url": "http://127.0.0.1:3080"
     }
   ],
+  "target": {
+    "uaToken": "DSHDesktop",
+    "urlPattern": "^http://127[.]0[.]0[.]1:[0-9]+/"
+  },
   "testedVersions": [
     "2.0.18"
   ]

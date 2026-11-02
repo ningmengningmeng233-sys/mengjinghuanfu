@@ -45,5 +45,13 @@
   锚点待主人完成初次设置并登录后补抓。复核不含用户专属值，未做中和。
   抓取方式同上。
 
+- `dom-dsh-real.html`：DSH Desktop 2.0.18 真机快照（2026-11-02，A-2 真机
+  验证补验，主人已授权；抓取时应用为已登录的会话视图，主工作区可见）。入库前
+  已中和：骨架里各类 UUID 一律换成零值 UUID（涉及 `data-row-key` /
+  `data-conversation-session` / 聊天流键等属性），工具调用标识写作
+  `call_redacted`，`data-chat-call-id` 与 `data-sidebar-right-session` 写作
+  `redacted`；中和的属性均不作部件锚点、不影响命中率复算。抓取方式同上
+  （`--url` 定位 + app 字段补正）。
+
 命中率测试见 `tests/q-1-parts-hit.test.mjs`：快照经 `src/core/parts-hit.mjs` 对照
 适配器 `parts-map.json` 逐部件判命中，mode 由 `src/core/health.mjs` 同口径裁决。

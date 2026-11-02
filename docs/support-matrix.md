@@ -10,7 +10,7 @@
 | cherry | Cherry Studio | exe | 2.1.4 | 部件地图已按实测 DOM 落地（四必需部件齐全）；应用自带自定义 CSS 入口 `user-defined-custom-css` 参与层叠顺序管理 |
 | zcode | ZCode | exe | 3.15.3 | 部件地图已按实测 DOM 落地 |
 | codex | Codex | msix（包族 `OpenAI.Codex_2p2nqsd0c76g0`，入口 `ChatGPT.exe`） | 26.1021.3705.0 | 真机验证通过：总控台 `--activate` 真激活、主窗口 app://-/index.html；部件地图已按真机快照回填 7 部件（命中 7/7、mode full）；与同类工具的冲突检测已接（对方样式 id 前缀 `codex-dream-skin`，确切 id 待对方工具在场时订正） |
-| dsh | DeepSeek Harness | exe（默认外壳） | 2.0.18（DSH Desktop） | 三种外壳已声明（见下）；部件地图为空，待真实 DOM 锚点（桌面外壳带参启动补验待做：上轮验证时应用已在运行、未打扰） |
+| dsh | DeepSeek Harness | exe（默认外壳） | 2.0.18（DSH Desktop） | 真机验证通过：带调试端口启动被接受，主窗口为本地回环 HTTP 服务（动态端口）承载的 Web UI，UA 标记 DSHDesktop；部件地图已按真机快照回填 12 部件（命中 12/12、mode full）；三种外壳已声明（见下） |
 | minimax-code | MiniMax Code | exe | 3.1.0 | 真机验证通过：主窗口 app://./archon、UA 标记 MiniMaxAgent；部件地图已按真机快照回填 7 部件（命中 7/7、mode full） |
 | minimax-design | MiniMax Design | exe（Velopack 安装） | 3.0.13 | 真机验证通过：主窗口 app://./workspace；部件地图已按真机快照回填 9 部件（命中 9/9、mode full）；带参启动稳定性差为已知风险项 |
 | claude | Claude | msix（包族 `Claude_pzs8sxrjxfjjc`，入口 `app\Claude.exe`） | 4.4212.0.0 | 包事实与 AUMID 解析实测通过；**当前版本拒绝调试端口**（对照实测：无参 / 无害参数激活正常启动，带 `--remote-debugging-port` 激活则进程不出现），无 CDP 会话、无 DOM 快照，部件地图为空，暂不可换肤；按方案 §5 不改包绕过 |

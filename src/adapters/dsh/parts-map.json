@@ -1,1 +1,49 @@
-{}
+{
+  "app.root": {
+    "scope": "html:has([data-slot=\"sidebar\"])",
+    "scopeBody": "body:has([data-slot=\"sidebar\"])",
+    "selector": "body:has([data-slot=\"sidebar\"]) #root",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-slot=\"sidebar\"]",
+    "pane": "[data-slot=\"sidebar\"]",
+    "required": true
+  },
+  "app.sidebar.item": {
+    "selector": "[data-row-key^=\"session:\"]"
+  },
+  "app.sidebar.item.active": {
+    "selector": "[data-row-key^=\"session:\"].qZBEgG_selected"
+  },
+  "app.topbar": {
+    "selector": "[data-slot=\"conversation.header\"]"
+  },
+  "app.content": {
+    "selector": "[data-slot=\"main\"]",
+    "required": true
+  },
+  "chat.messages": {
+    "selector": "[data-conversation-scroll]",
+    "list": "[data-slot=\"conversation.chat.flow\"]",
+    "shell": "[data-slot=\"conversation.view\"]"
+  },
+  "chat.bubble.user": {
+    "selector": "[data-chat-flow-kind=\"user\"] .fDq-QG_bubble"
+  },
+  "chat.bubble.assistant": {
+    "selector": "[data-chat-group-part=\"response\"]"
+  },
+  "chat.composer": {
+    "selector": "[data-composer-card]",
+    "dock": "[data-slot=\"conversation.composer\"]",
+    "radius": "[data-composer-card]",
+    "required": true
+  },
+  "chat.composer.input": {
+    "selector": "[data-composer-input]"
+  },
+  "code.block": {
+    "selector": ".md-code-block"
+  }
+}
