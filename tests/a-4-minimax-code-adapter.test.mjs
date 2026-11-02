@@ -6,11 +6,19 @@
 // target. Measured limits on this machine: custom install directory and
 // an EMPTY InstallLocation in the uninstall entry, so static discovery
 // cannot locate it while it is not running (process scan / env override
-// still can). DOM anchors and the main-window URL were NOT verified, so
-// parts-map.json stays empty and no target/readySelector is declared.
+// still can). DOM anchors and the main-window URL were verified later
+// (2026-11-02 real-machine verification, see the A-4 evidence addendum):
+// the settled main window is app://./archon, the UA token is
+// MiniMaxAgent/<version>, and parts-map.json carries the 7 parts that
+// were present in the real home-view snapshot. Note the measured launch
+// behaviour: a cold start with our debug port only lives in a bootstrap
+// instance; the durable main process re-spawns with its OWN debug port.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { adapterById, loadAdapters } from '../src/core/adapters.mjs';
+import { parseSnapshotHtml } from '../src/core/dom-snapshot.mjs';
+import { hitReport } from '../src/core/parts-hit.mjs';
 import { appRuntimeById } from '../src/core/app-runtime.mjs';
 import { channelFor, exeChannel } from '../src/channels/index.mjs';
 import { createExeChannel, profileToChannelAdapter } from '../src/channels/exe.mjs';
@@ -25,13 +33,13 @@ test('loader: minimax-code loads with the S-4 facts and no errors anywhere', () 
   assert.deepEqual(a.discover.exeNames, ['MiniMax Code.exe']);
   assert.equal(a.discover.envExe, 'DREAMSKIN_MINIMAX_CODE_EXE');
   assert.deepEqual(a.testedVersions, ['3.1.0']); // S-4 read-only inventory; full flow unverified
-  assert.equal(a.target, undefined);
-  assert.equal(a.readySelector, undefined);
+  assert.deepEqual(a.target, { uaToken: 'MiniMaxAgent', urlPattern: '^app://.*/archon' });
+  assert.equal(a.readySelector, '[data-testid="sidebar-base-card"]');
   assert.equal(a.partsMap, 'parts-map.json');
   assert.equal(a.extraCss, 'extra.css');
 });
 
-test('profile: exe runtime facts, own style id, empty parts layer', () => {
+test('profile: exe runtime facts, own style id, measured parts layer', () => {
   const p = appRuntimeById('minimax-code');
   assert.equal(p.id, 'minimax-code');
   assert.equal(p.name, 'MiniMax Code');
@@ -41,11 +49,13 @@ test('profile: exe runtime facts, own style id, empty parts layer', () => {
   assert.equal(p.uninstallName, 'MiniMax Code');
   assert.equal(p.envExe, 'DREAMSKIN_MINIMAX_CODE_EXE');
   if (process.platform === 'win32') assert.equal(p.exeName, 'MiniMax Code.exe');
-  assert.deepEqual(p.partsMap, {});
-  assert.equal(p.partsCss, '');
+  assert.deepEqual(Object.keys(p.partsMap), [
+    'app.root', 'app.sidebar', 'app.sidebar.item', 'app.topbar',
+    'app.content', 'chat.composer', 'chat.composer.input',
+  ]);
+  assert.ok(p.partsCss.includes('[data-testid="sidebar-base-card"]'), 'parts layer renders the measured anchors');
   assert.equal(typeof p.rules, 'string');
-  assert.ok(!p.rules.includes('{'), 'extra layer must not contain rules yet');
-  assert.equal(p.uaToken, '');
+  assert.equal(p.uaToken, 'MiniMaxAgent');
   assert.equal(p.restartNote, '');
 });
 
@@ -71,7 +81,7 @@ function fakeDeps(over = {}) {
     launchWithPort: async (exe, port) => { calls.push(['launchWithPort', exe, port]); return 4242; },
     listMainTargets: async (app, port) => [{ id: 't1', type: 'page', port }],
     waitForMainTargets: async (app, port) => { calls.push(['waitForMainTargets', port]); return [{ id: 't1', type: 'page' }]; },
-    fetchVersion: async () => ({ 'User-Agent': 'Mozilla/5.0 MiniMaxCode/3.1.0' }),
+    fetchVersion: async () => ({ 'User-Agent': 'Mozilla/5.0 MiniMaxAgent/3.1.0' }),
     ...over,
   };
   return { deps, calls };
@@ -94,7 +104,17 @@ test('channel status three states with fake deps', async () => {
   assert.equal(running.installed, true);
   assert.equal(running.running, true);
   assert.equal(running.debugPort, 9223);
-  assert.equal(running.version, ''); // no uaToken declared yet - honest until Q-1
+  assert.equal(running.version, '3.1.0'); // uaToken MiniMaxAgent measured on the real machine
+});
+
+test('real snapshot: every mapped part hits on the measured home-view DOM', () => {
+  const html = readFileSync(new URL('./fixtures/dom-minimax-code-real.html', import.meta.url), 'utf8');
+  const tree = parseSnapshotHtml(html);
+  const p = appRuntimeById('minimax-code');
+  const rep = hitReport(p.partsMap, tree);
+  assert.deepEqual(rep.partsMissing, []);
+  assert.equal(rep.requiredMissing, 0);
+  assert.equal(rep.mode, 'full');
 });
 
 test('channel launch: cold start goes through launchWithPort with a free port', async () => {

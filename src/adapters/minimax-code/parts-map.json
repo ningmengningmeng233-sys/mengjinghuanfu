@@ -1,1 +1,30 @@
-{}
+{
+  "app.root": {
+    "scope": "html:has([data-testid=\"sidebar-base-card\"])",
+    "scopeBody": "body:has([data-testid=\"sidebar-base-card\"])",
+    "selector": "body > div.h-screen, div.windows-app-content",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-testid=\"sidebar-base-card\"]",
+    "pane": "[data-testid=\"sidebar-base-card\"]",
+    "required": true
+  },
+  "app.sidebar.item": {
+    "selector": "button.mavis-sidebar-item"
+  },
+  "app.topbar": {
+    "selector": "[data-testid=\"windows-titlebar\"], header.windows-titlebar"
+  },
+  "app.content": {
+    "selector": "[data-testid=\"mavis-home-content\"]",
+    "required": true
+  },
+  "chat.composer": {
+    "selector": "[data-testid=\"message-input\"]",
+    "required": true
+  },
+  "chat.composer.input": {
+    "selector": "[data-testid=\"message-textarea\"]"
+  }
+}
