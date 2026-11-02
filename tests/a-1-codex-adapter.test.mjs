@@ -14,6 +14,9 @@ import {
   FOREIGN_SKIN_TOOLS, conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMessage,
 } from '../src/core/conflicts.mjs';
 import { partChecksOf } from '../src/core/health.mjs';
+import { readFileSync } from 'node:fs';
+import { parseSnapshotHtml } from '../src/core/dom-snapshot.mjs';
+import { hitReport } from '../src/core/parts-hit.mjs';
 
 const FAMILY = 'OpenAI.Codex_2p2nqsd0c76g0';
 const PKG = {
@@ -34,19 +37,30 @@ test('codex adapter loads through the loader with no validation errors anywhere'
   assert.equal(data.discover.msixPackageFamily, FAMILY); // S-1 measurement
   assert.deepEqual(data.discover.exeNames, ['ChatGPT.exe']); // S-1: manifest entry app/ChatGPT.exe
   assert.deepEqual(data.conflicts, ['codex-dream-skin']); // plan 3 / 4.2
+  // target corrected by the 2026-11-02 real-machine verification: the measured
+  // main window is app://-/index.html; the plan example's uaToken / rejectPattern
+  // did not match reality (browser UA carries no app token) and were removed.
+  assert.ok(data.target.urlPattern.startsWith('^app://'));
+  assert.equal(data.target.uaToken, undefined);
+  assert.equal(data.target.rejectPattern, undefined);
+  assert.equal(data.readySelector, '#app-shell-sidebar');
 });
 
-test('profile assembly: msix facts, own style id, empty parts layer (no verified anchors yet)', () => {
+test('profile assembly: msix facts, own style id, measured parts layer', () => {
   const p = appRuntimeById('codex');
   assert.equal(p.channel, 'msix');
   assert.equal(p.msixPackageFamily, FAMILY);
   assert.equal(p.exeName, 'ChatGPT.exe');
   assert.equal(p.styleId, 'dream-skin-2-codex'); // ours, derived from id - different from the other tool (plan 3)
   assert.equal(p.liveId, 'dream-skin-2-codex-live');
-  assert.deepEqual(p.partsMap, {}); // S-1: no DOM anchor is verified - empty map, health/downloads degrade path
-  assert.equal(p.partsCss, '');
-  assert.ok(!/[{}]/.test(p.rules), 'no style rules before real-machine anchors exist: ' + p.rules);
-  assert.deepEqual(partChecksOf(p.partsMap), []);
+  assert.deepEqual(Object.keys(p.partsMap), [
+    'app.root', 'app.sidebar', 'app.sidebar.item', 'app.topbar',
+    'app.content', 'chat.composer', 'chat.composer.input',
+  ]); // anchors measured on the real machine 2026-11-02 (A-1 addendum)
+  assert.ok(p.partsCss.includes('#app-shell-sidebar'), 'parts layer renders the measured anchors');
+  assert.equal(partChecksOf(p.partsMap).length, 7);
+  assert.equal(p.readySelector, '#app-shell-sidebar');
+  assert.equal(p.uaToken, ''); // measured: browser UA has no app token
   assert.equal(typeof p.isMainTarget, 'function');
   assert.equal(channelFor(p).kind, 'msix');
 });
@@ -68,6 +82,16 @@ function fakeDeps(over = {}) {
   };
   return { deps, calls };
 }
+
+test('real snapshot: every mapped part hits on the measured main-window DOM', () => {
+  const html = readFileSync(new URL('./fixtures/dom-codex-real.html', import.meta.url), 'utf8');
+  const tree = parseSnapshotHtml(html);
+  const p = appRuntimeById('codex');
+  const rep = hitReport(p.partsMap, tree);
+  assert.deepEqual(rep.partsMissing, []);
+  assert.equal(rep.requiredMissing, 0);
+  assert.equal(rep.mode, 'full');
+});
 
 test('end to end on fakes: profile -> msix channel adapter -> status resolves the S-1 AUMID', async () => {
   const adapter = profileToMsixChannelAdapter(appRuntimeById('codex'));

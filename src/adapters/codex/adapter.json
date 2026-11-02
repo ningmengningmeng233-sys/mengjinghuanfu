@@ -18,11 +18,10 @@
   "process": {
     "gracefulCloseMs": 8000
   },
+  "readySelector": "#app-shell-sidebar",
   "restartNote": "正在运行的任务会被中断，对话记录不受影响",
   "schema": "dreamskin-adapter/1",
   "target": {
-    "rejectPattern": "login|auth|update|settings|splash",
-    "uaToken": "Codex",
     "urlPattern": "^app://.*/index\\.html"
   },
   "testedVersions": [

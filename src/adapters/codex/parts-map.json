@@ -1,1 +1,30 @@
-{}
+{
+  "app.root": {
+    "scope": "html:has(#app-shell-sidebar)",
+    "scopeBody": "body:has(#app-shell-sidebar)",
+    "selector": "body:has(#app-shell-sidebar) #root",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "#app-shell-sidebar",
+    "pane": "#app-shell-sidebar",
+    "required": true
+  },
+  "app.sidebar.item": {
+    "selector": "[data-app-action-sidebar-thread-row]"
+  },
+  "app.topbar": {
+    "selector": "header:has([data-test-id=\"header-shell-slot\"])"
+  },
+  "app.content": {
+    "selector": "main[class*=\"_MainContentSurface_\"]",
+    "required": true
+  },
+  "chat.composer": {
+    "selector": "[class*=\"_ComposerLayoutRoot_\"]",
+    "required": true
+  },
+  "chat.composer.input": {
+    "selector": "[data-composer-input]"
+  }
+}
