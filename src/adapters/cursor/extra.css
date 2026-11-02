@@ -1,0 +1,13 @@
+/* DreamSkin for Cursor {{version}} - extra layer.
+ *
+ * Status (A-6, measured 2026-11-02 on Cursor 3.27.22): exe channel and
+ * the debug port are verified; the main window is the VS Code workbench
+ * page (vscode-file:// ... /workbench/workbench.html, UA token Cursor).
+ * On first run the app stops at a logged-out screen in front of the
+ * workbench; in that state the workbench renders only .monaco-workbench
+ * (no .part.* parts, no editor), so parts-map.json carries app.root only
+ * (from the real snapshot tests/fixtures/dom-cursor-real.html). The
+ * remaining skeleton parts (see adapters/vscode-base/) and Cursor's own
+ * AI chat layer anchors need a snapshot taken after the owner signs in;
+ * they are pending manual verification, not invented here.
+ */

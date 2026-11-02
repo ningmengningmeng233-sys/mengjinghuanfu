@@ -1,0 +1,16 @@
+/* DreamSkin for Trae CN {{version}} - extra layer.
+ *
+ * Status (A-6, measured 2026-11-02 on Trae CN 3.3.84, the China
+ * edition from trae.com.cn): exe channel and the debug port are
+ * verified (browser UA token TraeCN, Electron 39). On first run the
+ * app stops at a first-run setup page (vscode-file:// ...
+ * /electron-browser/setup/setup.html, snapshot in
+ * tests/fixtures/dom-trae-real.html); the workbench page behind the
+ * setup flow was not reachable without completing the setup, so no
+ * target / readySelector is declared and parts-map.json stays empty
+ * (measured-empty, same treatment as the dsh adapter). The shared
+ * VS Code skeleton lives in adapters/vscode-base/; Trae's workbench
+ * anchors and its own AI chat layer are pending a snapshot after the
+ * owner finishes the first-run setup and signs in (manual
+ * verification), not invented here.
+ */

@@ -31,5 +31,19 @@
   属性均不作部件锚点、不影响命中率复算。抓取方式同上（`--url` 定位 +
   app 字段补正）。
 
+- `dom-cursor-real.html`：Cursor 3.27.22 真机快照（2026-11-02，A-6 真机
+  验证，主人已授权安装并启动验证；抓取时应用为首启未登录态）。该状态下
+  登录墙（`data-component="logged-out-glass-screen"`）挡在工作台前面，
+  工作台只渲染了 `.monaco-workbench` 根节点、没有任何 `.part.*` 部件，
+  故 cursor 的 parts-map 只落 app.root 一条。快照经复核不含用户专属值
+  （无路径 / UUID / 标题文本），未做中和。抓取方式同后（`--url` 定位 +
+  app 字段补正）。
+- `dom-trae-real.html`：Trae CN 3.3.84 真机快照（2026-11-02，A-6 真机
+  验证；抓取时应用为首启的初次设置页 `electron-browser/setup/setup.html`，
+  不是工作台）。该页没有 `.monaco-workbench`，此夹具的用途是留档「设置页
+  ≠ 工作台」这一实测状态并守住 trae 不声明 target / 空 map 的口径；工作台
+  锚点待主人完成初次设置并登录后补抓。复核不含用户专属值，未做中和。
+  抓取方式同上。
+
 命中率测试见 `tests/q-1-parts-hit.test.mjs`：快照经 `src/core/parts-hit.mjs` 对照
 适配器 `parts-map.json` 逐部件判命中，mode 由 `src/core/health.mjs` 同口径裁决。
