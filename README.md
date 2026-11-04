@@ -116,3 +116,18 @@ node tools/dom-snapshot.mjs --port <调试端口> --app <id> --out snapshot.html
 
 版本号唯一来源是 `src/core/version.mjs`；总控台版本、payload 版本与
 CDP User-Agent 都从它派生，`tools/check-version.mjs` 负责校验一致。
+
+## 应用更新后怎么办
+
+目标应用（Cherry Studio、ZCode、Codex、DSH、MiniMax Design、MiniMax Code）自己更新后，界面结构可能变化，皮肤部件可能对不上。先跑一键复检（只读，不改任何皮肤状态）：
+
+    node tools/recheck-after-update.mjs
+
+它逐家对比当前安装版本与基线（`tools/recheck-baseline.json`）；未运行的应用会带调试端口启动、抓取脱敏快照复算部件命中后关回。逐家结论与对应动作：
+
+- **完好 full**：部件全命中，什么都不用做。
+- **降级可用 compat**：皮肤已自动只保留配色与壁纸（兼容模式），可继续用；想恢复完整皮肤时按下面刷新部件表。
+- **需刷新部件表**：版本已变且必需部件缺失超过 30%（方案 §4.5 线），或抓不到主窗口。按 Q-1 方法重抓该应用的 DOM 快照（`tools/dom-snapshot.mjs`）、对照新快照重算 `src/adapters/<id>/parts-map.json`，再跑一次复检确认变回 full。
+- **未安装**：跳过。**待复检**：应用正在运行，复检不打扰它，只报版本比对；等它空闲时再跑一次。
+
+DSH 在本机冷启动很慢（实测约 9–12 分钟才就绪），复检给它的等待窗口 ≥15 分钟，属正常现象。退出码：0 = 没有需刷新的；1 = 至少一家需刷新部件表；2 = 参数或基线错误。
