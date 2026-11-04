@@ -1,5 +1,5 @@
 <!-- dreamskin-dom-snapshot/1 app=cherry synthetic=true -->
-<!-- 合成夹具（降级样本）：模拟 Cherry 改版后内容区与输入框锚点消失——必需部件缺失 2/4（50% > 30%），health 应裁决 compat。 -->
+<!-- 合成夹具（降级样本）：模拟 Cherry 改版后内容区锚点消失。2.1.6 刷新后侧边栏/输入框带视图守卫（requiredWhen=chat.view），本样本无 chat.view 故两者 skip 不计分母；计数必需集为 {app.root, app.content}，缺 app.content = 1/2（50% > 30%），health 应裁决 compat。 -->
 <html>
   <body>
     <div id="app-sidebar"></div>

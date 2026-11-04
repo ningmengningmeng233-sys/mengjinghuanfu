@@ -1,27 +1,28 @@
 {
   "app.root": {
-    "scope": "html:has(#app-sidebar)",
-    "scopeBody": "body:has(#app-sidebar)",
-    "selector": "body:has(#app-sidebar) #root, body:has(#app-sidebar) [data-ui=\"app.main\"], body:has(#app-sidebar) .h-screen.w-screen",
+    "scope": "html:has([data-ui=\"app.main\"])",
+    "scopeBody": "body:has([data-ui=\"app.main\"])",
+    "selector": "body:has([data-ui=\"app.main\"]) #root, body:has([data-ui=\"app.main\"]) [data-ui=\"app.main\"]",
     "required": true
   },
   "app.sidebar": {
-    "selector": "#app-sidebar, [data-ui=\"app.sidebar\"], [data-ui=\"chat.topic-list\"]",
+    "selector": "#app-sidebar, [data-ui=\"app.sidebar\"]",
     "pane": "[class*=\"resource-list-pane\"]",
     "pane-border": "[class*=\"resource-list-pane\"]",
-    "required": true
+    "required": true,
+    "requiredWhen": "[data-ui=\"chat.view\"]"
   },
   "app.topbar": {
     "selector": "[data-ui=\"app.tab-bar\"]"
   },
   "app.content": {
-    "selector": "[data-ui=\"chat.view\"], #chat, #home-page",
-    "wrap": "div[data-ui=\"app.content\"]",
+    "selector": "[data-ui=\"chat.view\"]",
+    "wrap": "[data-ui=\"app.shell\"]:has(> [data-ui=\"app.content\"])",
     "card": "main[data-ui=\"app.content\"]",
     "required": true
   },
   "chat.messages": {
-    "selector": "[data-ui=\"part:conversation-main\"]",
+    "selector": "[data-ui~=\"part:conversation-main\"]",
     "list": "[data-ui=\"chat.message-list\"]",
     "shell": "[data-ui=\"chat.message-list\"], #messages"
   },
@@ -30,7 +31,9 @@
   },
   "chat.composer": {
     "selector": "#inputbar, [data-ui=\"chat.composer\"]",
-    "required": true
+    "dock": "[data-ui=\"chat.composer-dock-transition-frame\"]",
+    "required": true,
+    "requiredWhen": "[data-ui=\"chat.view\"]"
   },
   "code.block": {
     "selector": "[data-ui=\"part:code-block\"]"

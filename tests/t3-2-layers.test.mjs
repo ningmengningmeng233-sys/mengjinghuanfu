@@ -51,8 +51,8 @@ function normalizeRules(css) {
 }
 const fixture = (name) => readFileSync(new URL('./fixtures/' + name, import.meta.url), 'utf8');
 
-test('cherry RULES composed from templates is equivalent to the 2.1 sheet', () => {
-  assert.equal(normalizeRules(RULES), fixture('rules-cherry-2.1.txt'));
+test('cherry RULES composed from templates matches the recorded baseline sheet', () => {
+  assert.equal(normalizeRules(RULES), fixture('rules-cherry-2.1.6.txt'));
 });
 
 test('zcode RULES composed from templates is equivalent to the 2.1 sheet', () => {

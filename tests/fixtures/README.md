@@ -3,11 +3,13 @@
 测试夹具目录。
 
 - `rules-cherry-2.1.txt` / `rules-zcode-2.1.txt`：2.1 规则段规范化快照（T3-2 等价守卫用）。
+- `rules-cherry-2.1.6.txt`：Cherry parts-map 按现装 2.1.6 刷新后的规则段规范化基线（2026-11-05 收尾修复批起 T3-2 改对本文件；`rules-cherry-2.1.txt` 保留为 2.1 历史基线，不再被测试引用）。
 - `dom-*.html`：**脱敏 DOM 快照夹具**（Q-1）。格式是 `tools/dom-snapshot.mjs` 产出的
   脱敏 HTML：只有标签与 `id` / `class` / `data-*` 属性，没有任何文本内容；首行注释
   声明 `app=<适配器 id>` 与 `synthetic=<true|false>`——`true` 表示按 parts-map 锚点
   手工搭的合成骨架（框架自测用），`false` 才是真机抓取（须主人同意后由工具抓，
   抓前先确认快照里不含用户内容再入库）。
+- `dom-cherry-real.html`：Cherry Studio 2.1.6 真机快照（2026-11-05，收尾修复批；隔离全新 profile 的聊天主视图——主人真实 profile 零接触，快照经路径/标识扫描无用户专属值、无需中和）。2.1.6 是多视图外壳：本夹具是聊天视图；设置视图同日另抓一份存证据目录（收尾修复批），parts-hit 对两视图均为 full（设置视图靠视图守卫 skip 聊天专属必需件）。
 - `dom-minimax-code-real.html`：MiniMax Code 3.1.0 真机快照（2026-11-02，A-4 真机
   验证，主人已授权；抓取时应用为首页态）。入库前已按上款复核并中和三类用户专属
   值：`data-workspace-dir` / `data-project-key` / `data-project-header` 里的工作区

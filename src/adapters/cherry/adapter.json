@@ -20,7 +20,8 @@
   "probes": [
     [
       "[data-ui=\"app.sidebar\"]",
-      "侧边栏"
+      "侧边栏",
+      "[data-ui=\"chat.view\"]"
     ],
     [
       "[data-ui=\"app.tab-bar\"]",
@@ -33,18 +34,18 @@
     [
       "[data-ui=\"chat.message-list\"]",
       "消息列表",
-      "#chat"
+      "[data-ui=\"chat.view\"]"
     ],
     [
       "#inputbar",
       "输入框",
-      "#chat"
+      "[data-ui=\"chat.view\"]"
     ]
   ],
   "process": {
     "gracefulCloseMs": 8000
   },
-  "readySelector": "#app-sidebar",
+  "readySelector": "[data-ui=\"app.main\"]",
   "restartNote": "聊天记录不受影响，未发送的输入框内容会丢失",
   "schema": "dreamskin-adapter/1",
   "target": {
@@ -52,7 +53,8 @@
     "urlPattern": "^file://.*/windows/main/index\\.html"
   },
   "testedVersions": [
-    "2.1.4"
+    "2.1.4",
+    "2.1.6"
   ],
   "userCssId": "user-defined-custom-css"
 }

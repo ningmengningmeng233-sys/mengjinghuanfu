@@ -9,6 +9,7 @@ import { parseSnapshotHtml, parseSnapshotMeta } from '../src/core/dom-snapshot.m
 import { queryAll, queryFirst, partStatesOf, hitReport } from '../src/core/parts-hit.mjs';
 import { evaluateHealth, partChecksOf } from '../src/core/health.mjs';
 import { appRuntimeById } from '../src/core/app-runtime.mjs';
+import { formsOf } from '../src/parts/parts.mjs';
 
 const fixture = (name) => readFileSync(new URL('./fixtures/' + name, import.meta.url), 'utf8');
 const CHERRY = appRuntimeById('cherry');
@@ -83,11 +84,11 @@ test('cherry degraded snapshot: required missing over 30% -> compat, same as hea
   const snap = parseSnapshotHtml(fixture('dom-cherry-degraded.html'));
   const report = hitReport(CHERRY.partsMap, snap);
   assert.equal(report.mode, 'compat');
-  assert.equal(report.requiredTotal, 4);
-  assert.equal(report.requiredMissing, 2); // app.content + chat.composer
+  assert.equal(report.requiredTotal, 2); // 2.1.6 refresh: sidebar/composer carry a chat.view guard and skip in this sample (no chat view), so the counted required set is app.root + app.content
+  assert.equal(report.requiredMissing, 1); // app.content
   assert.equal(report.requiredMissingRatio, 0.5);
   assert.ok(report.partsMissing.includes('app.content'));
-  assert.ok(report.partsMissing.includes('chat.composer'));
+  assert.ok(!report.partsMissing.includes('chat.composer')); // guarded part is skipped here, not missing
   const { checks, states } = partStatesOf(CHERRY.partsMap, snap);
   assert.equal(evaluateHealth({ partStates: states, checks }).mode, 'compat');
   assert.equal(partChecksOf(CHERRY.partsMap).length, report.parts.length);
@@ -112,4 +113,26 @@ test('empty parts-map (new adapters before real anchors): no countable parts, ho
   assert.equal(report.hitRate, null);
   assert.equal(report.mode, 'full'); // means "nothing to degrade on", NOT "adapter verified"
   assert.deepEqual(report.parts, []);
+});
+
+test('requiredWhen guard present but own selector missing -> missing (the guard is not a form)', () => {
+  const map = {
+    'app.root': { selector: 'html', required: true },
+    'ide.only': { selector: '#editor', required: true, requiredWhen: '[data-mode="ide"]' },
+  };
+  const snap = node('html', {}, [node('body', {}, [node('div', { 'data-mode': 'ide' })])]);
+  const { states } = partStatesOf(map, snap);
+  assert.equal(states['ide.only'], 'missing'); // guard hits, own anchor gone: must NOT auto-report present
+  assert.deepEqual([...formsOf(map['ide.only']).keys()], ['']); // only the default form; requiredWhen excluded
+});
+
+test('cherry real 2.1.6 snapshot (isolated fresh profile, chat view): required full', () => {
+  const snap = parseSnapshotHtml(fixture('dom-cherry-real.html'));
+  const report = hitReport(CHERRY.partsMap, snap);
+  assert.equal(report.mode, 'full');
+  assert.equal(report.requiredTotal, 4);
+  assert.equal(report.requiredMissing, 0);
+  // the fresh profile has no conversation open, so the two content-dependent parts
+  // are honestly missing; their anchors are carried over from the 2.1.4 measurement
+  assert.deepEqual(report.partsMissing, ['chat.bubble.user', 'code.block']);
 });

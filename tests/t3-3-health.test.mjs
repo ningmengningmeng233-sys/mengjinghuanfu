@@ -113,7 +113,7 @@ test('degradeLayers keeps vars and the wallpaper mount (app.root), drops extra',
   assert.equal(d.vars, 'VARS');
   assert.equal(d.extra, '');
   assert.equal(d.parts, renderPartsCss({ 'app.root': CHERRY.partsMap['app.root'] }));
-  assert.ok(d.parts.includes('#app-sidebar'), 'wallpaper mount rules kept');
+  assert.ok(d.parts.includes('[data-ui="app.main"]'), 'wallpaper mount rules kept');
   assert.ok(!d.parts.includes('resource-list-pane'), 'other parts rules dropped');
   assert.equal(wallpaperPartsCss(null), '');
   assert.equal(wallpaperPartsCss({}), '');

@@ -1,7 +1,7 @@
 // T3-1 tests: parts catalogue + templates + renderer (plan 4.4).
 // Proves: the catalogue is exactly the plan's part list and validates; every
 // template references a catalogued part; rendering the cherry / zcode
-// adapters' parts-maps expands all placeholders and keeps the 2.1 selectors.
+// adapters' parts-maps expands all placeholders and keeps the measured selectors.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, rmSync, readFileSync } from 'node:fs';
@@ -64,19 +64,19 @@ test('validatePartsMap flags unknown parts and empty entries; adapter maps are c
   assert.ok(validatePartsMap({ 'app.root': {} }, parts).some((e) => /没有给出任何选择器/.test(e)));
 });
 
-test('rendering the cherry map expands everything and keeps the 2.1 selectors', () => {
+test('rendering the cherry map expands everything and keeps the measured selectors', () => {
   const css = renderPartsCss(CHERRY_PARTS_MAP);
   assert.ok(!css.includes('{{'), 'unexpanded placeholder left');
-  for (const sel of ['html:has(#app-sidebar)', '#app-sidebar', '[data-ui="app.sidebar"]', '[data-ui="app.tab-bar"]',
-    'main[data-ui="app.content"]', '[class*="resource-list-pane"]', '[data-ui="part:conversation-main"]',
+  for (const sel of ['html:has([data-ui="app.main"])', '#app-sidebar', '[data-ui="app.sidebar"]', '[data-ui="app.tab-bar"]',
+    'main[data-ui="app.content"]', '[class*="resource-list-pane"]', '[data-ui~="part:conversation-main"]', '[data-ui="chat.view"]',
     '[data-ui="chat.message-list"]', '.message-user .message-content-container', '#inputbar',
     '[data-ui="chat.composer"]', '[data-ui="part:code-block"]']) {
     assert.ok(css.includes(sel), 'missing selector: ' + sel);
   }
-  assert.ok(css.includes('body:has(#app-sidebar)::before'));
+  assert.ok(css.includes('body:has([data-ui="app.main"])::before'));
 });
 
-test('rendering the zcode map expands everything and keeps the 2.1 selectors', () => {
+test('rendering the zcode map expands everything and keeps the measured selectors', () => {
   const css = renderPartsCss(ZCODE_PARTS_MAP);
   assert.ok(!css.includes('{{'), 'unexpanded placeholder left');
   for (const sel of ['[data-workspace-shell]', '[data-root-workspace-surface]', '#sidebar', '[data-testid="sidebar"]',

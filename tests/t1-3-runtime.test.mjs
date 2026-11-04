@@ -44,7 +44,7 @@ test('runtime profiles carry the confirmed 2.1 facts', () => {
   const cherry = appRuntimeById('cherry');
   assert.equal(cherry.name, 'Cherry Studio');
   assert.equal(cherry.channel, 'exe');
-  assert.equal(cherry.readySelector, '#app-sidebar');
+  assert.equal(cherry.readySelector, '[data-ui="app.main"]');
   assert.equal(cherry.uaToken, 'CherryStudio');
   assert.equal(cherry.envExe, 'DREAMSKIN_CHERRY_EXE');
   assert.equal(cherry.uninstallName, 'Cherry Studio');
@@ -53,7 +53,7 @@ test('runtime profiles carry the confirmed 2.1 facts', () => {
   assert.equal(cherry.userCssId, 'user-defined-custom-css');
   assert.equal(cherry.shortcutName, 'Cherry Studio (梦境换肤)');
   assert.equal(cherry.restartNote, '聊天记录不受影响，未发送的输入框内容会丢失');
-  assert.deepEqual(cherry.testedVersions, ['2.1.4']);
+  assert.deepEqual(cherry.testedVersions, ['2.1.4', '2.1.6']);
   assert.equal(cherry.isHelperCmd, undefined);
 
   const zcode = appRuntimeById('zcode');

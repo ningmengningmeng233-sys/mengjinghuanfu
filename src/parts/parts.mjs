@@ -138,11 +138,17 @@ function splitCssBlocks(text) {
 // ---- parts-map 与渲染 ----
 // map 形状：{ <部件 id>: "<选择器>" | { selector: "<默认形态>", <形态>: "<选择器>", ... }, ... }
 // 对象里非字符串的值（如 required: true 这类体检元数据，见方案 §4.4）不是形态，渲染时忽略。
+// requiredWhen 是体检元数据（守卫选择器，见 core/health.mjs 的 partChecksOf），不是部件形态：
+// 混进形态集合会让守卫命中时部件被误判在场（守卫选择器自己满足了命中），还会污染 CSS 形态校验。
+// 故在 formsOf 排除；守卫只由 partChecksOf / partsProbeExpr / partStatesOf 按元数据读取。
+// （2026-11-05 收尾修复批，证据见 证据/收尾修复批报告.md）
+const NON_FORM_KEYS = new Set(["requiredWhen"]);
 export function formsOf(entry) {
   const forms = new Map();
   if (typeof entry === 'string') { forms.set('', entry); return forms; }
   if (entry && typeof entry === 'object' && !Array.isArray(entry)) {
     for (const [k, v] of Object.entries(entry)) {
+      if (NON_FORM_KEYS.has(k)) continue;
       if (typeof v === 'string' && v) forms.set(k === 'selector' ? '' : k, v);
     }
   }
