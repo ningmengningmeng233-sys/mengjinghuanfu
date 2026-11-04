@@ -12,7 +12,9 @@
 //   B 段（应用段，默认不跑）：只有显式加 --with-apps 才执行。会带调试端口启动
 //     目标应用，依次做 apply → check → live 改一个参数 → restore，并抓截图。
 //     请只在装有目标应用的虚拟机里、或经主人同意的真机上使用。B 段同样使用
-//     临时数据目录，不动产品真实数据；应用已在运行且没带调试端口时不会强杀，
+//     临时数据目录（只重定向 DREAMSKIN_DATA_DIR；不重定向 LOCALAPPDATA——真机
+//     实测重定向后入口连不上应用，见 main 里 childEnvApps 的注释），不动产品真实
+//     数据；应用已在运行且没带调试端口时不会强杀，
 //     只会如实记录（加 --restart-apps 才允许入口按其既有口径重启应用）。
 //
 // 用法：
@@ -435,7 +437,7 @@ function runLive(nodeExe, entry, appId, env, cwd, setting) {
 }
 
 async function sectionB(ctx) {
-  const { opts, payloadAbs, childEnv, tmpRoot } = ctx;
+  const { opts, payloadAbs, childEnvApps, tmpRoot } = ctx;
   const apps = String(opts.apps || 'cherry,zcode').split(',').map((s) => s.trim()).filter(Boolean);
   if (!opts.withApps) {
     for (const app of apps) {
@@ -448,7 +450,7 @@ async function sectionB(ctx) {
   }
   const nodeExe = join(payloadAbs, 'runtime', 'node.exe');
   const entry = join(payloadAbs, 'dreamskin.mjs');
-  const entryRun = (args, timeoutMs = 60000) => run(nodeExe, [entry, ...args], { cwd: tmpRoot, env: childEnv, timeoutMs });
+  const entryRun = (args, timeoutMs = 60000) => run(nodeExe, [entry, ...args], { cwd: tmpRoot, env: childEnvApps, timeoutMs });
   const shotsDir = join(dirname(ctx.reportAbs), 'smoke-shots');
   mkdirSync(shotsDir, { recursive: true });
 
@@ -490,7 +492,7 @@ async function sectionB(ctx) {
       } else record('B', `${tag} 截图（apply 后）`, 'SKIP', 'status 没给出调试端口');
 
       if (setting) {
-        const lr = await runLive(nodeExe, entry, app, childEnv, tmpRoot, setting);
+        const lr = await runLive(nodeExe, entry, app, childEnvApps, tmpRoot, setting);
         record('B', `${tag} live 改参（${setting.id} → ${setting.value}，随后 cancel 撤销）`, lr.ok ? 'PASS' : 'FAIL',
           lr.ok ? `set 已生效，cancel=${lr.cancelOk === null ? '未确认' : lr.cancelOk}` : lr.msg);
       } else record('B', `${tag} live 改参`, 'SKIP', 'schema 里没有可调的数值参数');
@@ -569,12 +571,17 @@ async function main() {
   addScrub(homedir(), '<home>');
   const tmpDataRoot = join(tmpRoot, 'DreamSkin');
   const childEnv = { ...process.env, DREAMSKIN_DATA_DIR: join(tmpDataRoot, 'cherry'), LOCALAPPDATA: join(tmpRoot, 'LocalAppData') };
+  // B 段专用环境：只重定向 DREAMSKIN_DATA_DIR（数据隔离靠它，env.mjs 优先认它），
+  // 不重定向 LOCALAPPDATA。2026-11-05 真机对照实测：LOCALAPPDATA 一旦重定向，入口
+  // apply 无法与应用建立调试连接（等待主窗口超时、fetch failed）；改回真实值后同
+  // 一入口同应用 apply/check/restore 全通。A 段仍用带重定向的 childEnv 做隔离断言。
+  const childEnvApps = { ...process.env, DREAMSKIN_DATA_DIR: join(tmpDataRoot, 'cherry') };
 
   const origLocalAppData = process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local');
   const realDataRoot = join(origLocalAppData, 'DreamSkin');
   const realBefore = dirSnapshotFresh(realDataRoot).map;
 
-  const ctx = { opts, payloadAbs, childEnv, tmpRoot, reportAbs, payloadOk: true, manifest: null, presets: null, schema: null, launcherExe: '' };
+  const ctx = { opts, payloadAbs, childEnv, childEnvApps, tmpRoot, reportAbs, payloadOk: true, manifest: null, presets: null, schema: null, launcherExe: '' };
   ctx.launcherExe = opts.launcher ? resolve(opts.launcher) : (() => {
     const dir = join(repoRoot, 'src', 'launcher', 'bin', 'Release', 'net48');
     if (!existsSync(dir)) return '';
