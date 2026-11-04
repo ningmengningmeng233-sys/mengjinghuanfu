@@ -167,6 +167,21 @@ function startWatcher(port) {
 async function ensurePort(o) {
   let port = await currentPort();
   if (port) return { port };
+  if (CHANNEL.kind === 'msix') {
+    // msix 通道（方案 4.3）：包在 WindowsApps 下、没有可直接执行的 exe，status.exe 恒为空
+    // 是设计而非未装——旧逻辑在这里误报找不到安装位置，Codex 冷启动全链断在此处（收尾修复批）。
+    // 发现（包/AUMID）、端口段、段外端口冲突与 AUMID 激活都在通道 launch 内（channels/msix.mjs），
+    // 这里只为退出码口径做一次预检（在跑但无端口且未要求重启 -> NEEDS_RESTART），其余整体委托 launch。
+    const mcs = await CHANNEL.status(CHANNEL_ADAPTER);
+    if (mcs.running && !mcs.debugPort && !o.restart) {
+      say('NEEDS_RESTART', `${APP.name} 正在运行，需要由梦境换肤重新启动一次才能换肤（${APP.restartNote}）。`);
+      return { code: EXIT.NEEDS_RESTART };
+    }
+    try {
+      const r = await CHANNEL.launch(CHANNEL_ADAPTER, { restart: !!o.restart });
+      return { port: r.port };
+    } catch (e) { say('FAILED', e.message); return { code: EXIT.FAILED }; }
+  }
   const cs = await CHANNEL.status(CHANNEL_ADAPTER);
   const exe = cs.exe;
   if (!exe) { say('FAILED', `找不到 ${APP.name} 安装位置。可设置环境变量 ${APP.envExe} 指向 ${APP.exeName}。`); return { code: EXIT.FAILED }; }

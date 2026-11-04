@@ -4,7 +4,7 @@
 // two apps in the manifest) but is pure test data.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -242,4 +242,21 @@ test('runtime profile carries msix facts and the profile adapter maps them', () 
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('entry ensurePort delegates msix cold start to the channel launch (regression: Codex apply)', () => {
+  // The CLI entry (src/dreamskin.mjs) used to gate every channel on status.exe;
+  // for msix that is always empty by design, so Codex apply died with a bogus
+  // not-installed message. ensurePort is not exported, so this pins the wiring
+  // at source level: the msix branch must run before the exe fallback, delegate
+  // to CHANNEL.launch, and keep the NEEDS_RESTART exit-code pre-check.
+  const src = readFileSync(new URL('../src/dreamskin.mjs', import.meta.url), 'utf8');
+  const ensure = src.slice(src.indexOf('async function ensurePort'));
+  const branchAt = ensure.indexOf('CHANNEL.kind === ' + String.fromCharCode(39) + 'msix' + String.fromCharCode(39));
+  const exeAt = ensure.indexOf('const exe = cs.exe;');
+  assert.ok(branchAt > 0 && exeAt > branchAt, 'msix branch precedes the exe fallback');
+  const branch = ensure.slice(branchAt, exeAt);
+  assert.ok(branch.includes('CHANNEL.launch(CHANNEL_ADAPTER'), 'cold start delegated to channel launch');
+  assert.ok(branch.includes('mcs.debugPort') && branch.includes('EXIT.NEEDS_RESTART'), 'running-without-port keeps the NEEDS_RESTART code');
+  assert.ok(ensure.includes('安装位置。可设置环境变量'), 'exe fallback wording unchanged (2.1 parity)');
 });
