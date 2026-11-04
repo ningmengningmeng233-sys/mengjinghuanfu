@@ -300,7 +300,7 @@ async function sectionA(ctx) {
     const files = readdirSync(join(repoRoot, 'tests')).filter((f) => f.endsWith('.test.mjs')).sort().map((f) => join('tests', f));
     const r = await run(process.execPath, ['--test', ...files], { timeoutMs: 900000 });
     const text = r.out + r.err;
-    const grab = (label) => { const m = text.match(new RegExp('ℹ ' + label + ' (\\d+)')); return m ? Number(m[1]) : null; };
+    const grab = (label) => { const m = text.match(new RegExp('(?:ℹ |# )' + label + ' (\\d+)')); return m ? Number(m[1]) : null; };
     const t = grab('tests'), p = grab('pass'), f = grab('fail');
     record('A', 'Node 全套单测', r.code === 0 && f === 0 ? 'PASS' : 'FAIL',
       `tests ${t ?? '?'} / pass ${p ?? '?'} / fail ${f ?? '?'}，退出码 ${r.code}${r.timedOut ? '（超时被终止）' : ''}`);
