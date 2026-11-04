@@ -1,0 +1,84 @@
+{
+    "schema":  "dreamskin-recheck-baseline/1",
+    "productVersion":  "2.1.0",
+    "apps":  [
+                 {
+                     "id":  "cherry",
+                     "name":  "Cherry Studio",
+                     "version":  "2.1.6",
+                     "probe":  {
+                                   "kind":  "registry",
+                                   "displayNamePattern":  "^Cherry Studio$"
+                               },
+                     "partsTotal":  8,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  180000
+                 },
+                 {
+                     "id":  "zcode",
+                     "name":  "ZCode",
+                     "version":  "3.17.2",
+                     "probe":  {
+                                   "kind":  "registry",
+                                   "displayNamePattern":  "^ZCode [0-9]"
+                               },
+                     "partsTotal":  7,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  180000
+                 },
+                 {
+                     "id":  "codex",
+                     "name":  "OpenAI Codex",
+                     "version":  "26.1027.3384.0",
+                     "probe":  {
+                                   "kind":  "appx",
+                                   "packageName":  "OpenAI.Codex"
+                               },
+                     "partsTotal":  7,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  240000
+                 },
+                 {
+                     "id":  "dsh",
+                     "name":  "DSH Desktop",
+                     "version":  "2.0.18",
+                     "probe":  {
+                                   "kind":  "registry",
+                                   "displayNamePattern":  "^DSH Desktop"
+                               },
+                     "partsTotal":  12,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  1080000
+                 },
+                 {
+                     "id":  "minimax-design",
+                     "name":  "MiniMax Design",
+                     "version":  "3.0.13",
+                     "probe":  {
+                                   "kind":  "registry",
+                                   "displayNamePattern":  "^MiniMax Design$"
+                               },
+                     "partsTotal":  9,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  240000
+                 },
+                 {
+                     "id":  "minimax-code",
+                     "name":  "MiniMax Code",
+                     "version":  "3.1.0",
+                     "probe":  {
+                                   "kind":  "registry",
+                                   "displayNamePattern":  "^MiniMax Code"
+                               },
+                     "partsTotal":  7,
+                     "partsRequired":  4,
+                     "expectedMode":  "full",
+                     "startWaitMs":  180000
+                 }
+             ]
+}
