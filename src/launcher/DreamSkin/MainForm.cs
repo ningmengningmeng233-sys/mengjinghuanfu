@@ -126,6 +126,8 @@ public class MainForm : Form
 
 	private bool appListBusy;
 
+	private DateTime appListBusySince = DateTime.MinValue;
+
 	private RichTextBox matrixBox;
 
 	private Label pluginStatusLabel;
@@ -159,6 +161,8 @@ public class MainForm : Form
 
 	private ScrollHost tileHost;
 
+	private Label galleryEmpty;
+
 	private ScrollHost settingsHost;
 
 	private readonly List<ThemeTile> tiles = new List<ThemeTile>();
@@ -178,6 +182,8 @@ public class MainForm : Form
 	private int startChip = -1;
 
 	private bool galleryLoading;
+
+	private bool galleryFailed;
 
 	private Panel galleryBar;
 
@@ -300,7 +306,7 @@ public class MainForm : Form
 		ForeColor = Theme.Text;
 		Font = Theme.F(9.5f);
 		base.ClientSize = new Size(1120, 750);
-		MinimumSize = new Size(1000, 790);
+		MinimumSize = new Size(1136, 790);
 		base.StartPosition = FormStartPosition.CenterScreen;
 		DoubleBuffered = true;
 		try
@@ -724,6 +730,17 @@ public class MainForm : Form
 		};
 		cardPalettes.Controls.Add(tileHost);
 		scrollHosts.Add(tileHost);
+		galleryEmpty = new Label
+		{
+			Text = "",
+			ForeColor = Theme.Muted,
+			Font = Theme.F(9.5f),
+			Location = new Point(26, 24),
+			AutoSize = true,
+			Visible = false,
+			BackColor = Color.Transparent
+		};
+		tileHost.Controls.Add(galleryEmpty);
 		galleryBar = new Panel
 		{
 			Location = new Point(9, 44),
@@ -1052,6 +1069,28 @@ public class MainForm : Form
 		if (selected == 1 && num == 0)
 		{
 			Log("还没有自己的皮肤：调好之后点「★ 存为我的皮肤」，右键卡片可以改名、覆盖、导出、删除。");
+		}
+		string emptyText = "";
+		if (num == 0 && !galleryLoading)
+		{
+			if (flag)
+			{
+				emptyText = (galleryFailed ? "主题库加载失败，检查网络后再点「主题库」试试。" : "主题库里没搜到，换个关键词试试。");
+			}
+			else if (selected == 5)
+			{
+				emptyText = "还没有已下载的主题，去「主题库」挑一套吧。";
+			}
+			else if (selected == 1)
+			{
+				emptyText = "还没有自己的皮肤：调好之后点「★ 存为我的皮肤」。";
+			}
+		}
+		galleryEmpty.Text = emptyText;
+		galleryEmpty.Visible = emptyText.Length > 0;
+		if (galleryEmpty.Visible)
+		{
+			galleryEmpty.BringToFront();
 		}
 	}
 
@@ -2075,6 +2114,13 @@ public class MainForm : Form
 
 	private async Task RefreshAppList(bool force = false)
 	{
+		if (appListBusy && (DateTime.Now - appListBusySince).TotalSeconds > 150)
+		{
+			// 上一次状态刷新卡住超过 150 秒（例如子进程输出管道被孙进程占住回不来）：
+			// 强制复位，不能让应用列表从此永远刷不动。
+			appListBusy = false;
+			Log("状态刷新卡住已自动恢复，重新刷新。");
+		}
 		if (cherryDir == null || appListBusy)
 		{
 			return;
@@ -2084,6 +2130,7 @@ public class MainForm : Form
 			return;
 		}
 		appListBusy = true;
+		appListBusySince = DateTime.Now;
 		try
 		{
 			string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
@@ -2098,9 +2145,14 @@ public class MainForm : Form
 				UpdateSyncButtonText();
 				RefreshMatrix();
 			}
+			else
+			{
+				Log("状态刷新没有拿到结果，先保留当前显示，稍后再试。");
+			}
 		}
-		catch
+		catch (Exception ex)
 		{
+			Log("状态刷新失败：" + ex.Message);
 		}
 		finally
 		{
@@ -2516,7 +2568,7 @@ public class MainForm : Form
 	{
 		bool flag = st.Output.Contains("\"running\": true");
 		bool flag2 = flag && st.Output.Contains("\"skinActive\": true") && Regex.IsMatch(st.Output, "\"debugPort\": [1-9]");
-		bool flag3 = !st.Output.Contains("\"exe\": null");
+		bool flag3 = !st.Output.Contains("\"exe\": null") || st.Output.Contains("\"installed\": true");
 		SetState(l, (!flag3) ? ("● " + name + " 未安装/未找到") : (flag2 ? ("● " + name + " 皮肤生效中") : (flag ? ("● " + name + " 运行中（原版）") : ("● " + name + " 未运行"))), (!flag3) ? Theme.Off : (flag2 ? Theme.Green : (flag ? Theme.Blue : Theme.Idle)));
 		return flag2;
 	}
@@ -2803,7 +2855,10 @@ public class MainForm : Form
 					procResult.Output = string.Concat("UNCERTAIN: 子进程超时被终止。\n", outBuf, errBuf);
 					return procResult;
 				}
-				process.WaitForExit();
+				// 不能用无参 WaitForExit()：子进程的输出管道若被孙进程（例如状态探测拉起的
+				// PowerShell）继承，异步读取永远收不到结束标记，会把调用方永久挂住
+				// （3.0.4 实测：应用列表刷新因此失效）。给 5 秒收尾，缓冲里已有的数据不丢。
+				process.WaitForExit(5000);
 				procResult.ExitCode = process.ExitCode;
 				procResult.Output = outBuf.ToString() + ((errBuf.Length > 0) ? ("\n" + errBuf) : "");
 			}
@@ -2886,6 +2941,7 @@ public class MainForm : Form
 			else
 			{
 				galleryTotal = Convert.ToInt32(res["total"]);
+				galleryFailed = false;
 				foreach (object item in (ArrayList)res["palettes"])
 				{
 					galleryItems.Add(PaletteInfo.From((Dictionary<string, object>)item));
@@ -2902,6 +2958,7 @@ public class MainForm : Form
 		}
 		catch (Exception ex)
 		{
+			galleryFailed = true;
 			Log("FAILED: 主题库：" + ex.Message);
 			if (galleryTotal < 0)
 			{

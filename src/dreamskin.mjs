@@ -47,7 +47,7 @@ import { listProcesses, debugPortOf, findExe, freePort, portAlive, launchWithPor
 import { partChecksOf, partsProbeExpr, evaluateHealth, degradeLayers, wallpaperPartsCss, bumpScrim } from './core/health.mjs';
 import { writeCompatRecord, compatRecordOf } from './store/compat.mjs';
 import { conflictToolsOf, pageStyleIdsExpr, detectForeignStyles, foreignStyleMessage } from './core/conflicts.mjs';
-import { collectAppsStatus } from './core/apps-status.mjs';
+import { collectAppsStatus, effectiveSkinActive } from './core/apps-status.mjs';
 import { syncFanout, parseTargets } from './core/sync.mjs';
 import { listAdapters } from './core/adapters.mjs';
 import { selectChannelKind } from './core/channel-select.mjs';
@@ -584,7 +584,7 @@ async function status() {
     const port2 = (await currentPort()) || cs.debugPort;
     const st2 = readState();
     const out = { app: APP.id, version: VERSION, cherryRunning: cs.running, running: cs.running, debugPort: port2,
-      skinActive: existsSync(SKIN_FILE), preset: st2?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null,
+      skinActive: effectiveSkinActive({ running: cs.running, debugPort: port2, channel: CHANNEL.kind, skinActive: existsSync(SKIN_FILE) }), installed: !!cs.installed, preset: st2?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null,
       shells: APP.shells.map((s) => ({ id: s.id, channel: s.channel })), channel: CHANNEL.kind };
     try { const ps = await dshPluginChannel.status(CHANNEL_ADAPTER); out.pluginChannel = { enabled: !!ps.enabled, installed: !!ps.pluginInstalled }; } catch {}
     console.log(JSON.stringify(out, null, 2));
@@ -596,7 +596,7 @@ async function status() {
   const st = readState();
   // cherryRunning / cherryExe 字段名保留（总控台旧版本按它解析），新增 app / running / exe。
   console.log(JSON.stringify({ app: APP.id, version: VERSION, cherryRunning: cs.running, running: cs.running, debugPort: port,
-    skinActive: existsSync(SKIN_FILE), preset: st?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null }, null, 2));
+    skinActive: effectiveSkinActive({ running: cs.running, debugPort: port, channel: CHANNEL.kind, skinActive: existsSync(SKIN_FILE) }), installed: !!cs.installed, preset: st?.preset ?? null, cherryExe: cs.exe || null, exe: cs.exe || null }, null, 2));
   return EXIT.OK;
 }
 

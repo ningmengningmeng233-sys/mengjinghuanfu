@@ -23,6 +23,16 @@ export function appStateOf({ installed = false, running = false, skinActive = fa
   return 'not-running';
 }
 
+// 皮肤生效的有效口径：应用正在运行、但没有调试端口时（exe / msix 通道），
+// 界面里并没有被注入皮肤（换肤靠调试端口注入），此时把「皮肤文件已存」算作
+// 「生效中」会与逐应用状态行（要求有调试端口才认生效）自相矛盾。
+// 应用没在运行时不套用这条：那时 skinActive 表示「已存皮肤，下次启动带上」。
+export function effectiveSkinActive({ running = false, debugPort = 0, channel = '', skinActive = false } = {}) {
+  if (!skinActive) return false;
+  if (running && !debugPort && (channel === 'exe' || channel === 'msix')) return false;
+  return true;
+}
+
 // 列表排序（V-U1：已安装优先）：已装的在前、未装的在后，各自保持注册表顺序。
 export function sortAppsForList(apps) {
   return [...apps.filter((a) => a.installed), ...apps.filter((a) => !a.installed)];
@@ -58,9 +68,9 @@ export async function collectAppsStatus(deps = {}) {
     try {
       const s = await d.statusOf(p);
       const compat = d.compatOf(p.id);
-      const skinActive = typeof s.skinActive === 'boolean' ? s.skinActive : d.skinFileExists(p.id);
       const installed = !!s.installed;
       const running = !!s.running;
+      const skinActive = effectiveSkinActive({ running, debugPort: s.debugPort || 0, channel: p.channel, skinActive: typeof s.skinActive === 'boolean' ? s.skinActive : d.skinFileExists(p.id) });
       rows.push({
         ...base, installed, running, debugPort: s.debugPort || 0, exe: s.exe || '', skinActive,
         mode: compat ? compat.mode || 'full' : 'full',

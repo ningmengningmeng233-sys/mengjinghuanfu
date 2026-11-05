@@ -2,7 +2,7 @@
 // 已安装优先排序、单个应用失败不拖垮整表。全部用注入的假实现，不碰真实应用。
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { appStateOf, sortAppsForList, collectAppsStatus } from '../src/core/apps-status.mjs';
+import { appStateOf, sortAppsForList, collectAppsStatus, effectiveSkinActive } from '../src/core/apps-status.mjs';
 
 test('appStateOf 五态判定表', () => {
   assert.equal(appStateOf({}), 'not-installed');
@@ -61,4 +61,43 @@ test('collectAppsStatus 单个应用失败只影响自己那行', async () => {
   assert.equal(bad.state, 'error');
   assert.match(bad.error, /查询炸了/);
   assert.equal(r.errors.length, 1); // 适配器加载错误清单原样带出（V-C3 的总控台展示面）
+});
+
+test('effectiveSkinActive 有效口径（3.0.5：运行中无调试端口不算生效）', () => {
+  // 没皮肤文件：恒为 false
+  assert.equal(effectiveSkinActive({}), false);
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 9999, channel: 'exe', skinActive: false }), false);
+  // 没在运行：已存皮肤照常算「生效」（下次启动带上）
+  assert.equal(effectiveSkinActive({ running: false, debugPort: 0, channel: 'exe', skinActive: true }), true);
+  // 运行中且有调试端口：真注入，算生效
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 9999, channel: 'exe', skinActive: true }), true);
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 9999, channel: 'msix', skinActive: true }), true);
+  // 运行中但没有调试端口（exe / msix）：界面上没注入，不算生效
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 0, channel: 'exe', skinActive: true }), false);
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 0, channel: 'msix', skinActive: true }), false);
+  // 其它通道不套这条（端口口径不同）
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 0, channel: 'webview2', skinActive: true }), true);
+  assert.equal(effectiveSkinActive({ running: true, debugPort: 0, channel: 'dsh-plugin', skinActive: true }), true);
+});
+
+test('collectAppsStatus 套用有效口径：运行中无端口的行不再报皮肤生效', async () => {
+  const r = await collectAppsStatus({
+    profiles: [P('live'), P('saved'), { id: 'wv', name: 'App-wv', channel: 'webview2', testedVersions: [] }],
+    statusOf: async (p) => {
+      if (p.id === 'live') return { installed: true, running: true, debugPort: 0, exe: 'l.exe', skinActive: true, version: '1.0' };
+      if (p.id === 'wv') return { installed: true, running: true, debugPort: 0, exe: 'w.exe', skinActive: true, version: '1.0' };
+      return { installed: true, running: false, debugPort: 0, exe: 's.exe', skinActive: true, version: '1.0' };
+    },
+    compatOf: () => null, checkedVersionOf: () => '', skinFileExists: () => false,
+    errors: () => [],
+  });
+  const live = r.apps.find((a) => a.id === 'live');
+  assert.equal(live.skinActive, false); // 文件在但没注入
+  assert.equal(live.state, 'running');
+  const saved = r.apps.find((a) => a.id === 'saved');
+  assert.equal(saved.skinActive, true); // 没运行：已存皮肤
+  assert.equal(saved.state, 'skin-active');
+  const wv = r.apps.find((a) => a.id === 'wv');
+  assert.equal(wv.skinActive, true); // webview2 通道不套新口径
+  assert.equal(wv.state, 'skin-active');
 });
