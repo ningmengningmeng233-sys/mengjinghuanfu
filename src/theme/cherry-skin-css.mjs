@@ -165,7 +165,7 @@ export function normalizePalette(p) {
 }
 
 // 变量段：调色板 + 参数 → :root:root { --ds-*: ... } 以及 Cherry 自己的 shadcn 变量。
-export function buildVarsCss(paletteIn, imageUri = '', valuesIn = {}) {
+export function buildVarsCss(paletteIn, imageUri = '', valuesIn = {}, wallScopeBody = '') {
   const p = normalizePalette(paletteIn);
   const d = defaultValues(p);
   const v = { ...d, ...p.tune, ...(valuesIn || {}) };
@@ -198,6 +198,10 @@ export function buildVarsCss(paletteIn, imageUri = '', valuesIn = {}) {
   const mainBottom = imageUri ? pct('chat-bottom', d['chat-bottom']) : Math.max(0.40, pct('chat-bottom', d['chat-bottom']));
   const blur = num(v.blur, 18, 0, 60), wallBlur = num(v['wall-blur'], 0, 0, 60);
   const shadowOn = v['text-shadow'] !== false && v['text-shadow'] !== 'false' && v['text-shadow'] !== 0;
+  // 照片壁纸直接绘制规则的锚点（Q-4 发布前修复）：调用方给出目标应用 app.root 的 scopeBody 时按它派生，
+  // 使每家外壳的 ::before 都能挂上照片（旧写死锚点只有 cherry 旧外壳 #app-sidebar 与 zcode 外壳，
+  // cherry 2.1.6 / codex / minimax / dsh 在完整模式下选了照片也画不出来）；没给时保留旧锚点原文兜底。
+  const wallAnchor = wallScopeBody ? `${wallScopeBody}::before` : 'body:has(#app-sidebar)::before, body:has([data-workspace-shell])::before';
 
   return `/* ===== 梦境换肤变量段 · ${p.name.replace(/\*\//g, '')} ===== */
 :root:root, :root.dark {
@@ -260,7 +264,7 @@ export function buildVarsCss(paletteIn, imageUri = '', valuesIn = {}) {
 }
 ${imageUri ? `
 /* 壁纸（直接写 url，避开 var() 大小上限） */
-body:has(#app-sidebar)::before, body:has([data-workspace-shell])::before { background-image: url("${imageUri}") !important; }
+${wallAnchor} { background-image: url("${imageUri}") !important; }
 ` : ''}`;
 }
 

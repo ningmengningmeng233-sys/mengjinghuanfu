@@ -59,6 +59,7 @@ const APP = appRuntimeById(argAt('--app') || 'cherry');
 const RULES = APP.rules;
 const LIVE_ID = APP.liveId; // 实时预览层（core/inject.mjs 的 IDS.live 同一个 id）
 const READY = APP.readySelector;
+const WALL_SCOPE_BODY = (APP.partsMap && APP.partsMap['app.root'] && APP.partsMap['app.root'].scopeBody) || ''; // 照片壁纸直接规则的锚点派生（Q-4 修复）
 const EXIT = { OK: 0, FAILED: 1, UNCERTAIN: 2, NEEDS_RESTART: 3 };
 const listCherryProcesses = () => listProcesses(APP);
 const findCherryExe = (running) => findExe(APP, running);
@@ -474,7 +475,7 @@ async function live() {
           // 没带 image 字段时，主题库主题用自带壁纸；带了（哪怕是空串）就听调用方的。
           const image = m.image !== undefined ? (m.image || '') : (m.palette ? '' : bundledImage(m.preset));
           // 预览块里带上规则段：即使正在用的是旧版皮肤，预览也完整生效（规则段只有几 KB）。
-          const vars = buildVarsCss(palette, await uriOf(image), m.values || {});
+          const vars = buildVarsCss(palette, await uriOf(image), m.values || {}, WALL_SCOPE_BODY);
           await everywhere(liveExpr(RULES + '\n' + vars));
           current = { palette, image, values: m.values || {} };
           reply({ op: 'set', ok: true, id: m.id ?? null });

@@ -167,5 +167,7 @@ export function buildCherryCss(preset = 'dark-gold', imageUri = '', values = {})
   if (Number.isFinite(v.focusX)) v['focus-x'] = v.focusX;
   if (Number.isFinite(v.focusY)) v['focus-y'] = v.focusY;
   delete v.focusX; delete v.focusY;
-  return appRuntimeById('cherry').rules + '\n' + buildVarsCss(palette, imageUri, v);
+  const cherryProfile = appRuntimeById('cherry');
+  const wallScopeBody = (cherryProfile.partsMap && cherryProfile.partsMap['app.root'] && cherryProfile.partsMap['app.root'].scopeBody) || '';
+  return cherryProfile.rules + '\n' + buildVarsCss(palette, imageUri, v, wallScopeBody);
 }

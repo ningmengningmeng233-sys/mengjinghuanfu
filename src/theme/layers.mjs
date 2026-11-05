@@ -9,8 +9,10 @@ export const SKIN_FILE_FORMAT = 'dreamskin-skin/1';
 
 export function buildSkinLayers(app, palette, imageUri = '', values = {}) {
   if (!app || typeof app !== 'object') throw new Error('buildSkinLayers: app 不能为空');
+  // 照片壁纸直接绘制规则的锚点由该应用 app.root 的 scopeBody 派生（Q-4 修复，见 buildVarsCss）。
+  const wallScopeBody = (app.partsMap && app.partsMap['app.root'] && app.partsMap['app.root'].scopeBody) || '';
   return {
-    vars: buildVarsCss(palette, imageUri, values),
+    vars: buildVarsCss(palette, imageUri, values, wallScopeBody),
     parts: app.partsCss || '',
     extra: app.extraCss || '',
   };
