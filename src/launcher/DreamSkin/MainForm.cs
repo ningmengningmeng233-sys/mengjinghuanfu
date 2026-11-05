@@ -2546,7 +2546,9 @@ public class MainForm : Form
 		}
 		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
 		string appArg = " --app " + app;
-		ProcResult r = await RunProcess(ResolveNode(), script + " " + cmd + " " + args + appArg, 180000);
+		// 超时 300 秒（原 180 秒）：msix 应用（如 Codex）在慢盘机器上冷启动到主窗口就要 1-2 分钟，
+		// 再叠加总控台自身的状态探测，180 秒会被误杀（3.0.3 泛化实测：CLI 冷应用约 140 秒、GUI 里越线）。
+		ProcResult r = await RunProcess(ResolveNode(), script + " " + cmd + " " + args + appArg, 300000);
 		Log(r.Output);
 		if (r.ExitCode == 3)
 		{
@@ -2558,7 +2560,7 @@ public class MainForm : Form
 				return 3;
 			}
 			Log("正在重启 " + AppName + " 并应用皮肤（约 10–30 秒）…");
-			r = await RunProcess(ResolveNode(), script + " " + cmd + " " + args + " --restart" + appArg, 180000);
+			r = await RunProcess(ResolveNode(), script + " " + cmd + " " + args + " --restart" + appArg, 300000);
 			Log(r.Output);
 		}
 		if (r.ExitCode == 0 && cmd == "apply")
