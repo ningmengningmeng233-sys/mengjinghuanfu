@@ -4,7 +4,7 @@
 // 应用差异全部放在运行时 profile（core/app-runtime.mjs，由 adapters/<id>/adapter.json 组装）里：exe 名、安装位置、主进程判定、主窗口判定。
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { createServer } from 'node:net';
 import { fetchCdpJson } from './cdp-core.mjs';
 
@@ -60,19 +60,64 @@ export function debugPortOf(proc) {
   return m ? Number(m[1]) : 0;
 }
 
-// exe 路径：环境变量 → 正在运行的进程 → 常见安装位置 → 卸载注册表（InstallLocation）。
-// 注册表这一步抽成可注入的纯逻辑（deps.queryInstallLocation / deps.exists），方便单测模拟注册表返回，不依赖真机。
+// exe 路径：环境变量 → 正在运行的进程 → 常见安装位置 → 卸载注册表条目推导。
+// 注册表这一步抽成可注入的纯逻辑（deps.queryInstallLocation / deps.queryUninstallEntries / deps.exists），方便单测模拟注册表返回，不依赖真机。
 export function exeFromInstallLocation(loc, exeName, exists = existsSync) {
   if (!loc) return '';
   const p = join(loc, exeName);
   return exists(p) ? p : '';
 }
-function registryInstallLocation(app) {
-  const out = ps("$k = Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
+
+// 注册表路径类字段（DisplayIcon / UninstallString）的清洗：带引号时取引号内路径；
+// 不带引号时截到 .exe 结尾（DisplayIcon 常带 ",0" 图标序号、UninstallString 常带参数）。
+export function parseRegPath(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return '';
+  if (s.startsWith('"')) {
+    const end = s.indexOf('"', 1);
+    return end > 0 ? s.slice(1, end) : s.slice(1);
+  }
+  const exeEnd = s.toLowerCase().indexOf('.exe');
+  if (exeEnd >= 0) return s.slice(0, exeEnd + 4);
+  return s.replace(/,\d+\s*$/, '');
+}
+
+// 从一条卸载注册表条目推导 exe：InstallLocation 拼接 → DisplayIcon 本身就是 exe →
+// DisplayIcon 所在目录拼接 → UninstallString 所在目录拼接。每步都以「文件真存在」为准，
+// 推不中返回空、绝不乱猜。自定义安装目录的 NSIS 应用常把 InstallLocation 留空，
+// 但 DisplayIcon / 卸载程序就落在安装目录里，靠这一步才能在干净环境里找到它们。
+export function exeFromUninstallEntry(entry, exeName, exists = existsSync) {
+  if (!entry) return '';
+  const fromLoc = exeFromInstallLocation(entry.installLocation, exeName, exists);
+  if (fromLoc) return fromLoc;
+  const icon = parseRegPath(entry.displayIcon);
+  if (icon) {
+    if (basename(icon).toLowerCase() === String(exeName).toLowerCase() && exists(icon)) return icon;
+    const fromIconDir = exeFromInstallLocation(dirname(icon), exeName, exists);
+    if (fromIconDir) return fromIconDir;
+  }
+  const un = parseRegPath(entry.uninstallString);
+  if (un) {
+    const fromUnDir = exeFromInstallLocation(dirname(un), exeName, exists);
+    if (fromUnDir) return fromUnDir;
+  }
+  return '';
+}
+
+function registryUninstallEntries(app) {
+  const out = ps("$ks = @(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
     "'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*','HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | " +
-    `Where-Object { $_.DisplayName -like '${app.uninstallName}*' -and $_.InstallLocation } | Select-Object -First 1; ` +
-    "if ($k) { [Console]::Out.Write($k.InstallLocation) }");
-  return out || '';
+    `Where-Object { $_.DisplayName -like '${app.uninstallName}*' } | ` +
+    "Select-Object DisplayName, InstallLocation, DisplayIcon, UninstallString); " +
+    "if ($ks.Count -gt 0) { [Console]::Out.Write(($ks | ConvertTo-Json -Compress)) }");
+  if (!out) return [];
+  const data = JSON.parse(out);
+  return (Array.isArray(data) ? data : [data]).map((k) => ({
+    displayName: k.DisplayName || '',
+    installLocation: k.InstallLocation || '',
+    displayIcon: k.DisplayIcon || '',
+    uninstallString: k.UninstallString || '',
+  }));
 }
 export function findExe(app, running = listProcesses(app), deps = {}) {
   const exists = deps.exists || existsSync;
@@ -91,8 +136,15 @@ export function findExe(app, running = listProcesses(app), deps = {}) {
     return '';
   }
   try {
-    const loc = deps.queryInstallLocation ? deps.queryInstallLocation(app) : registryInstallLocation(app);
-    return exeFromInstallLocation(loc, app.exeName, exists);
+    // 旧注入口径（deps.queryInstallLocation）保持原样：单测注入它时走老路、不碰真机注册表。
+    if (deps.queryInstallLocation) {
+      return exeFromInstallLocation(deps.queryInstallLocation(app), app.exeName, exists);
+    }
+    const entries = deps.queryUninstallEntries ? deps.queryUninstallEntries(app) : registryUninstallEntries(app);
+    for (const e of entries || []) {
+      const hit = exeFromUninstallEntry(e, app.exeName, exists);
+      if (hit) return hit;
+    }
   } catch {}
   return '';
 }
