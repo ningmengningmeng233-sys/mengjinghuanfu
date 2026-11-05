@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
+import { defaultDataRoot } from './platform.mjs';
 
 export const CHERRY_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -11,8 +12,7 @@ export const CHERRY_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 // DREAMSKIN_DATA_DIR 仍表示 Cherry 的目录（兼容旧用法），其它应用放在它的同级。
 export function rootDir() {
   const base = process.env.DREAMSKIN_DATA_DIR ? dirname(resolve(process.env.DREAMSKIN_DATA_DIR))
-    : process.platform === 'darwin' ? join(homedir(), 'Library', 'Application Support', 'DreamSkin')
-    : join(process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'), 'DreamSkin');
+    : defaultDataRoot({ env: process.env, home: homedir() });
   mkdirSync(base, { recursive: true });
   return base;
 }

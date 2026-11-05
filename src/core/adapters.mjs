@@ -114,6 +114,19 @@ export function validateAdapter(data, opts = {}) {
     for (const k of ['uninstallDisplayName', 'macBundle', 'msixPackageFamily']) {
       if (d[k] !== undefined && typeof d[k] !== 'string') errors.push('discover.' + k + ' must be a string');
     }
+    // mac 段（mac 适配批）：{ bundle, source, status } 均为字符串；status 目前只许
+    // unverified——mac 数据一律未实测，等真机验证批转正时再放开新取值。
+    if (d.mac !== undefined) {
+      if (!isPlainObject(d.mac)) errors.push('discover.mac must be an object');
+      else {
+        for (const k of ['bundle', 'source', 'status']) {
+          if (d.mac[k] !== undefined && typeof d.mac[k] !== 'string') errors.push('discover.mac.' + k + ' must be a string');
+        }
+        if (d.mac.status !== undefined && d.mac.status !== 'unverified') {
+          errors.push('discover.mac.status must be "unverified" (mac data is unverified by definition in this batch)');
+        }
+      }
+    }
   }
   for (const k of ['restartNote', 'minVersion', 'userCssId']) {
     if (data[k] !== undefined && typeof data[k] !== 'string') errors.push(k + ' must be a string');

@@ -15,8 +15,10 @@ import { renderPartsCss, validatePartsMap } from '../parts/parts.mjs';
 import { validatedDebuggerUrl } from './cdp-core.mjs';
 import { VERSION } from './version.mjs';
 import { CHERRY_PRESETS, PRESET_ALIASES, buildVarsCss } from '../theme/cherry-skin-css.mjs';
+import { IS_MAC, macBundleOf, macCandidateBinaries } from './platform.mjs';
 
-export const IS_MAC = process.platform === 'darwin';
+// 平台判定单一来源在 core/platform.mjs（mac 适配批收口）；此处转出保持既有导入口径不变。
+export { IS_MAC };
 
 // candidates 里的 %VAR% 占位展开（方案 §4.2：路径只用环境变量占位，禁止写死）。
 // ProgramFiles 两个变量缺失时用系统默认位置兜底，与 2.1 的 pf() / pf86() 口径一致。
@@ -25,11 +27,12 @@ const expandEnv = (s) => String(s).replace(/%([^%]+)%/g, (_, n) => process.env[n
 
 function candidatesOf(data) {
   if (IS_MAC) {
-    // macOS：/Applications 或 ~/Applications 下的应用包主程序（原 apps.mjs 的 macBins）。
-    const bundle = data.discover && data.discover.macBundle;
+    // macOS：/Applications 或 ~/Applications 下的应用包主程序（原 apps.mjs 的 macBins；
+    // 路径拼装收口在 core/platform.mjs，bundle 名取 discover.macBundle 或 discover.mac.bundle）。
+    const bundle = macBundleOf(data.discover);
     if (!bundle) return [];
     const bin = String((data.discover.exeNames || [])[0] || '').replace(/\.exe$/i, '');
-    return ['/Applications', join(homedir(), 'Applications')].map((d) => join(d, bundle + '.app', 'Contents', 'MacOS', bin));
+    return macCandidateBinaries(bundle, bin, homedir());
   }
   return ((data.discover && data.discover.candidates) || []).map(expandEnv);
 }
@@ -93,7 +96,7 @@ function buildProfile(data, rootDir) {
     exeName,
     envExe: (data.discover && data.discover.envExe) || '',
     uninstallName: (data.discover && data.discover.uninstallDisplayName) || data.name,
-    macBundle: (data.discover && data.discover.macBundle) || '',
+    macBundle: macBundleOf(data.discover),
     candidates: () => candidatesOf(data),
     ...(helperRe ? { isHelperCmd: (cmd) => helperRe.test(cmd) } : {}),
     isMainTarget: makeIsMainTarget(data.target || {}),

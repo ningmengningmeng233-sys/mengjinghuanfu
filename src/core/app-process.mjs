@@ -6,7 +6,9 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { basename, dirname, join } from 'node:path';
 import { createServer } from 'node:net';
+import { homedir } from 'node:os';
 import { fetchCdpJson } from './cdp-core.mjs';
+import { IS_MAC, macAppDirs, macBundleBinary, macExecutableName } from './platform.mjs';
 
 function ps(script, timeout = 15000) {
   return execFileSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command',
@@ -17,7 +19,7 @@ function ps(script, timeout = 15000) {
 // 同名进程里，主进程 = 命令行没有 --type=（渲染/GPU 子进程），且 profile 没把它判成后台进程
 // （例如 ZCode 用 ELECTRON_RUN_AS_NODE 跑的 app-server / plugin-host）。
 export function listProcesses(app) {
-  if (process.platform === 'darwin') return listProcessesMac(app);
+  if (IS_MAC) return listProcessesMac(app);
   try {
     const out = ps(`@(Get-CimInstance Win32_Process -Filter "Name='${app.exeName}'" | ` +
       `Select-Object ProcessId,ExecutablePath,CommandLine) | ConvertTo-Json -Compress`);
@@ -126,7 +128,18 @@ export function findExe(app, running = listProcesses(app), deps = {}) {
   const live = running.find((p) => p.isMain && p.path && exists(p.path));
   if (live) return live.path;
   for (const c of app.candidates()) if (c && exists(c)) return c;
-  if (process.platform === 'darwin') {
+  if (IS_MAC) {
+    // 标准安装目录里的 .app：包在不在以 exists 为准，主程序名优先 Info.plist 的
+    // CFBundleExecutable（exeNames 只是按 Windows 名推断、plist 才是权威；mac 适配批新增，未实测）。
+    if (app.macBundle) {
+      for (const dir of macAppDirs(homedir())) {
+        const bundlePath = join(dir, app.macBundle + '.app');
+        if (!exists(bundlePath)) continue;
+        const binName = macExecutableName(bundlePath, app.exeName, deps);
+        const bin = binName && macBundleBinary(bundlePath, binName);
+        if (bin && exists(bin)) return bin;
+      }
+    }
     // 装在别处时用 Spotlight 找应用包。
     try {
       const hit = execFileSync('/usr/bin/mdfind', [`kMDItemFSName == '${app.macBundle}.app'`], { encoding: 'utf8', timeout: 8000 }).split('\n').find(Boolean);
@@ -171,7 +184,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // 先 taskkill（等同点 ×，应用能自己收尾），关不掉才 /F。
 export async function stopApp(app, { force = true, waitMs = 8000 } = {}) {
   if (listProcesses(app).length === 0) return { stopped: true, forced: false };
-  const mac = process.platform === 'darwin';
+  const mac = IS_MAC;
   // macOS 用「退出」菜单同款的 AppleScript quit，应用能自己收尾。
   if (mac) { try { execFileSync('/usr/bin/osascript', ['-e', `tell application "${app.macBundle}" to quit`], { stdio: 'ignore', timeout: 10000 }); } catch {} }
   else { try { execFileSync('taskkill.exe', ['/IM', app.exeName, '/T'], { windowsHide: true, stdio: 'ignore' }); } catch {} }
