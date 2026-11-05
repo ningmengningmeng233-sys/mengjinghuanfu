@@ -38,6 +38,7 @@ internal class LiveSession : IDisposable
 		{
 			processStartInfo2.EnvironmentVariables["PATH"] = extraPath + ";" + processStartInfo2.EnvironmentVariables["PATH"];
 		}
+		processStartInfo2.EnvironmentVariables["DREAMSKIN_LAUNCHER"] = Process.GetCurrentProcess().MainModule.FileName;
 		proc = new Process
 		{
 			StartInfo = processStartInfo2,

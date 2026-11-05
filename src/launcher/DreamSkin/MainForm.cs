@@ -2737,6 +2737,9 @@ public class MainForm : Form
 				{
 					processStartInfo.EnvironmentVariables["PATH"] = nodeDir + ";" + processStartInfo.EnvironmentVariables["PATH"];
 				}
+				// msix 通道（如 Codex）激活应用必须借总控台的 --activate 子命令，Node 靠这个变量找到本程序；
+				// 不传的话从总控台里给 Codex 换肤必然失败（3.0.3 泛化时发现的真 bug，此前 Codex 没有编辑页没被踩到）。
+				processStartInfo.EnvironmentVariables["DREAMSKIN_LAUNCHER"] = Process.GetCurrentProcess().MainModule.FileName;
 				using Process process = new Process();
 				process.StartInfo = processStartInfo;
 				StringBuilder outBuf = new StringBuilder();
@@ -4200,6 +4203,7 @@ public class MainForm : Form
 		processStartInfo.StandardOutputEncoding = Encoding.UTF8;
 		processStartInfo.StandardErrorEncoding = Encoding.UTF8;
 		processStartInfo.WorkingDirectory = text;
+		processStartInfo.EnvironmentVariables["DREAMSKIN_LAUNCHER"] = Process.GetCurrentProcess().MainModule.FileName;
 		ProcessStartInfo startInfo = processStartInfo;
 		StringBuilder output = new StringBuilder();
 		try
