@@ -51,11 +51,11 @@ internal class ToggleSwitch : Control
 		Graphics graphics = e.Graphics;
 		graphics.SmoothingMode = SmoothingMode.AntiAlias;
 		graphics.Clear((base.Parent != null) ? base.Parent.BackColor : Theme.Card);
-		TextRenderer.DrawText(graphics, Title, Font, new Rectangle(4, 0, base.Width - 60, base.Height), Color.FromArgb(190, 190, 202), TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+		TextRenderer.DrawText(graphics, Title, Font, new Rectangle(4, 0, base.Width - 60, base.Height), Theme.TextDim, TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
 		Rectangle r = new Rectangle(base.Width - 46, base.Height / 2 - 10, 38, 20);
 		using (GraphicsPath path = Ui.Round(r, 10))
 		{
-			using SolidBrush brush = new SolidBrush(on ? Accent : Color.FromArgb(56, 56, 68));
+			using SolidBrush brush = new SolidBrush(on ? Accent : Theme.Line);
 			graphics.FillPath(brush, path);
 		}
 		int num = (on ? (r.Right - 18) : (r.X + 2));

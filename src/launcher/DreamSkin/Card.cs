@@ -22,7 +22,7 @@ internal class Card : Panel
 		graphics.Clear((base.Parent != null) ? base.Parent.BackColor : Theme.Bg);
 		using GraphicsPath path = Ui.Round(new Rectangle(0, 0, base.Width - 1, base.Height - 1), 12);
 		using SolidBrush brush = new SolidBrush(BackColor);
-		using Pen pen = new Pen(Color.FromArgb(38, 38, 48));
+		using Pen pen = new Pen(Theme.Line);
 		graphics.FillPath(brush, path);
 		graphics.DrawPath(pen, path);
 	}

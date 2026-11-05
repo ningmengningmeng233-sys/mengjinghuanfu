@@ -467,7 +467,7 @@ public class MainForm : Form
 		label2.Font = Theme.F(8.5f);
 		label2.ForeColor = Theme.Muted;
 		label2.AutoSize = true;
-		label2.Location = new Point(num, 50);
+		label2.Location = new Point(num - 2, 50);
 		Label value2 = label2;
 		navPanel.Controls.Add(value);
 		navPanel.Controls.Add(value2);
@@ -502,7 +502,7 @@ public class MainForm : Form
 		statusBar.Paint += delegate(object s, PaintEventArgs e)
 		{
 			Rectangle rectangle = new Rectangle(0, 8, statusBar.Width, statusBar.Height - 8);
-			using (SolidBrush brush = new SolidBrush(Color.FromArgb(19, 19, 24)))
+			using (SolidBrush brush = new SolidBrush(Theme.Nav))
 			{
 				e.Graphics.FillRectangle(brush, rectangle);
 			}
@@ -523,7 +523,7 @@ public class MainForm : Form
 			Dock = DockStyle.Fill,
 			ReadOnly = true,
 			BorderStyle = BorderStyle.None,
-			BackColor = Color.FromArgb(10, 10, 13),
+			BackColor = Theme.LogBg,
 			ForeColor = Theme.Muted,
 			Font = new Font("Consolas", 9f),
 			DetectUrls = false,
@@ -668,15 +668,15 @@ public class MainForm : Form
 		cardPalettes.Controls.Add(chips);
 		tileHost = new ScrollHost
 		{
-			Location = new Point(10, 44),
-			Size = new Size(482, 376),
+			Location = new Point(9, 44),
+			Size = new Size(482, 375),
 			BackColor = Theme.Card
 		};
 		cardPalettes.Controls.Add(tileHost);
 		scrollHosts.Add(tileHost);
 		galleryBar = new Panel
 		{
-			Location = new Point(10, 44),
+			Location = new Point(9, 44),
 			Size = new Size(482, 62),
 			BackColor = Theme.Card,
 			Visible = false
@@ -779,7 +779,7 @@ public class MainForm : Form
 		};
 		btnExtract = new FlatButton("✦ 从壁纸取色", Theme.CardHover, Theme.Gold)
 		{
-			Bounds = new Rectangle(376, 36, 110, 30)
+			Bounds = new Rectangle(374, 36, 110, 30)
 		};
 		btnExtract.Font = Theme.F(9f);
 		btnExtract.Click += delegate
@@ -809,8 +809,8 @@ public class MainForm : Form
 		card4.Controls.Add(lblLive);
 		settingsHost = new ScrollHost
 		{
-			Location = new Point(8, 42),
-			Size = new Size(334, 460),
+			Location = new Point(12, 44),
+			Size = new Size(324, 454),
 			BackColor = Theme.Card
 		};
 		card4.Controls.Add(settingsHost);
@@ -1524,7 +1524,7 @@ public class MainForm : Form
 			Text = "说明：\n· Node.js 22+ 是运行换肤脚本必需的；没装的话点上面的按钮，会从 nodejs.org 下载官方版本并校验 SHA-256，装在梦境换肤自己的目录里，不影响系统。\n· 数据目录里有当前皮肤、上次选择和会话状态，删掉等于重置。",
 			ForeColor = Theme.Muted,
 			AutoSize = false,
-			Size = new Size(640, 120),
+			Size = new Size(860, 120),
 			Location = new Point(0, 230)
 		});
 		BuildEnvExtras();
@@ -1565,7 +1565,7 @@ public class MainForm : Form
 				log.SelectionColor = color;
 				log.AppendText(text + "\n");
 				statusText = "›  " + text;
-				statusColor = ((color == Theme.Muted) ? Color.FromArgb(175, 175, 188) : color);
+				statusColor = ((color == Theme.Muted) ? Theme.TextDim : color);
 				if (statusBar != null)
 				{
 					statusBar.Invalidate();
@@ -2079,7 +2079,7 @@ public class MainForm : Form
 			AutoSize = true
 		};
 		pageEnv.Controls.Add(mt);
-		AddButton(pageEnv, "刷新矩阵", Theme.Card, Theme.Text, new Rectangle(880, 360, 110, 32), async delegate
+		AddButton(pageEnv, "刷新矩阵", Theme.Card, Theme.Text, new Rectangle(750, 360, 110, 32), async delegate
 		{
 			await RefreshAppList(true);
 			RefreshMatrix();
@@ -2092,7 +2092,7 @@ public class MainForm : Form
 			ReadOnly = true,
 			Font = Theme.F(9f),
 			Location = new Point(0, 400),
-			Size = new Size(990, 116),
+			Size = new Size(860, 116),
 			ScrollBars = RichTextBoxScrollBars.Vertical
 		};
 		pageEnv.Controls.Add(matrixBox);
@@ -2110,7 +2110,7 @@ public class MainForm : Form
 			Text = "DSH 默认走 CDP 通道换肤；插件通道是给浏览器模式（dsh web）用的兜底：插件只读梦境换肤数据目录里的皮肤文件，经 DSH 官方插槽注入，不联网、不读对话内容。开关打开只是「允许使用」，真正安装还要再点「安装插件」并确认；插件目录还没配置好时，安装会如实报错、不会乱放文件。卸载按安装清单精确移除，装过什么删什么。",
 			ForeColor = Theme.Muted,
 			AutoSize = false,
-			Size = new Size(990, 40),
+			Size = new Size(860, 40),
 			Location = new Point(0, 554)
 		});
 		pluginStatusLabel = new Label
@@ -2343,7 +2343,7 @@ public class MainForm : Form
 	private async Task RefreshStatus()
 	{
 		int major = await NodeMajor();
-		SetState(lblNode, (major >= 22) ? ("● Node.js v" + major) : ((major > 0) ? "● Node.js 版本太旧" : "● 未找到 Node.js"), (major >= 22) ? Theme.Green : Theme.Red);
+		SetState(lblNode, (major >= 22) ? ("● Node.js v" + major) : ((major > 0) ? "● Node.js 版本太旧" : "● 未找到 Node.js"), (major >= 22) ? Theme.Green : ((major > 0) ? Theme.Yellow : Theme.Red));
 		if (major < 22)
 		{
 			Log("WARN: 需要 Node.js 22 或更新版本。到「环境与日志」点「安装 / 修复 Node.js 22」即可。");
@@ -2365,7 +2365,7 @@ public class MainForm : Form
 		bool flag = st.Output.Contains("\"running\": true");
 		bool flag2 = flag && st.Output.Contains("\"skinActive\": true") && Regex.IsMatch(st.Output, "\"debugPort\": [1-9]");
 		bool flag3 = !st.Output.Contains("\"exe\": null");
-		SetState(l, (!flag3) ? ("● " + name + " 未安装/未找到") : (flag2 ? ("● " + name + " 皮肤生效中") : (flag ? ("● " + name + " 运行中（原版）") : ("● " + name + " 未运行"))), (!flag3) ? Theme.Red : (flag2 ? Theme.Gold : Theme.Muted));
+		SetState(l, (!flag3) ? ("● " + name + " 未安装/未找到") : (flag2 ? ("● " + name + " 皮肤生效中") : (flag ? ("● " + name + " 运行中（原版）") : ("● " + name + " 未运行"))), (!flag3) ? Theme.Off : (flag2 ? Theme.Green : (flag ? Theme.Blue : Theme.Idle)));
 		return flag2;
 	}
 

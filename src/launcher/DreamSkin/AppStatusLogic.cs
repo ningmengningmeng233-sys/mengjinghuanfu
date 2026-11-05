@@ -66,12 +66,12 @@ internal static class AppStatusLogic
 	{
 		switch (s)
 		{
-			case AppDotState.NotInstalled: return Color.FromArgb(107, 114, 128);
-			case AppDotState.NotRunning: return Color.FromArgb(148, 163, 184);
-			case AppDotState.Running: return Color.FromArgb(56, 189, 248);
-			case AppDotState.SkinActive: return Color.FromArgb(74, 222, 128);
-			case AppDotState.Compat: return Color.FromArgb(250, 204, 21);
-			default: return Color.FromArgb(248, 113, 113);
+			case AppDotState.NotInstalled: return Theme.Off;
+			case AppDotState.NotRunning: return Theme.Idle;
+			case AppDotState.Running: return Theme.Blue;
+			case AppDotState.SkinActive: return Theme.Green;
+			case AppDotState.Compat: return Theme.Yellow;
+			default: return Theme.Red;
 		}
 	}
 

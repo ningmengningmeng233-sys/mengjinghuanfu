@@ -78,13 +78,13 @@ internal class DsSlider : Control
 		Graphics graphics = e.Graphics;
 		graphics.SmoothingMode = SmoothingMode.AntiAlias;
 		graphics.Clear((base.Parent != null) ? base.Parent.BackColor : Theme.Card);
-		TextRenderer.DrawText(graphics, Title, Font, new Rectangle(4, 4, base.Width - 70, 20), (hover || drag) ? Theme.Text : Color.FromArgb(190, 190, 202), TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
+		TextRenderer.DrawText(graphics, Title, Font, new Rectangle(4, 4, base.Width - 70, 20), (hover || drag) ? Theme.Text : Theme.TextDim, TextFormatFlags.EndEllipsis | TextFormatFlags.VerticalCenter);
 		string text = val.ToString((Step < 1.0) ? "0.0" : "0", CultureInfo.InvariantCulture) + Unit;
 		TextRenderer.DrawText(graphics, text, Theme.F(9f, FontStyle.Bold), new Rectangle(base.Width - 70, 4, 66, 20), drag ? Accent : Theme.Text, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
 		Rectangle track = Track;
 		using (GraphicsPath path = Ui.Round(track, 2))
 		{
-			using SolidBrush brush = new SolidBrush(Color.FromArgb(48, 48, 60));
+			using SolidBrush brush = new SolidBrush(Theme.Line);
 			graphics.FillPath(brush, path);
 		}
 		int knobX = KnobX;

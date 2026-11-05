@@ -49,7 +49,7 @@ internal class FlatButton : Button
 		graphics.SmoothingMode = SmoothingMode.AntiAlias;
 		graphics.Clear((base.Parent != null) ? base.Parent.BackColor : Theme.Bg);
 		Color color = ((!base.Enabled) ? Color.FromArgb(40, 40, 48) : (hover ? ControlPaint.Light(Fill, 0.15f) : Fill));
-		using (GraphicsPath path = Ui.Round(new Rectangle(0, 0, base.Width - 1, base.Height - 1), 8))
+		using (GraphicsPath path = Ui.Round(new Rectangle(0, 0, base.Width - 1, base.Height - 1), 10))
 		{
 			using SolidBrush brush = new SolidBrush(color);
 			using Pen pen = new Pen(base.Enabled ? Border : Theme.Line);
