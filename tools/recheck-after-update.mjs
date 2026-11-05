@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { appRuntimeById } from "../src/core/app-runtime.mjs";
-import { findExe, freePort, launchWithPort, listProcesses, stopApp, waitForMainTargets } from "../src/core/app-process.mjs";
+import { freePort, launchWithPort, listProcesses, stopApp, waitForMainTargets } from "../src/core/app-process.mjs";
 import { channelFor } from "../src/channels/index.mjs";
 import { profileToChannelAdapter } from "../src/channels/exe.mjs";
 import { CdpSession } from "../src/core/cdp-core.mjs";
@@ -119,13 +119,20 @@ export async function recheckApp(entry, log = () => {}) {
       launched = !!port;
       if (!port) return { ...base, conclusion: decideConclusion({ installed: true, snapshotOk: false, versionChanged: cmp.changed }), detail: "msix 通道启动未报出调试端口" };
     } else {
-      const exe = findExe(adapter);
-      if (!exe) return { ...base, conclusion: decideConclusion({ installed: true, snapshotOk: false, versionChanged: cmp.changed }), detail: "找不到应用可执行文件（静态发现口径）" };
+      // exe 通道：与产品入口 ensurePort 完全同口径（Q-4 修正）——exe 由 exe 通道 status
+      // 按运行时 profile 解析（候选 + envExe + 在跑进程口径，与入口共用同一条发现链），
+      // 再 freePort + launchWithPort；等主窗口由本工具 startWaitFor 的窗口负责，
+      // 不走通道 launch 自带的 60 秒等待（慢应用会被它误杀）。
+      const channel = channelFor(adapter.channel);
+      const channelAdapter = profileToChannelAdapter(adapter, { skinActive: () => false });
+      const exe = (await channel.status(channelAdapter)).exe;
+      if (!exe) return { ...base, conclusion: decideConclusion({ installed: true, snapshotOk: false, versionChanged: cmp.changed }), detail: "找不到应用可执行文件（产品 exe 通道口径）" };
       port = await freePort();
       await launchWithPort(exe, port);
       launched = true;
     }
     if (id === "dsh") log("  （DSH 冷启动很慢：本机实测 562–742 秒才就绪，等待窗口 " + Math.round(waitMs / 60000) + " 分钟）");
+    if (id === "minimax-design") log("  （MiniMax Design 冷启动不稳：本机实测主窗口出现可晚于 240 秒，等待窗口 " + Math.round(waitMs / 60000) + " 分钟）");
     const targets = await waitForMainTargets(adapter, port, waitMs);
     if (!targets.length) return { ...base, conclusion: decideConclusion({ installed: true, snapshotOk: false, versionChanged: cmp.changed }), detail: "等待窗口内没等到主窗口" };
     const partsMap = adapter.partsMap || adapter.parts;

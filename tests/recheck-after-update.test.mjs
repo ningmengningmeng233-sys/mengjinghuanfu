@@ -56,3 +56,19 @@ test('recheck-baseline.json: 六家齐全、版本与探查口径与预期 mode 
   const dsh = baseline.apps.find((a) => a.id === 'dsh');
   assert.ok(dsh.startWaitMs >= DSH_MIN_WAIT_MS, 'DSH 基线等待窗口不得低于 15 分钟');
 });
+
+test('recheck-baseline.json: MiniMax Design 慢启动窗口下限（Q-4 修正）', () => {
+  // 240 秒窗口曾连续误判（韧性批 3 次 + Q-4 批入口 3 次主窗口超时，实例其后正常出窗），
+  // 基线窗口按实测上调到与 DSH 同档（18 分钟），防止改回去重蹈误判。
+  const baseline = JSON.parse(readFileSync(join(HERE, '..', 'tools', 'recheck-baseline.json'), 'utf8'));
+  const md = baseline.apps.find((a) => a.id === 'minimax-design');
+  assert.ok(md.startWaitMs >= DSH_MIN_WAIT_MS, 'MiniMax Design 基线等待窗口不得低于 15 分钟');
+});
+
+test('recheck 工具 exe 启动走产品 exe 通道（与入口 ensurePort 同口径，Q-4 接线守卫）', () => {
+  const src = readFileSync(join(HERE, '..', 'tools', 'recheck-after-update.mjs'), 'utf8');
+  assert.ok(src.includes('channelFor(adapter.channel)'), '应按适配器通道取 exe 通道');
+  assert.ok(src.includes('channel.status(channelAdapter)'), 'exe 应由通道 status 解析（与 ensurePort 同一条发现链）');
+  assert.ok(!src.includes('findExe(adapter)'), '不许再绕开通道直接 findExe');
+  assert.ok(!/import \{[^}]*findExe/.test(src), '不许再从 app-process 导入 findExe');
+});

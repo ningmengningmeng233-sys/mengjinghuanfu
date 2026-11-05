@@ -65,7 +65,7 @@
                      "partsTotal":  9,
                      "partsRequired":  4,
                      "expectedMode":  "full",
-                     "startWaitMs":  240000
+                     "startWaitMs":  1080000
                  },
                  {
                      "id":  "minimax-code",
