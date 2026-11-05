@@ -8,6 +8,11 @@
     "exeNames": [
       "ChatGPT.exe"
     ],
+    "mac": {
+      "bundle": "Codex",
+      "source": "OpenAI 官方先行发布 macOS 版 Codex app（官方 dmg、拖入 Applications）；但本适配器 Windows 侧走 msix 包机制、mac 无对应物，mac 若做需改走 exe 通道按 Codex.app 发现，包名、包内可执行名与 target 均未在真机核对",
+      "status": "unverified"
+    },
     "msixPackageFamily": "OpenAI.Codex_2p2nqsd0c76g0",
     "uninstallDisplayName": "Codex"
   },

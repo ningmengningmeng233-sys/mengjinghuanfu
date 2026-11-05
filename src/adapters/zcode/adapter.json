@@ -9,6 +9,11 @@
     "exeNames": [
       "ZCode.exe"
     ],
+    "mac": {
+      "bundle": "ZCode",
+      "source": "2.1 既有 discover.macBundle 沿用；官方 zcode.z.ai 提供 macOS dmg、安装说明为把 ZCode.app 拖入 Applications，包内可执行名未在真机核对",
+      "status": "unverified"
+    },
     "macBundle": "ZCode",
     "uninstallDisplayName": "ZCode"
   },

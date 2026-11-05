@@ -11,6 +11,11 @@
     "exeNames": [
       "MiniMax Design.exe"
     ],
+    "mac": {
+      "bundle": "MiniMax Design",
+      "source": "包名按产品名推断：MiniMax 官方产品线列有 macOS 桌面版（macOS 13 起），包名与包内可执行名未在真机核对",
+      "status": "unverified"
+    },
     "uninstallDisplayName": "MiniMax Design"
   },
   "target": {

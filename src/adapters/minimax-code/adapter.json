@@ -11,6 +11,11 @@
     "exeNames": [
       "MiniMax Code.exe"
     ],
+    "mac": {
+      "bundle": "MiniMax Code",
+      "source": "包名按产品名推断：MiniMax 官方文档与下载页提供 macOS 桌面版（dmg 拖入 Applications、另有 Homebrew cask），包名与包内可执行名未在真机核对",
+      "status": "unverified"
+    },
     "uninstallDisplayName": "MiniMax Code"
   },
   "target": {

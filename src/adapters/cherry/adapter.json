@@ -10,6 +10,11 @@
     "exeNames": [
       "Cherry Studio.exe"
     ],
+    "mac": {
+      "bundle": "Cherry Studio",
+      "source": "2.1 既有 discover.macBundle 沿用；官方提供 macOS 版（官网与 GitHub Releases 的 dmg、拖入 Applications），包名与包内可执行名未在真机核对",
+      "status": "unverified"
+    },
     "macBundle": "Cherry Studio",
     "uninstallDisplayName": "Cherry Studio"
   },

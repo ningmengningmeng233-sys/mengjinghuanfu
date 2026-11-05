@@ -8,6 +8,11 @@
     "exeNames": [
       "DSH Desktop.exe"
     ],
+    "mac": {
+      "bundle": "DSH Desktop",
+      "source": "包名按产品名推断：社区 DSH Desktop 自述有 Windows 与 macOS 双平台发行，但本机所装 anywhere-labs 发行线（2.0.18）的 mac 安装资产、包名与外壳形态（Electron 或 Tauri）均未核实",
+      "status": "unverified"
+    },
     "uninstallDisplayName": "DSH Desktop"
   },
   "extraCss": "extra.css",
