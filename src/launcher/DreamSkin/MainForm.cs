@@ -3979,7 +3979,7 @@ public class MainForm : Form
 				TopMost = true,
 				ShowInTaskbar = true,
 				Size = new Size(340, 76),
-				BackColor = Color.FromArgb(38, 30, 52),
+				BackColor = Theme.Nav,
 				Text = "梦境换肤"
 			};
 			try
@@ -3996,9 +3996,9 @@ public class MainForm : Form
 			Label label = new Label();
 			label.Dock = DockStyle.Fill;
 			label.TextAlign = ContentAlignment.MiddleCenter;
-			label.ForeColor = Color.FromArgb(240, 214, 150);
-			label.Font = new Font("Microsoft YaHei UI", 11f);
-			label.Text = "正在带皮肤打开 " + appName + "…";
+			label.ForeColor = Theme.Gold;
+			label.Font = Theme.F(11f);
+			label.Text = "正在换肤 " + appName + "…";
 			Label value = label;
 			tip.Controls.Add(value);
 			int code = 0;
