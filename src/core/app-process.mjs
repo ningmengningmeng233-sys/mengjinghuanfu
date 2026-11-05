@@ -21,18 +21,43 @@ function ps(script, timeout = 15000) {
 export function listProcesses(app) {
   if (IS_MAC) return listProcessesMac(app);
   try {
-    const out = ps(`@(Get-CimInstance Win32_Process -Filter "Name='${app.exeName}'" | ` +
-      `Select-Object ProcessId,ExecutablePath,CommandLine) | ConvertTo-Json -Compress`);
-    if (!out) return [];
-    const data = JSON.parse(out);
-    return (Array.isArray(data) ? data : [data]).map((p) => {
-      const cmd = p.CommandLine || '';
-      return { pid: p.ProcessId, path: p.ExecutablePath || '', cmd,
-        isMain: !/\s--type=/.test(cmd) && !(app.isHelperCmd && app.isHelperCmd(cmd)) };
-    });
+    return processesForApp(processSnapshot(), app);
   } catch {
     return [];
   }
+}
+
+// 纯函数（可单测）：全量进程行 -> 某个应用的进程列表。isMain 口径与旧实现一致：
+// 主进程 = 命令行没有 --type=，且 profile 没把它判成后台进程。
+export function processesForApp(rows, app) {
+  const exe = String(app.exeName || "").toLowerCase();
+  return (rows || []).filter((p) => String(p.name || "").toLowerCase() === exe).map((p) => {
+    const cmd = p.cmd || "";
+    return { pid: p.pid, path: p.path || "", cmd,
+      isMain: !/\s--type=/.test(cmd) && !(app.isHelperCmd && app.isHelperCmd(cmd)) };
+  });
+}
+
+// 进程全量快照（3.0.3 性能批）：旧实现每查一个应用就 spawn 一次 PowerShell 按名过滤，
+// apps-status 一轮 8 个应用串行累积 25s+。改为一次拉全量进程表、多方共享；
+// 快照带 1.5s TTL（长驻进程也不会长期读旧名单），stopApp 杀进程后显式失效。
+const PROC_SNAPSHOT_TTL_MS = 1500;
+let procSnapshot = null;
+
+export function invalidateProcessSnapshot() { procSnapshot = null; }
+
+function processSnapshot() {
+  if (procSnapshot && Date.now() - procSnapshot.at < PROC_SNAPSHOT_TTL_MS) return procSnapshot.rows;
+  const out = ps(`@(Get-CimInstance Win32_Process | Select-Object Name,ProcessId,ExecutablePath,CommandLine) | ConvertTo-Json -Compress`, 30000);
+  let rows = [];
+  if (out) {
+    const data = JSON.parse(out);
+    rows = (Array.isArray(data) ? data : [data]).map((p) => ({
+      name: p.Name || "", pid: p.ProcessId, path: p.ExecutablePath || "", cmd: p.CommandLine || "",
+    }));
+  }
+  procSnapshot = { at: Date.now(), rows };
+  return rows;
 }
 
 // macOS：ps 列出全部进程，只认「<名字>.app/Contents/MacOS/<名字>」这个主程序（Helper 子进程在 Frameworks 里，路径不同）。
@@ -106,20 +131,37 @@ export function exeFromUninstallEntry(entry, exeName, exists = existsSync) {
   return '';
 }
 
-function registryUninstallEntries(app) {
+// 纯函数（可单测）：全量卸载条目 -> 某个应用的条目。过滤口径与旧实现一致：
+// DisplayName 以 uninstallName 开头（不区分大小写），等价于旧的 -like 'Name*'。
+export function uninstallEntriesForApp(entries, uninstallName) {
+  const prefix = String(uninstallName || "").toLowerCase();
+  return (entries || []).filter((e) => !prefix || String(e.displayName || "").toLowerCase().startsWith(prefix));
+}
+
+// 卸载注册表全量缓存（3.0.3 性能批）：旧实现每查一个应用就 spawn 一次 PowerShell
+// 枚举三处卸载项再按名字过滤；改为整个进程生命周期只拉一次全量、按应用在内存过滤
+// （安装状态不会在一次 CLI 运行内变化）。拉取失败不缓存，下次调用重试。
+let uninstallEntriesCache = null;
+
+function allUninstallEntries() {
+  if (uninstallEntriesCache) return uninstallEntriesCache;
   const out = ps("$ks = @(Get-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'," +
     "'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*','HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*' -ErrorAction SilentlyContinue | " +
-    `Where-Object { $_.DisplayName -like '${app.uninstallName}*' } | ` +
     "Select-Object DisplayName, InstallLocation, DisplayIcon, UninstallString); " +
     "if ($ks.Count -gt 0) { [Console]::Out.Write(($ks | ConvertTo-Json -Compress)) }");
-  if (!out) return [];
+  if (!out) { uninstallEntriesCache = []; return uninstallEntriesCache; }
   const data = JSON.parse(out);
-  return (Array.isArray(data) ? data : [data]).map((k) => ({
-    displayName: k.DisplayName || '',
-    installLocation: k.InstallLocation || '',
-    displayIcon: k.DisplayIcon || '',
-    uninstallString: k.UninstallString || '',
+  uninstallEntriesCache = (Array.isArray(data) ? data : [data]).map((k) => ({
+    displayName: k.DisplayName || "",
+    installLocation: k.InstallLocation || "",
+    displayIcon: k.DisplayIcon || "",
+    uninstallString: k.UninstallString || "",
   }));
+  return uninstallEntriesCache;
+}
+
+function registryUninstallEntries(app) {
+  return uninstallEntriesForApp(allUninstallEntries(), app.uninstallName);
 }
 export function findExe(app, running = listProcesses(app), deps = {}) {
   const exists = deps.exists || existsSync;
@@ -188,6 +230,7 @@ export async function stopApp(app, { force = true, waitMs = 8000 } = {}) {
   // macOS 用「退出」菜单同款的 AppleScript quit，应用能自己收尾。
   if (mac) { try { execFileSync('/usr/bin/osascript', ['-e', `tell application "${app.macBundle}" to quit`], { stdio: 'ignore', timeout: 10000 }); } catch {} }
   else { try { execFileSync('taskkill.exe', ['/IM', app.exeName, '/T'], { windowsHide: true, stdio: 'ignore' }); } catch {} }
+  invalidateProcessSnapshot();
   for (let t = 0; t < waitMs; t += 500) {
     await sleep(500);
     if (listProcesses(app).length === 0) return { stopped: true, forced: false };
@@ -195,6 +238,7 @@ export async function stopApp(app, { force = true, waitMs = 8000 } = {}) {
   if (!force) return { stopped: false, forced: false };
   if (mac) { for (const p of listProcesses(app)) { try { process.kill(p.pid, 'SIGKILL'); } catch {} } }
   else { try { execFileSync('taskkill.exe', ['/IM', app.exeName, '/T', '/F'], { windowsHide: true, stdio: 'ignore' }); } catch {} }
+  invalidateProcessSnapshot();
   for (let t = 0; t < 5000; t += 500) {
     await sleep(500);
     if (listProcesses(app).length === 0) return { stopped: true, forced: true };
