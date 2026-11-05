@@ -1,8 +1,18 @@
 {
   "name": "dsh-plugin-dreamskin",
   "version": "{{version}}",
-  "description": "DreamSkin skin plugin for DeepSeek Harness: reads the local active-skin.css written by DreamSkin and injects it as layered <style> elements through the shell.overlay UI slot. Local files only; no network, no session access.",
+  "description": "DreamSkin skin plugin for DeepSeek Harness: reads the local active-skin.css written by DreamSkin and contributes its layers as style rows to the Web UI boot page through the host webserver index-injection event. Local files only; no network, no session access.",
   "type": "module",
   "main": "lib/main.js",
+  "exports": {
+    ".": "./lib/main.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
   "license": "MIT"
 }

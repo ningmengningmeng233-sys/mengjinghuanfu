@@ -27,7 +27,7 @@ import { serializeSkinFile } from '../theme/layers.mjs';
 
 export const PLUGIN_NAME = 'dsh-plugin-dreamskin';
 export const PLUGIN_TEMPLATE_DIR = fileURLToPath(new URL('./dsh-plugin/', import.meta.url));
-export const PLUGIN_FILES = ['package.json', 'lib/main.js', 'lib/overlay.js', 'README.md'];
+export const PLUGIN_FILES = ['package.json', 'cordis.patch.yml', 'lib/main.js', 'lib/overlay.js', 'README.md'];
 const SWITCH_FILE = 'plugin-channel.json';
 const MANIFEST_FILE = 'plugin-install.json';
 const SKIN_FILE = 'active-skin.css';

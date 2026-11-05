@@ -12,12 +12,18 @@ What the plugin does, and nothing else:
 
 - Reads the local skin file `%LOCALAPPDATA%\DreamSkin\dsh\active-skin.css`
   (the same layered skin file the CDP routes use).
-- Injects it into the DSH Web UI as three `<style>` elements
-  (`dream-skin-2-dsh`, `-vars`, `-extra`) through the official
-  `shell.overlay` UI slot (frame-level, session-independent - the same
-  route the community skin plugin verified in spike S-2 uses).
-- Removes all three styles when the skin file is deleted or emptied
-  (DreamSkin `restore`, or the channel master switch being turned off).
+- Is mounted by the host as a profile bundle: its cordis.patch.yml
+  inserts one plugin row named after the package, and the host calls
+  the package entry (lib/main.js) as a plugin. The plugin contributes
+  the skin layers as style rows on the host webserver index-injection
+  event, so the served Web UI boot page carries them as style elements
+  in its head - the same route the first-party theme package uses for
+  its palette. (The DOM-side applier in lib/overlay.js, with the style
+  ids `dream-skin-2-dsh`, `-vars`, `-extra`, remains in the package
+  for the slot surface.)
+- Stops contributing the styles when the skin file is deleted or
+  emptied (DreamSkin `restore`, or the channel master switch being
+  turned off), so they are gone on the next page load.
 
 Hard limits (plan 4.8), enforced by unit tests over the shipped files:
 no network requests, no reading of page/session content, no cookies or

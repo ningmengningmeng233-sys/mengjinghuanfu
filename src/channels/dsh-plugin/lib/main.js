@@ -1,11 +1,14 @@
 // dsh-plugin-dreamskin 入口（T2-4，方案 4.3 dsh-plugin 通道）：DSH 客户端插件。
-// 职责只有一个：读梦境换肤数据目录里的 active-skin.css（三层皮肤文件），经官方 UI 插槽
-// shell.overlay（与会话无关的帧级常驻插槽，S-2 实证社区换肤插件同路）把三层样式注入 Web UI；
-// 文件被删或清空就撤掉全部样式。插件只读这一个本地文件：不联网、不读会话与对话内容、
-// 不碰 Cookie 与本地存储（方案 4.8，唯一例外通道且须用户明确同意才安装）。
-// 宿主绑定说明（真机核对点）：插槽注册走 ctx.slots（官方 ui-slots 包的注册面），
-// 具体签名以真机为准——拿不到预期接口时插件保持惰性、绝不让宿主报错崩溃；
-// 文件监视只在宿主进程侧有 fs 时启用，浏览器侧靠插槽重渲染时重新同步。
+// 职责只有一个：读梦境换肤数据目录里的 active-skin.css（三层皮肤文件），把三层样式送进
+// Web UI；文件被删或清空就不再送出（页面下次加载时样式随之消失）。插件只读这一个本地
+// 文件：不联网、不读会话与对话内容、不碰 Cookie 与本地存储（方案 4.8，唯一例外通道
+// 且须用户明确同意才安装）。
+// 宿主挂接（2026-11-05 契约实证，见 证据/DSH插件打通/spike-小结.md）：本包经
+// cordis.patch.yml 的一行 insert 以包名挂为宿主插件行，宿主加载本入口并调用 apply(ctx)。
+// 页面生效路：宿主 webserver 每次服务 Web UI 的 index.html 时发出 webserver/index-inject
+// 事件，apply 在此订阅，发出时现读皮肤文件、逐层以 style 行推入注入表，由宿主渲染为
+// head 里的 style 元素（第一方主题包同一条路）。另保留 ctx.slots 插槽注册尝试作为
+// 兜底：拿不到预期接口时插件保持惰性、绝不让宿主报错崩溃。
 import { existsSync, readFileSync, watch } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { applyLayers, removeLayers, parseSkinFile } from './overlay.js';
@@ -52,10 +55,34 @@ function tryRegisterOverlay(ctx, sync) {
   return null;
 }
 
+// 当前皮肤对应的索引注入行（部件 -> 变量 -> 额外，只含非空层）；无皮肤时为空数组。
+export function skinStyleRows(env = process.env) {
+  const layers = loadLayers(env);
+  if (!layers) return [];
+  const rows = [];
+  for (const css of [layers.parts, layers.vars, layers.extra]) {
+    if (css) rows.push({ kind: 'style', text: css });
+  }
+  return rows;
+}
+
 export function apply(ctx, config = {}) {
   const env = config.env || process.env;
   const { sync } = createSkinSync({ env, document: config.document });
   const disposers = [];
+  // 宿主索引注入订阅（实证路）：发出时现读皮肤文件、逐层推 style 行；
+  // 文件不存在或为空就不推行，页面下次加载时样式自然消失。
+  try {
+    if (ctx && typeof ctx.on === 'function') {
+      const off = ctx.on('webserver/index-inject', (table) => {
+        try {
+          if (!table || typeof table.push !== 'function') return;
+          for (const row of skinStyleRows(env)) table.push(row);
+        } catch { /* 注入失败不许影响宿主供页 */ }
+      });
+      if (typeof off === 'function') disposers.push(off);
+    }
+  } catch { /* 宿主无此事件：保持惰性 */ }
   const reg = tryRegisterOverlay(ctx, sync);
   if (typeof reg === 'function') disposers.push(reg);
   else if (reg && typeof reg.dispose === 'function') disposers.push(() => reg.dispose());
