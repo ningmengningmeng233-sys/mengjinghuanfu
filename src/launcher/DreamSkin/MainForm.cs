@@ -140,9 +140,9 @@ public class MainForm : Form
 
 	private Label lblNode;
 
-	private Label lblCherryState;
+	private Label lblAppState;
 
-	private Label lblZCodeState;
+	private Label lblAppSummary;
 
 	private Label lblWallpaper;
 
@@ -223,9 +223,8 @@ public class MainForm : Form
 
 	private bool dirty;
 
-	private bool cherrySkinActive;
-
-	private bool zcodeSkinActive;
+	// 3.0.3 泛化：每个应用的「皮肤实时生效」标记按应用 id 存（原先写死 cherry/zcode 两份）。
+	private readonly Dictionary<string, bool> skinActiveByApp = new Dictionary<string, bool>();
 
 	private string savedKey = "";
 
@@ -263,11 +262,19 @@ public class MainForm : Form
 
 	private string SyncTargetsFile => Path.Combine(dataRoot, "sync-targets.json");
 
-	private string AppName => (app == "zcode") ? "ZCode" : "Cherry Studio";
+	// 适配器 id -> 展示名兜底（apps-status 数据没回来时用；正式名称以列表数据为准，见 DisplayNameOf）。
+	private static readonly Dictionary<string, string> KnownNames = new Dictionary<string, string>
+	{
+		{ "cherry", "Cherry Studio" }, { "zcode", "ZCode" }, { "codex", "Codex" }, { "dsh", "DSH" },
+		{ "minimax-design", "MiniMax Design" }, { "minimax-code", "MiniMax Code" },
+		{ "windsurf", "Windsurf" }, { "kiro", "Kiro" }
+	};
 
-	private string AppShort => (app == "zcode") ? "ZCode" : "Cherry";
+	private string AppName => DisplayNameOf(app);
 
-	private bool SkinActive => (app == "zcode") ? zcodeSkinActive : cherrySkinActive;
+	private string AppShort => (app == "cherry") ? "Cherry" : AppName;
+
+	private bool SkinActive => skinActiveByApp.TryGetValue(app, out var v) && v;
 
 	private Dictionary<string, object> Defaults => ((currentPalette != null && !currentPalette.Dark) ? defaultsLight : defaultsDark) ?? new Dictionary<string, object>();
 
@@ -349,7 +356,7 @@ public class MainForm : Form
 			{
 				if (pageEnv.Visible)
 				{
-					ShowPage((app == "zcode") ? 1 : 0);
+					ShowAppEditor(app);
 				}
 				SetCherryWallpaper(text);
 			}
@@ -373,7 +380,18 @@ public class MainForm : Form
 			if (args[i] == "--page" && i + 1 < args.Length)
 			{
 				string text = args[++i];
-				ShowPage((text == "zcode") ? 1 : ((text == "env") ? 2 : 0));
+				if (text == "env")
+				{
+					ShowPage(2);
+				}
+				else if (KnownNames.ContainsKey(text))
+				{
+					ShowAppEditor(text);
+				}
+				else
+				{
+					ShowPage(0);
+				}
 			}
 			else if (args[i] == "--tab" && i + 1 < args.Length)
 			{
@@ -477,8 +495,8 @@ public class MainForm : Form
 		// 列表在 RefreshAppList 拿到真实数据后重建，这里先用兜底行占位。
 		BuildAppNav(new List<AppRow>());
 		lblNode = StatusLabel(navPanel, 560);
-		lblCherryState = StatusLabel(navPanel, 588);
-		lblZCodeState = StatusLabel(navPanel, 616);
+		lblAppState = StatusLabel(navPanel, 588);
+		lblAppSummary = StatusLabel(navPanel, 616);
 		Label label3 = new Label();
 		label3.Text = "不改官方文件 · 随时一键还原";
 		label3.ForeColor = Theme.Muted;
@@ -587,6 +605,17 @@ public class MainForm : Form
 		{
 			SwitchApp((i == 1) ? "zcode" : "cherry");
 		}
+		HighlightNav();
+	}
+
+	// 3.0.3 泛化：任意已装应用都进同一张编辑页（pageCherry），靠 app 字段区分；
+	// 页内所有动作（选题 / 应用 / 还原 / 用皮肤启动）本来就按 app 透传给 Node 入口。
+	private void ShowAppEditor(string appId)
+	{
+		currentPage = (appId == "zcode") ? 1 : 0;
+		pageCherry.Visible = true;
+		pageEnv.Visible = false;
+		SwitchApp(appId);
 		HighlightNav();
 	}
 
@@ -1471,6 +1500,7 @@ public class MainForm : Form
 		dirty = false;
 		app = next;
 		UpdateAppTexts();
+		_ = RefreshCurrentAppStatus();
 		if (cherryDir != null)
 		{
 			touched.Clear();
@@ -1861,7 +1891,13 @@ public class MainForm : Form
 			sorted = new List<AppRow>
 			{
 				new AppRow { Id = "cherry", Name = "Cherry Studio", Installed = true },
-				new AppRow { Id = "zcode", Name = "ZCode", Installed = true }
+				new AppRow { Id = "zcode", Name = "ZCode", Installed = true },
+				new AppRow { Id = "codex", Name = "Codex", Installed = true },
+				new AppRow { Id = "dsh", Name = "DSH", Installed = true },
+				new AppRow { Id = "minimax-design", Name = "MiniMax Design", Installed = true },
+				new AppRow { Id = "minimax-code", Name = "MiniMax Code", Installed = true },
+				new AppRow { Id = "windsurf", Name = "Windsurf", Installed = true },
+				new AppRow { Id = "kiro", Name = "Kiro", Installed = true }
 			};
 		}
 		int y = 100;
@@ -1976,19 +2012,14 @@ public class MainForm : Form
 
 	private void SelectAppRow(AppRow row)
 	{
-		if (row.Id == "cherry")
+		// 3.0.3 泛化：已装应用一律进编辑页；没装的先进环境页（兼容矩阵在那里），原因写进日志。
+		if (row.Installed)
 		{
-			ShowPage(0);
+			ShowAppEditor(row.Id);
 			return;
 		}
-		if (row.Id == "zcode")
-		{
-			ShowPage(1);
-			return;
-		}
-		// 其余适配器先进环境页（兼容矩阵在那里）；编辑页仍只有 Cherry / ZCode 两端，日志里如实说明。
 		ShowPage(2);
-		Log("应用状态：" + row.Name + " —— " + AppStatusLogic.StateText(row.State) + ((row.AppVersion.Length > 0) ? ("，当前版本 " + row.AppVersion) : "") + "。它的换肤编辑页尚未接入总控台，先在下方「兼容矩阵」看体检结果。");
+		Log("应用状态：" + row.Name + " —— " + AppStatusLogic.StateText(row.State) + ((row.AppVersion.Length > 0) ? ("，当前版本 " + row.AppVersion) : "") + "。它还没安装，装好后就能在它的编辑页里换肤；先在下方「兼容矩阵」看体检结果。");
 		if (row.Running)
 		{
 			// 顺手做一次只读体检：页面里若有其他换肤工具的样式，CheckSkin 会走冲突弹窗（每应用只弹首次）。
@@ -1998,7 +2029,7 @@ public class MainForm : Form
 
 	private void HighlightNav()
 	{
-		string sel = ((currentPage == 0) ? "cherry" : ((currentPage == 1) ? "zcode" : ""));
+		string sel = ((pageEnv != null && pageEnv.Visible) ? "" : app);
 		foreach (Panel p in appNavRows)
 		{
 			string id = p.Tag as string;
@@ -2278,7 +2309,7 @@ public class MainForm : Form
 		{
 			return row.Name;
 		}
-		return (id == "zcode") ? "ZCode" : ((id == "cherry") ? "Cherry Studio" : id);
+		return KnownNames.TryGetValue(id, out var known) ? known : id;
 	}
 
 	// §4.6：首次检测到冲突工具时弹窗说明并让用户二选一（每个应用只弹首次，标记文件在数据根目录）。
@@ -2410,14 +2441,53 @@ public class MainForm : Form
 		}
 		else if (cherryDir != null)
 		{
-			string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
-			Task<ProcResult> tc = RunProcess(ResolveNode(), script + " status --app cherry", 30000);
-			Task<ProcResult> tz = RunProcess(ResolveNode(), script + " status --app zcode", 30000);
-			cherrySkinActive = ShowStatus(await tc, lblCherryState, "Cherry");
-			zcodeSkinActive = ShowStatus(await tz, lblZCodeState, "ZCode");
+			await RefreshCurrentAppStatus();
 			await RefreshAppList();
+			UpdateAppSummaryLine();
 			await RefreshPluginPanel();
 		}
+	}
+
+	// 当前应用的状态行（左下角第一行）：只精查当前应用一家，其余应用的状态走 apps-status 汇总。
+	private async Task RefreshCurrentAppStatus()
+	{
+		if (cherryDir == null)
+		{
+			return;
+		}
+		string which = app;
+		string script = Q(Path.Combine(cherryDir, "skin-cherry.mjs"));
+		ProcResult st = await RunProcess(ResolveNode(), script + " status --app " + which, 30000);
+		skinActiveByApp[which] = ShowStatus(st, lblAppState, (which == "cherry") ? "Cherry" : DisplayNameOf(which));
+	}
+
+	// 左下角第二行：应用总览——装了几家、几家皮肤生效，一行看全（回应「只显示 2 个种类」）。
+	// 顺带把各应用的皮肤生效标记同步进 skinActiveByApp（当前应用以 RefreshCurrentAppStatus 的精确值为准）。
+	private void UpdateAppSummaryLine()
+	{
+		int installed = 0;
+		int active = 0;
+		foreach (AppRow r in appRowsData)
+		{
+			if (r.Installed)
+			{
+				installed++;
+				if (r.SkinActive)
+				{
+					active++;
+				}
+			}
+			if (r.Id != app)
+			{
+				skinActiveByApp[r.Id] = r.SkinActive && r.Running;
+			}
+		}
+		if (appRowsData.Count == 0)
+		{
+			SetState(lblAppSummary, "● 应用列表加载中…", Theme.Muted);
+			return;
+		}
+		SetState(lblAppSummary, "● 已安装 " + installed + " 个应用" + ((active > 0) ? (" · 皮肤生效 " + active + " 个") : ""), Theme.Muted);
 	}
 
 	private bool ShowStatus(ProcResult st, Label l, string name)
@@ -2480,7 +2550,7 @@ public class MainForm : Form
 		Log(r.Output);
 		if (r.ExitCode == 3)
 		{
-			string note = ((app == "zcode") ? "项目和对话记录不受影响，但正在跑的任务会被中断。" : "聊天记录不受影响，但输入框里没发出去的文字会丢失。");
+			string note = ((app == "zcode") ? "项目和对话记录不受影响，但正在跑的任务会被中断。" : ((app == "cherry") ? "聊天记录不受影响，但输入框里没发出去的文字会丢失。" : "正在进行的工作可能会被中断，未保存的内容请先保存。"));
 			DialogResult ok = MessageBox.Show(this, AppName + " 正在运行，需要由梦境换肤重新启动一次才能换肤。\n\n" + note + "\n\n现在重启 " + AppName + " 吗？", "需要重启 " + AppName, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 			if (ok != DialogResult.Yes)
 			{
@@ -3268,13 +3338,12 @@ public class MainForm : Form
 
 	private async Task StartupCheck()
 	{
-		if (cherrySkinActive)
+		foreach (KeyValuePair<string, bool> kv in new Dictionary<string, bool>(skinActiveByApp))
 		{
-			await CheckSkin("cherry", startup: true);
-		}
-		if (zcodeSkinActive)
-		{
-			await CheckSkin("zcode", startup: true);
+			if (kv.Value)
+			{
+				await CheckSkin(kv.Key, startup: true);
+			}
 		}
 	}
 
@@ -4024,8 +4093,13 @@ public class MainForm : Form
 
 	internal static int HeadlessLaunch(string app)
 	{
-		app = ((app == "zcode") ? "zcode" : "cherry");
-		string appName = ((app == "zcode") ? "ZCode" : "Cherry Studio");
+		// 3.0.3 泛化：八家适配器都可按 id 直达（原先非 zcode 一律误落 cherry）；未知 id 仍回落 cherry 保持旧行为。
+		string appName;
+		if (!KnownNames.TryGetValue(app, out appName))
+		{
+			app = "cherry";
+			appName = "Cherry Studio";
+		}
 		bool createdNew;
 		using (new Mutex(initiallyOwned: true, "Local\\DreamSkin.Launch." + app, out createdNew))
 		{
