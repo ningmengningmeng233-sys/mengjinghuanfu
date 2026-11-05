@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>梦境换肤-3.0.2-Windows</AssemblyName>
+    <AssemblyName>梦境换肤-3.0.3-Windows</AssemblyName>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
