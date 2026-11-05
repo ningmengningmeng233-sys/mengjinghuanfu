@@ -54,6 +54,31 @@ internal class PaletteInfo
 
 	private bool thumbTried;
 
+	// 3.0.3 性能批：已下载主题（presets 里的 gallery 组）的 Image 指向整张壁纸原图，
+	// 滚动列表时在 UI 线程逐张解码原图很慢；gallery/thumbs 里有同名小图时优先解码小图。
+	public string ThumbPath
+	{
+		get
+		{
+			try
+			{
+				if (Group == "gallery" && !string.IsNullOrEmpty(Image))
+				{
+					string dir = Path.GetDirectoryName(Image);
+					string thumbsFile = Path.Combine(Path.GetDirectoryName(dir), "thumbs", Path.GetFileName(dir) + ".jpg");
+					if (File.Exists(thumbsFile))
+					{
+						return thumbsFile;
+					}
+				}
+			}
+			catch
+			{
+			}
+			return Image;
+		}
+	}
+
 	public Bitmap Thumb
 	{
 		get
@@ -63,13 +88,14 @@ internal class PaletteInfo
 				return thumb;
 			}
 			thumbTried = true;
-			if (string.IsNullOrEmpty(Image) || !File.Exists(Image))
+			string imgPath = ThumbPath;
+			if (string.IsNullOrEmpty(imgPath) || !File.Exists(imgPath))
 			{
 				return null;
 			}
 			try
 			{
-				using FileStream stream = File.OpenRead(Image);
+				using FileStream stream = File.OpenRead(imgPath);
 				using Image image = System.Drawing.Image.FromStream(stream);
 				int width = 160;
 				int height = Math.Max(1, image.Height * 160 / Math.Max(1, image.Width));

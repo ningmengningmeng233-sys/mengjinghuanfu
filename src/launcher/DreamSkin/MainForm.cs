@@ -379,7 +379,8 @@ public class MainForm : Form
 			{
 				startChip = args[++i] switch
 				{
-					"gallery" => 5, 
+					"gallery" => 6,
+					"downloaded" => 5, 
 					"wallpaper" => 4, 
 					"light" => 3, 
 					"dark" => 2, 
@@ -657,9 +658,11 @@ public class MainForm : Form
 		pageCherry.Controls.Add(cardPalettes);
 		chips = new ChipBar
 		{
-			Items = new string[6] { "全部", "★ 我的", "夜", "昼", "取色", "主题库" },
+			Items = new string[7] { "全部", "★ 我的", "夜", "昼", "取色", "已下载", "主题库" },
 			Location = new Point(112, 10),
-			Size = new Size(382, 28)
+			Size = new Size(382, 28),
+			Pad = 16,
+			Gap = 4
 		};
 		chips.SelectedChanged += delegate
 		{
@@ -928,7 +931,7 @@ public class MainForm : Form
 	private void FilterPalettes()
 	{
 		int selected = chips.Selected;
-		bool flag = selected == 5;
+		bool flag = selected == 6;
 		if (galleryBar.Visible != flag)
 		{
 			galleryBar.Visible = flag;
@@ -949,7 +952,7 @@ public class MainForm : Form
 		int num = 0;
 		foreach (PaletteInfo item in flag ? galleryItems : allPalettes)
 		{
-			if ((selected == 1 && item.Group != "mine") || (selected == 2 && (!item.Dark || item.Group == "mine")) || (selected == 3 && (item.Dark || item.Group == "mine")) || (selected == 4 && item.Group != "wallpaper"))
+			if ((selected == 1 && item.Group != "mine") || (selected == 2 && (!item.Dark || item.Group == "mine")) || (selected == 3 && (item.Dark || item.Group == "mine")) || (selected == 4 && item.Group != "wallpaper") || (selected == 5 && item.Group != "gallery"))
 			{
 				continue;
 			}
@@ -989,7 +992,7 @@ public class MainForm : Form
 		}
 		tileHost.ContentHeight = Math.Max(tileHost.Height, num2);
 		tileHost.Content.ResumeLayout();
-		cardPalettes.Title = ((!flag) ? (((selected == 1) ? "我的皮肤 · " : "主题 · ") + num) : ((galleryLoading && num == 0) ? "主题库 · 载入中" : ("主题库 · " + Math.Max(0, galleryTotal))));
+		cardPalettes.Title = ((!flag) ? (((selected == 1) ? "我的皮肤 · " : ((selected == 5) ? "已下载主题 · " : "主题 · ")) + num) : ((galleryLoading && num == 0) ? "主题库 · 载入中" : ("主题库 · " + Math.Max(0, galleryTotal))));
 		cardPalettes.Invalidate();
 		if (flag && num == 0 && galleryTotal == 0)
 		{
@@ -1610,6 +1613,7 @@ public class MainForm : Form
 
 	private async Task StartupAsync()
 	{
+		bool ready = false;
 		await RunBusy(async delegate
 		{
 			await Task.Run(delegate
@@ -1635,22 +1639,34 @@ public class MainForm : Form
 						Log("FAILED: 安装 Node.js 失败：" + ex.Message + " 可稍后在「环境与日志」重试。");
 					}
 				}
-				await RefreshStatus();
-				if (allPalettes.Count == 0)
-				{
-					await LoadCherryData();
-				}
-				if (startChip > 0)
-				{
-					chips.Selected = startChip;
-				}
-				if (SkinActive)
-				{
-					StartLive();
-				}
-				await StartupCheck();
+				ready = true;
 			}
 		});
+		if (!ready)
+		{
+			return;
+		}
+		// 3.0.3 性能批：忙碌遮罩只罩到「脚本目录 + Node 就绪」为止。状态探测与主题数据
+		// 改成并行流入、界面先可交互，不再整窗禁用干等 apps-status（旧口径串行约 36~38s）。
+		try
+		{
+			Task statusTask = RefreshStatus();
+			Task dataTask = ((allPalettes.Count == 0) ? LoadCherryData() : Task.CompletedTask);
+			await Task.WhenAll(statusTask, dataTask);
+			if (startChip > 0)
+			{
+				chips.Selected = startChip;
+			}
+			if (SkinActive)
+			{
+				StartLive();
+			}
+			await StartupCheck();
+		}
+		catch (Exception ex)
+		{
+			Log("FAILED: " + ex.Message);
+		}
 	}
 
 	private void ResolveAppRoot()
@@ -1681,6 +1697,30 @@ public class MainForm : Form
 				return directoryInfo.FullName;
 			}
 			directoryInfo = directoryInfo.Parent;
+		}
+		// 3.0.3 性能批：热启动快速路径。payload-key.txt 记着上次走到完整流程时 exe 的身份
+		// （长度|修改时间|当时的释放目录名）；与当前 exe 对得上、完成标记与主脚本都在，
+		// 就直接复用，跳过整包读取与 SHA256（36 MB）。对不上才走下面的完整流程（行为与旧版一致）。
+		try
+		{
+			string keyPath = Path.Combine(dataRoot, "app", "payload-key.txt");
+			if (File.Exists(keyPath))
+			{
+				string[] parts = File.ReadAllText(keyPath).Trim().Split((char)124);
+				FileInfo exeInfo = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
+				if (parts.Length == 3 && parts[0] == exeInfo.Length.ToString() && parts[1] == exeInfo.LastWriteTimeUtc.Ticks.ToString())
+				{
+					string fastDir = Path.Combine(dataRoot, "app", parts[2]);
+					if (File.Exists(Path.Combine(fastDir, ".complete")) && File.Exists(Path.Combine(fastDir, "src", "cherry", "skin-cherry.mjs")))
+					{
+						source = "内置资源";
+						return fastDir;
+					}
+				}
+			}
+		}
+		catch
+		{
 		}
 		using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DreamSkin.payload.zip");
 		if (stream == null)
@@ -1736,6 +1776,14 @@ public class MainForm : Form
 			Directory.Move(text2, text);
 			File.WriteAllText(path2, DateTime.Now.ToString("o"));
 		}
+		try
+		{
+			FileInfo exeInfo = new FileInfo(Process.GetCurrentProcess().MainModule.FileName);
+			File.WriteAllText(Path.Combine(dataRoot, "app", "payload-key.txt"), exeInfo.Length.ToString() + "|" + exeInfo.LastWriteTimeUtc.Ticks.ToString() + "|" + path);
+		}
+		catch
+		{
+		}
 		source = "内置资源";
 		return text;
 	}
@@ -1772,10 +1820,22 @@ public class MainForm : Form
 		return Path.IsPathRooted(node) ? Path.GetDirectoryName(node) : null;
 	}
 
+	// 3.0.3 性能批：Node 版本号 60 秒内只测一次（启动链里原先重复 spawn 两遍）。
+	// 装完 Node 后由 InstallNode 显式失效。
+	private int nodeMajorCache = -1;
+
+	private DateTime nodeMajorCachedAt = DateTime.MinValue;
+
 	private async Task<int> NodeMajor()
 	{
+		if (nodeMajorCache >= 0 && (DateTime.UtcNow - nodeMajorCachedAt).TotalSeconds < 60.0)
+		{
+			return nodeMajorCache;
+		}
 		Match m = Regex.Match((await RunProcess(ResolveNode(), "-v", 15000)).Output, "v(\\d+)\\.");
-		return m.Success ? int.Parse(m.Groups[1].Value) : 0;
+		nodeMajorCache = (m.Success ? int.Parse(m.Groups[1].Value) : 0);
+		nodeMajorCachedAt = DateTime.UtcNow;
+		return nodeMajorCache;
 	}
 
 	// ---------- U-1：适配器驱动的应用列表（§4.6） ----------
@@ -2531,6 +2591,7 @@ public class MainForm : Form
 			}
 			throw new Exception("所有下载源都失败了。" + text);
 		});
+		nodeMajorCache = -1;
 		if (allPalettes.Count == 0 && cherryDir != null)
 		{
 			await LoadCherryData();
@@ -2696,7 +2757,7 @@ public class MainForm : Form
 			galleryItems.Clear();
 			galleryTotal = -1;
 		}
-		if (chips.Selected == 5)
+		if (chips.Selected == 6)
 		{
 			FilterPalettes();
 		}
@@ -2754,7 +2815,7 @@ public class MainForm : Form
 		{
 			galleryLoading = false;
 		}
-		if (chips.Selected == 5)
+		if (chips.Selected == 6)
 		{
 			FilterPalettes();
 		}
