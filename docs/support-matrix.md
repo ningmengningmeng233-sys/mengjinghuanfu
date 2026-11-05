@@ -84,3 +84,27 @@
 | 待复检 | 应用在运行，只完成版本比对 | 空闲时再跑一次 |
 
 DSH 冷启动慢（实测约 9–12 分钟），其复检等待窗口 ≥15 分钟为正常口径。
+
+## macOS（代码层适配，未实测）
+
+手边无 Mac，以下全部为代码层口径，**未经任何真机验证**；平台盘点全表见 `证据/mac适配/平台盘点清单.md`。
+
+| 项 | mac 口径（代码层） | 状态 |
+|---|---|---|
+| 数据根 | `~/Library/Application Support/DreamSkin`（core/platform.mjs 的 defaultDataRoot） | 代码就绪，未实测 |
+| 应用发现 | `/Applications`、`~/Applications` 下 .app 包；主程序名优先 Info.plist 的 CFBundleExecutable，其次 Spotlight（mdfind） | 代码就绪（plist 解析有合成夹具单测），未实测 |
+| 适配器 mac 数据 | 六家 discover.mac（bundle / source / status），status 一律 unverified，校验器钉死 | 数据已补，包名未经真机核实 |
+| 启动 | exe 通道 spawn 包内二进制带调试参数（既有口径）；open 命令口径在平台层已备、未接入 | 未实测 |
+| 通道 | msix、dsh-plugin 为 Windows 口径，mac 不适用；Codex 在 mac 预期改走 exe 通道 | 未核实 |
+| 界面 | 总控台 .NET WinForms 不移植；mac 用核心自带 panel.mjs 浏览器控制台（方案既有口径，darwin 构建纳入 / win32 剔除） | 构建分支未实测 |
+
+真机验证清单（有 Mac 后逐项执行，结果回填本节）：
+
+1. 六家 .app 包名与 CFBundleExecutable 与 discover.mac / macBundle 逐项核对，错的改数据并把 status 留痕。
+2. plist 发现实测：findExe 在 darwin 上按「标准目录加 plist、mdfind 兜底」找到六家主程序。
+3. exe 通道 spawn 带 `--remote-debugging-port` 启动，/json/version 与 /json/list 可连、主窗口判定正确。
+4. listProcesses（ps 解析）主进程判定与 stopApp（osascript quit 后 SIGKILL）实测。
+5. panel.mjs 在 mac 浏览器打开，status/selfcheck/换肤/恢复全流程走通。
+6. darwin payload 构建（tools/build-payload.mjs）实测：产物含 panel、无 win32 剔除误伤，Node 运行时口径确认。
+7. DSH 的 mac 外壳形态与插件目录口径核实（本机所装 anywhere-labs 发行线是否有 mac 版）。
+8. Codex 通道改判：mac 侧以 exe 通道加 .app 发现为准核实，必要时给适配器加平台通道覆盖字段。

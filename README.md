@@ -131,3 +131,12 @@ CDP User-Agent 都从它派生，`tools/check-version.mjs` 负责校验一致。
 - **未安装**：跳过。**待复检**：应用正在运行，复检不打扰它，只报版本比对；等它空闲时再跑一次。
 
 DSH 在本机冷启动很慢（实测约 9–12 分钟才就绪），复检给它的等待窗口 ≥15 分钟，属正常现象。退出码：0 = 没有需刷新的；1 = 至少一家需刷新部件表；2 = 参数或基线错误。
+
+## macOS（代码层适配，未实测）
+
+架构一直按可移植设计（方案定版：macOS 正式发布不在本期、只保持架构可移植、只验收 Windows x64）。3.0.1 之后做了一批代码层适配，但**手边没有 Mac，全部未经真机验证**——下面写「已做」的只是代码与单测层面的就绪，不是可用承诺。
+
+- **已做**：平台判定与口径收口到 `src/core/platform.mjs`（数据根、应用发现、进程列举与关闭的判定都从它取数，Windows 行为不变、全套单测守卫）；mac 数据根按 `~/Library/Application Support/DreamSkin`；应用发现按 `/Applications` 与 `~/Applications` 下的 `.app` 包，包内主程序名优先读 `Contents/Info.plist` 的 `CFBundleExecutable`（合成夹具单测覆盖，解析器只处理字符串键子集）；六家适配器都补了 `discover.mac` 段（包名与来源说明），状态一律 `unverified`，且适配器校验器钉死了这个状态目前只能是 `unverified`；`open` 命令口径的打开/激活已在平台层备好（预留，未接入任何通道）。
+- **未做 / 未接**：带调试端口的启动在 mac 上仍走 spawn 包内二进制（既有口径，各家是否接受调试参数未验证）；msix 通道是 Windows 专属，Codex 在 mac 上预期改走 exe 通道加 .app 发现，未核实；DSH 插件通道是 Windows 数据目录口径，mac 上未做；**总控台是 .NET WinForms、Windows 专用，不移植**——mac 侧界面按方案既有口径用核心自带的浏览器版控制台 `panel.mjs`（payload 构建在 darwin 上会纳入 panel、win32 剔除，该构建分支同样未实测）。
+- **mac 侧形态结论**：核心 CLI（Node ESM、零依赖）可移植；总控台 mac 版不在本批。可选路线（均未实施）：① 继续用 panel.mjs 浏览器控制台；② 另做轻量 CLI 入口；③ 换跨平台 UI 框架重写总控台。
+- **拿到 Mac 后先照单验证**：六家 .app 包名与 CFBundleExecutable 与 discover.mac 逐项核对、plist 发现实测、带调试端口启动并连 CDP、进程列举与关闭、panel.mjs 打开与全流程换肤、darwin payload 构建产物实测——逐项清单见支持矩阵页与本批报告（`证据/mac适配批报告.md`）。
