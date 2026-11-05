@@ -7,7 +7,7 @@
 
 | id | 应用 | 启动通道 | 已测版本 | 状态 |
 |---|---|---|---|---|
-| cherry | Cherry Studio | exe | 2.1.4 | 部件地图已按实测 DOM 落地（四必需部件齐全）；应用自带自定义 CSS 入口 `user-defined-custom-css` 参与层叠顺序管理 |
+| cherry | Cherry Studio | exe | 2.1.6 | 部件地图已按实测 DOM 落地（四必需部件齐全）；2.1.6 已按真机双视图刷新并往返通过（2026-11-05）；应用自带自定义 CSS 入口 `user-defined-custom-css` 参与层叠顺序管理 |
 | zcode | ZCode | exe | 3.15.3 | 部件地图已按实测 DOM 落地 |
 | codex | Codex | msix（包族 `OpenAI.Codex_2p2nqsd0c76g0`，入口 `ChatGPT.exe`） | 26.1021.3705.0 | 真机验证通过：总控台 `--activate` 真激活、主窗口 app://-/index.html；部件地图已按真机快照回填 7 部件（命中 7/7、mode full）；与同类工具的冲突检测已接（对方样式 id 前缀 `codex-dream-skin`，确切 id 待对方工具在场时订正） |
 | dsh | DeepSeek Harness | exe（默认外壳） | 2.0.18（DSH Desktop） | 真机验证通过：带调试端口启动被接受，主窗口为本地回环 HTTP 服务（动态端口）承载的 Web UI，UA 标记 DSHDesktop；部件地图已按真机快照回填 12 部件（命中 12/12、mode full）；三种外壳已声明（见下） |

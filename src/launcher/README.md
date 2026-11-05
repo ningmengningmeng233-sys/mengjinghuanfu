@@ -40,9 +40,10 @@
 - 内嵌 payload 不再是 2.1.0 的冻结快照，而是构建时由当前 `src/` 生成（见构建节）。
   相应地 `tools/build-payload.mjs` 已把 `launcher`、`bin`、`obj` 整目录排除在 payload 之外——
   payload 若把总控台工程打回去会自引用膨胀（本批实测踩到并已清理，见证据）。
-- 版本口径：AssemblyVersion / FileVersion 均为 2.1.0.0、InformationalVersion（ProductVersion）2.1.0，
-  与 Node 侧 `src/core/version.mjs` 的 VERSION=2.1.0 一致，由 `tools/check-version.mjs` 校验
-  （已走 launcher 校验分支，全 PASS）。窗口标题与界面标签是原版短版式「2.1」（与原 exe 逐字一致，未改）。
+- 版本口径：AssemblyVersion / FileVersion 均为 3.0.0.0、InformationalVersion（ProductVersion）3.0.0，
+  与 Node 侧 `src/core/version.mjs` 的 VERSION=3.0.0 一致，由 `tools/check-version.mjs` 校验
+  （已走 launcher 校验分支，全 PASS）。窗口标题与界面标签的短版式随 3.0.0 改为「3.0」
+  （2.1.0 重建时曾按原版保留「2.1」，Q-4 发布批决定改为与文件版本一致的 3.0 口径）。
 - NuGet 依赖新增 Microsoft.Windows.SDK.Contracts 10.0.26100.1742（第二批）：
   `--resolve-aumid` 用 Windows.Management.Deployment.PackageManager 解析已注册包。
 

@@ -286,7 +286,7 @@ public class MainForm : Form
 
 	public MainForm()
 	{
-		Text = "梦境换肤 Dream Skin 2.1";
+		Text = "梦境换肤 Dream Skin 3.0";
 		BackColor = Theme.Bg;
 		ForeColor = Theme.Text;
 		Font = Theme.F(9.5f);
@@ -463,7 +463,7 @@ public class MainForm : Form
 		label.Location = new Point(num - 2, 22);
 		Label value = label;
 		Label label2 = new Label();
-		label2.Text = "2.1 · 双端换肤";
+		label2.Text = "3.0 · 双端换肤";
 		label2.Font = Theme.F(8.5f);
 		label2.ForeColor = Theme.Muted;
 		label2.AutoSize = true;
