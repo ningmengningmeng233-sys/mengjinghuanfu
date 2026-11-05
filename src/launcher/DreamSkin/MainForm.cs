@@ -211,6 +211,8 @@ public class MainForm : Form
 
 	private Panel logWrap;
 
+	private ScrollHost envHost;
+
 	private string statusText = "";
 
 	private Color statusColor = Theme.Muted;
@@ -576,7 +578,23 @@ public class MainForm : Form
 		pageEnv.BringToFront();
 		BuildCherryPage();
 		BuildEnvPage();
-		pageEnv.Controls.Add(logWrap);
+		envHost = new ScrollHost
+		{
+			Dock = DockStyle.Fill,
+			BackColor = Theme.Bg
+		};
+		pageEnv.Controls.Add(envHost);
+		scrollHosts.Add(envHost);
+		foreach (Control moved in pageEnv.Controls.Cast<Control>().Where((Control c) => c != envHost).ToArray())
+		{
+			pageEnv.Controls.Remove(moved);
+			envHost.Content.Controls.Add(moved);
+		}
+		logWrap.Dock = DockStyle.None;
+		logWrap.Location = new Point(0, 706);
+		logWrap.Size = new Size(860, 300);
+		envHost.Content.Controls.Add(logWrap);
+		envHost.ContentHeight = 1018;
 		ShowPage(0);
 	}
 
@@ -832,8 +850,8 @@ public class MainForm : Form
 			Text = "● 实时预览未连接",
 			ForeColor = Theme.Muted,
 			AutoSize = false,
-			Size = new Size(220, 20),
-			Location = new Point(118, 14),
+			Size = new Size(272, 20),
+			Location = new Point(64, 14),
 			TextAlign = ContentAlignment.MiddleRight,
 			Font = Theme.F(8.5f),
 			BackColor = Theme.Card
@@ -848,16 +866,16 @@ public class MainForm : Form
 		card4.Controls.Add(settingsHost);
 		scrollHosts.Add(settingsHost);
 		int num = 586;
-		AddButton(pageCherry, "保存并应用", Theme.Gold, Color.FromArgb(25, 20, 10), new Rectangle(0, num, 140, 44), SaveCherry);
-		AddButton(pageCherry, "撤销预览", Theme.Card, Theme.Text, new Rectangle(148, num, 96, 44), CancelPreview);
-		AddButton(pageCherry, "★ 存为我的", Theme.Card, Theme.Gold, new Rectangle(252, num, 112, 44), SaveMine);
+		AddButton(pageCherry, "保存并应用", Theme.Gold, Color.FromArgb(25, 20, 10), new Rectangle(0, num, 128, 44), SaveCherry);
+		AddButton(pageCherry, "撤销预览", Theme.Card, Theme.Text, new Rectangle(134, num, 88, 44), CancelPreview);
+		AddButton(pageCherry, "★ 存为我的", Theme.Card, Theme.Gold, new Rectangle(228, num, 108, 44), SaveMine);
 		// U-2（§4.6）：「两端同步」开关改为「同步到…」多选按钮：点开菜单勾选目标应用，
 		// 选择存数据根目录 sync-targets.json（UI 偏好）；旧的 sync-off.flag 只在首次迁移时读一次。
 		LoadSyncTargets();
 		syncMenuButton = new FlatButton("同步到…", Theme.Card, Theme.Text)
 		{
-			Location = new Point(374, num),
-			Size = new Size(126, 44)
+			Location = new Point(342, num),
+			Size = new Size(116, 44)
 		};
 		syncMenuButton.Click += delegate
 		{
@@ -865,9 +883,9 @@ public class MainForm : Form
 		};
 		pageCherry.Controls.Add(syncMenuButton);
 		UpdateSyncButtonText();
-		btnLaunch = AddButton(pageCherry, "用皮肤启动 Cherry", Theme.Card, Theme.Text, new Rectangle(512, num, 156, 44), LaunchCherry);
-		AddButton(pageCherry, "还原原版", Theme.Card, Theme.Text, new Rectangle(676, num, 100, 44), RestoreCherry);
-		FlatButton more = AddButton(pageCherry, "更多 ▾", Theme.Card, Theme.Text, new Rectangle(784, num, 76, 44), () => Task.FromResult(0));
+		btnLaunch = AddButton(pageCherry, "用皮肤启动 Cherry", Theme.Card, Theme.Text, new Rectangle(464, num, 156, 44), LaunchCherry);
+		AddButton(pageCherry, "还原原版", Theme.Card, Theme.Text, new Rectangle(696, num, 90, 44), RestoreCherry);
+		FlatButton more = AddButton(pageCherry, "更多 ▾", Theme.Card, Theme.Text, new Rectangle(794, num, 68, 44), () => Task.FromResult(0));
 		ContextMenuStrip moreMenu = DarkMenu();
 		moreMenu.Items.Add("导入皮肤文件（.dsskin）…", null, async delegate
 		{
@@ -1476,6 +1494,8 @@ public class MainForm : Form
 		if (btnLaunch != null)
 		{
 			btnLaunch.Text = "用皮肤启动 " + AppShort;
+			int needLaunch = TextRenderer.MeasureText(btnLaunch.Text, btnLaunch.Font).Width + 32;
+			btnLaunch.Width = Math.Max(156, Math.Min(224, needLaunch));
 			btnLaunch.Invalidate();
 		}
 	}
@@ -2201,7 +2221,7 @@ public class MainForm : Form
 			Text = "DSH 默认走 CDP 通道换肤；插件通道是给浏览器模式（dsh web）用的兜底：插件只读梦境换肤数据目录里的皮肤文件，经 DSH 官方插槽注入，不联网、不读对话内容。开关打开只是「允许使用」，真正安装还要再点「安装插件」并确认；插件目录还没配置好时，安装会如实报错、不会乱放文件。卸载按安装清单精确移除，装过什么删什么。",
 			ForeColor = Theme.Muted,
 			AutoSize = false,
-			Size = new Size(860, 40),
+			Size = new Size(860, 68),
 			Location = new Point(0, 554)
 		});
 		pluginStatusLabel = new Label
@@ -2209,14 +2229,14 @@ public class MainForm : Form
 			Text = "插件通道状态：尚未检测",
 			ForeColor = Theme.Text,
 			Font = Theme.F(9f),
-			Location = new Point(0, 600),
+			Location = new Point(0, 632),
 			AutoSize = true
 		};
 		pageEnv.Controls.Add(pluginStatusLabel);
 		pluginToggle = new ToggleSwitch
 		{
 			Title = "允许使用插件通道",
-			Location = new Point(0, 624),
+			Location = new Point(0, 656),
 			Size = new Size(200, 34)
 		};
 		pluginToggle.CheckedChanged += async delegate
@@ -2228,8 +2248,8 @@ public class MainForm : Form
 			await SetPluginEnabled(pluginToggle.Checked);
 		};
 		pageEnv.Controls.Add(pluginToggle);
-		AddButton(pageEnv, "安装插件", Theme.Card, Theme.Text, new Rectangle(216, 624, 110, 34), InstallPlugin);
-		AddButton(pageEnv, "卸载插件", Theme.Card, Theme.Text, new Rectangle(338, 624, 110, 34), UninstallPlugin);
+		AddButton(pageEnv, "安装插件", Theme.Card, Theme.Text, new Rectangle(216, 656, 110, 34), InstallPlugin);
+		AddButton(pageEnv, "卸载插件", Theme.Card, Theme.Text, new Rectangle(338, 656, 110, 34), UninstallPlugin);
 		RefreshMatrix();
 	}
 
@@ -2300,6 +2320,8 @@ public class MainForm : Form
 			lines.Add(mr.Name + "  ｜  已测版本：" + mr.Tested + "  ｜  当前版本：" + mr.Current + "  ｜  体检：" + mr.Health);
 		}
 		matrixBox.Text = (lines.Count > 0) ? string.Join("\r\n", lines) : "暂无数据";
+		matrixBox.SelectionStart = 0;
+		matrixBox.ScrollToCaret();
 	}
 
 	private string DisplayNameOf(string id)
