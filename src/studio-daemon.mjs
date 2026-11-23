@@ -12,6 +12,7 @@ import { rootDir } from './core/env.mjs';
 import { acquireOrReuseDaemonLock } from './core/daemon-lock.mjs';
 import { createFocusArbiter } from './core/focus-arbiter.mjs';
 import { createMultiAppGuardian } from './core/multi-app-guardian.mjs';
+import { resolveAppIcon } from './core/app-icons.mjs';
 import { appRuntimeById, listRuntimeProfiles } from './core/app-runtime.mjs';
 import {
   COLOR_SCHEMES,
@@ -384,9 +385,20 @@ export async function startStudioDaemon(opts = {}) {
       }
 
       // Per-app routes: /api/apps/:appId/<action>
-      const appMatch = /^\/api\/apps\/([a-z0-9-]+)\/(config|apply|restore|wake|shortcuts|shortcuts\/enable|shortcuts\/disable|canary\/reset)$/.exec(pathname);
+      const appMatch = /^\/api\/apps\/([a-z0-9-]+)\/(icon|config|apply|restore|wake|shortcuts|shortcuts\/enable|shortcuts\/disable|canary\/reset)$/.exec(pathname);
       if (appMatch) {
         const [, appId, action] = appMatch;
+        if (action === 'icon' && method === 'GET') {
+          const appRow = guardian.listAppsFast().find((a) => a.id === appId) || { id: appId };
+          const iconRes = await resolveAppIcon({ app: appRow, dataDir, legacyRoot });
+          res.writeHead(200, {
+            'Content-Type': iconRes.contentType,
+            'Cache-Control': 'public, max-age=3600',
+            'Access-Control-Allow-Origin': '*',
+          });
+          res.end(iconRes.body);
+          return;
+        }
         if (action === 'config' && method === 'POST') {
           const patch = await readJsonBody(req);
           const prevEntry = v4Store.apps[appId] || { skinEnabled: true, inheritGlobal: false, overrides: {} };
