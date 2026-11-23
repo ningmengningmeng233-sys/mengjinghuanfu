@@ -1,132 +1,149 @@
 <div align="center">
 
-<img src="docs/assets/cover-16x9.png" alt="梦境换肤 DreamSkin Prism 4.0" width="900" />
+<br />
 
-# 梦境换肤 · DreamSkin Prism 4.0
+<img src="docs/assets/hero-glass.png" alt="DreamSkin Prism 4.0" width="920" />
 
-**一套搞定 9 款主流 AI 桌面软件的动态壁纸与 6 层水晶液态玻璃换肤工作台**
+<br /><br />
 
-[![Version](https://img.shields.io/badge/Version-4.0.0-5ce1e6?style=flat-square)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-a78bfa?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS*-68a4ff?style=flat-square)](#支持的应用共-9-款)
-[![Zero ASAR Patch](https://img.shields.io/badge/app.asar-零修改%20·%204x%20Esc%20秒撤-34d399?style=flat-square)](#安全与零侵入承诺)
+# DreamSkin Prism
 
-[核心亮点](#-核心亮点) · [支持软件](#-支持的应用共-9-款) · [快速上手](#-快速开始小白-1-分钟上手) · [双入口说明](#-双入口形态) · [安全承诺](#-安全与零侵入承诺) · [特别致谢](#-特别致谢) · [English](README.en.md)
+### 光影落入界面，克制成就通透。
+
+一套面向 **9 款主流 AI 桌面客户端** 的极简液态玻璃与动态壁纸工作台。<br />
+不破坏一字节官方安装包，以 6 层光学毛玻璃与 8px 浮岛留白，重塑桌面工具的秩序与呼吸感。
+
+<br />
+
+[![Version](https://img.shields.io/badge/v4.0.0-0f172a?style=flat-square&labelColor=0f172a&color=67e8f9)](https://github.com/ningmengningmeng233-sys/dreamskin-prism/releases)
+&nbsp;
+[![License](https://img.shields.io/badge/MIT-0f172a?style=flat-square&labelColor=0f172a&color=a78bfa)](LICENSE)
+&nbsp;
+[![Non-Invasive](https://img.shields.io/badge/app.asar-零侵入-0f172a?style=flat-square&labelColor=0f172a&color=34d399)](#克制的边界)
+&nbsp;
+[![English](https://img.shields.io/badge/Docs-English-0f172a?style=flat-square&labelColor=0f172a&color=94a3b8)](README.en.md)
 
 </div>
 
----
-
-## ✨ 为什么做 DreamSkin Prism 4.0？
-
-每天对着黑漆漆的 AI 客户端写代码、聊对话，是不是早看腻了？
-
-**梦境换肤 Prism 4.0** 是一套完全免费、无侵入的桌面换肤与动态壁纸工作台：
-- **不改任何安装包（零修改 `app.asar`）**，所有软件保持官方原版签名与正常升级；
-- **自带单文件原生桌面软件**，同时支持作为**反重力（Antigravity）原生右侧边栏插件**运行，双入口共用同一套本地后台与配置，零冲突、零 Token 消耗；
-- 全面吸收 [`azwosile/agy-wallpaper-prism`](https://github.com/azwosile/agy-wallpaper-prism)（MIT）的 6 层光学液态玻璃与动态壁纸引擎，并横向扩展到 **9 款主流 AI 桌面软件**。
+<br />
 
 ---
 
-## 🎯 核心亮点
+## 一、设计哲学 · Minimalism & Optics
 
-| 能力 | 详细特性 |
-| :--- | :--- |
-| **🔮 6 层光学液态玻璃** | 毛玻璃模糊 **0–24px** 自由调节，内置**「水晶超清」**预设（0px 原画锐利清晰、文字依然护眼）、**8 套明暗配色**（含深空黑曜与极地浅霜白昼模式）、**5 种画质氛围滤镜**、壁纸动态取色（Material You）与**按住一键看原图**。 |
-| **🌌 8 套内置 60fps 互动动态主题** | 零外网依赖、开箱即用：极光流云、绯樱夜雪、赛博霓虹网格、星空粒子网、深海光斑、霓虹雨夜、矩阵代码雨、星云涡旋；支持鼠标微互动，软件切到后台时自动省电定格。 |
-| **🎬 全格式壁纸生态** | 支持本地高清图、幻灯片轮播、**MP4 / WebM 视频壁纸**（虚拟 faststart 秒开）、HTML 动态网页、**直连 Steam Wallpaper Engine（431960）创意工坊 `scene.pkg`**、网络图片/视频直链下载，并完整保留经典在线主题库（`dreamskin.cc`）。 |
-| **🖥️ 16:10 高清宽屏实时预览** | 总控台内置大屏实时预览舞台，自动提取并显示本机已安装 7 款软件的原版高清图标，拖滑块所见即所得。 |
-| **🤝 一键和平共存 + 秒撤兜底** | 检测到已装 `obsidian-prism` 等其他外观插件时可一键开启「和平共存」，各管各的互不打架；在任意已换肤软件内按 **`Ctrl + Alt + W`** 呼出快捷调节浮窗，连按 **4 次 `Esc`** 当场秒撤皮肤恢复原貌。 |
+绝大多数桌面 AI 客户端共享着同一种沉闷的纯黑底板。换肤工具常走向另一个极端——花哨堆砌、遮挡文字、修改安装包导致更新失效。
 
-<p align="center">
-  <img src="docs/assets/nine-apps.png" alt="9 款主流 AI 桌面软件支持矩阵" width="49%" />
-  <img src="docs/assets/light-frost.png" alt="深空暗色与白昼浅霜双模式液态玻璃" width="49%" />
-</p>
+**DreamSkin Prism 4.0** 选择第三条路：**以光学层次取代装饰堆砌，以克制留白服务日常专注。**
+
+- **六层液态玻璃层次** — 从镂空透出壁纸的底层舞台、8px 呼吸缝隙的侧边浮岛，到柔光护眼的对话主舞台与锁定 WCAG AAA 可读性底限的代码/终端区，每一层玻璃都拥有独立通透度与折射边界。
+- **0px 水晶超清哲学** — 毛玻璃模糊支持 `0–24px` 连续微调。拉至 `0px` 并开启「水晶超清」预设，原画壁纸的每一笔笔触与星光纤毫毕现，正文与代码依然清晰锐利。
+- **昼夜双境，动态取色** — 内置深空黑曜、暖炭玄岩、极地冰川 Nord 白昼浅霜等 **8 组明暗配色** 与 **5 种画质氛围滤镜**，自动从当前壁纸提取 32×32 色度主色，让界面与画面浑然一体。
+
+<br />
+
+<div align="center">
+  <img src="docs/assets/dual-studio.png" alt="DreamSkin Prism 4.0 独立总控台与实时双屏联动" width="920" />
+  <p><sub>原生深空暗色独立总控台 · 自动识别 7 款本机软件原版图标 · 16:10 所见即所得实时预览</sub></p>
+</div>
+
+<br />
+
+<div align="center">
+  <img src="docs/assets/islands-macro.png" alt="8px 浮岛光学缝隙微距" width="49%" />
+  &nbsp;
+  <img src="docs/assets/light-frost.png" alt="极地冰川 Nord 白昼浅霜模式" width="49%" />
+  <p><sub>左：Floating Islands 8px 浮岛呼吸缝隙 &nbsp;·&nbsp; 右：一键切换极地冰川 Nord 白昼浅霜</sub></p>
+</div>
+
+<br />
 
 ---
 
-## 🧩 支持的应用（共 9 款）
+## 二、一座工作台，九款主流 AI 客户端
 
-应用支持以独立适配器提供（`src/adapters/<id>/`），详细版本与端口矩阵见 [支持矩阵](docs/support-matrix.md)：
+统一的美学语言，跨软件自由独立定制或一键同步配色。
 
-| 应用 | 状态 | 适配亮点 |
+| 客户端 | 适配状态 | 设计与工程细节 |
 | :--- | :---: | :--- |
-| **Antigravity（反重力）** | ✅ 一等公民 | Hub + IDE 双壳支持、`2.34.0` `[data-browser-hole]` 内置浏览器精准挖洞、原图标一键开启、原生侧边栏插件、`obsidian-prism` 和平共存 |
-| **Cherry Studio** | ✅ 完整支持 | 多视图原生 6 层液态玻璃 + 动态壁纸，保留语义部件体检与更新降级保护 |
-| **Codex 桌面版** | ✅ 完整支持 | Windows MSIX 通道无损接入 + 原版高清图标提取 |
-| **DeepSeek Harness (DSH)** | ✅ 完整支持 | 全工作区通透护眼，可选显式确认（Consent）插件通道 |
-| **MiniMax Code** | ✅ 完整支持 | 高对比代码护眼底板 + 液态玻璃 |
-| **MiniMax Design** | ✅ 完整支持 | 设计工作台动态壁纸与毛玻璃 |
-| **ZCode** | ✅ 完整支持 | 一键换肤与跨软件配色同步 |
-| **Windsurf / Kiro** | 🧪 骨架支持 | 保留 VS Code 系骨架适配器（待真机持续完善） |
-
-> **说明**：所有软件均支持**各自独立配置**或**一键同步皮肤配色**；老版本（v3.0.x）的本地壁纸与自定义皮肤会自动无损迁移至 4.0。
+| **Antigravity（反重力）** | 一等公民 | Hub + IDE 双壳支持 · `2.34.0` 内置浏览器圆角避让挖洞 · 原生右侧边栏插件 · 与 `obsidian-prism` 一键和平共存 |
+| **Cherry Studio** | 完整支持 | 多视图原生液态玻璃 · 语义部件体检与版本更新自动降级保护 |
+| **Codex 桌面版** | 完整支持 | Windows MSIX 通道无损接入 · 原版高清图标自动提取 |
+| **DeepSeek Harness** | 完整支持 | 全工作区护眼毛玻璃 · 显式确认（Consent）可选插件通道 |
+| **MiniMax Code** | 完整支持 | 代码区高对比护眼底板 · 浮岛玻璃层次 |
+| **MiniMax Design** | 完整支持 | 设计工作台动态壁纸背景与柔焦层次 |
+| **ZCode** | 完整支持 | 一键换肤与跨软件配色壁纸同步 |
+| **Windsurf / Kiro** | 骨架支持 | 保留 VS Code 系骨架适配器，持续跟进实测 |
 
 ---
 
-## 🚀 快速开始（小白 1 分钟上手）
+## 三、全形态壁纸与零依赖动效
 
-### 方式一：独立原生桌面软件（推荐）
-1. 前往 [Releases](../../releases) 下载最新 Windows 包（`梦境换肤-Windows-4.0.0.zip`），解压后直接双击 **`梦境换肤-4.0.0-Windows.exe`**（内置独立运行环境，无需装 Node.js）。
-2. 在左侧选择你想换肤的软件（如 Antigravity / Cherry Studio / Codex 等）。
-3. 挑一张本地美图 / MP4 视频 / Steam 创意工坊壁纸，或直接点「内置动态主题」里的 8 套现成动效，拖滑块调到顺眼，点击**「应用皮肤」**即可生效！
-4. 随时可以在对应软件里按 `Ctrl + Alt + W` 微调，或连按 4 下 `Esc` 一键恢复原版。
+无需折腾格式，静态美图、流动光影与创意工坊统一收纳。
 
-### 方式二：反重力（Antigravity）原生侧边栏插件
-- 仓库 `plugin/` 目录即为标准反重力插件包（`dreamskin-prism`），安装至 `~/.gemini/config/plugins/dreamskin-prism` 后即可在反重力右侧边栏直接打开控制面板。
-- 与独立桌面软件共用同一后台端口与数据目录（`%LOCALAPPDATA%\DreamSkin`），两边操作实时同步、零冲突、**不消耗任何 Agent Token**。
-
-> **关于 Windows SmartScreen 首次运行提示**：开源免费版本暂未购买商业代码签名证书，首次双击 `.exe` 时系统可能提示「Windows 已保护你的电脑」。确认下载自本官方仓库后，点击**「更多信息」→「仍要运行」**即可，或者按下方「从源码构建」自行编译。
+- **8 套内置 60fps 互动动态主题** — 极光流云、绯樱夜雪、赛博霓虹网格、星空粒子网、深海光斑、霓虹雨夜、矩阵代码雨、星云涡旋。零外网依赖、开箱即动；窗口切至后台时自动省电定格。
+- **Steam 创意工坊直连（431960）** — 8.3ms 缓存冷启动自动发现本机 Wallpaper Engine 壁纸库，原生支持图片、视频、HTML 交互网页与 PKGV/LZ4 `scene.pkg` 场景。
+- **2.5ms 零拷贝秒切** — 虚拟 MP4 Faststart 与 HTTP 206 Range 流式播放，切壁纸顺滑无闪黑；支持拖拽本地 MP4、粘贴网络直链与经典在线主题库（`dreamskin.cc`）。
+- **按住一键看原图** — 在预览区长按即可瞬间隐去全部 UI 玻璃层，纯粹欣赏完整原画。
 
 ---
 
-## 🛡️ 安全与零侵入承诺
+## 四、极简上手
 
-- **零修改安装包**：绝不修改目标应用的安装目录、`app.asar`、数字签名或账号配置；换肤通过本机回环（`127.0.0.1`）调试通道注入样式与独立背景层实现。
-- **零隐私采集**：不读取任何聊天记录、代码内容、Cookie 或 `localStorage`；注入层不向外发送任何网络请求。
-- **一键干净还原**：点击「还原为默认」或软件内连按 4 次 `Esc` 立即撤除所有注入节点并恢复普通启动，不留残余。
-- **透明可控**：本地所有数据均保存在 `%LOCALAPPDATA%\DreamSkin`（macOS 为 `~/Library/Application Support/DreamSkin`），随时可查看或清空。
+### 1. 独立原生桌面软件（Windows）
+前往 [Releases](https://github.com/ningmengningmeng233-sys/dreamskin-prism/releases) 下载 `梦境换肤-Windows-4.0.0.zip`，解压后直接双击 **`梦境换肤-4.0.0-Windows.exe`**。内置独立运行环境，无需安装 Node.js，开启系统托盘静默守护。
+
+### 2. 反重力（Antigravity）原生侧边栏
+将仓库中的 `plugin/` 安装至 `~/.gemini/config/plugins/dreamskin-prism`，即可直接在反重力右侧边栏呼出控制面板。双入口共享同一本地后台与配置，实时同步，**0 Agent Token 消耗**。
+
+### 3. 日常直觉快捷键
+- **`Ctrl + Alt + W`** — 在任意已换肤软件内呼出极简快捷调节浮窗，随手切壁纸或微调通透度。
+- **连按 4 次 `Esc`** — 随时当场秒撤全部皮肤层，瞬间回到软件出厂原貌。
+
+> 开源免费版暂未购买商业代码签名证书。Windows 首次运行如出现 SmartScreen 提示，确认来源为本官方仓库后，点击 **「更多信息」→「仍要运行」** 即可。
 
 ---
 
-## 💻 命令行用法与从源码构建
+## 五、克制的边界
 
-开发或极客用户可直接通过 Node.js 22+ 命令行调用：
+我们相信优雅的工具应当让人毫无心理负担：
+
+- **零修改安装包** — 绝不改动目标应用的 `app.asar`、数字签名或账户数据，软件更新不受任何影响。
+- **一键和平共存** — 若已安装 `obsidian-prism` 等同类外观插件，开启「和平共存」即可各司其职、互不冲突。
+- **零隐私采集** — 不读取任何对话文本、代码内容或 Cookie；所有本地配置集中保存在 `%LOCALAPPDATA%\DreamSkin`，随时可彻底清空。
+- **老版本无损迁移** — 自动只读导入 DreamSkin v3.0.x 本地壁纸与自定义皮肤，原数据分毫不伤。
+
+---
+
+## 六、从源码构建
 
 ```powershell
-node src/dreamskin.mjs apps-status                      # 查看全部 9 款应用状态
-node src/dreamskin.mjs apply    --app antigravity       # 给指定应用上皮肤
-node src/dreamskin.mjs check    --app cherry            # 部件命中与冲突体检
-node src/dreamskin.mjs restore  --app cherry            # 一键干净还原
-node src/dreamskin.mjs sync --app antigravity --to cherry  # 跨应用同步配色与壁纸
-```
-
-### 从源码自行打包 Windows 单文件软件
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/fetch-node-runtime.ps1   # 首次：拉取便携 Node 运行时
+powershell -ExecutionPolicy Bypass -File tools/fetch-node-runtime.ps1   # 首次拉取便携 Node 运行时
 node tools/build-payload.mjs                                            # 构建内嵌 payload
-powershell -ExecutionPolicy Bypass -File tools/build-launcher.ps1       # 编译原生 WebView2 暗色窗体 exe
+powershell -ExecutionPolicy Bypass -File tools/build-launcher.ps1       # 编译原生 WebView2 单文件 exe
 node tools/check-version.mjs                                            # 版本一致性校验
-node --test "tests/*.test.mjs"                                          # 运行 294 项全量单元测试
+node --test "tests/*.test.mjs"                                          # 294 项全量自动化测试
 ```
 
-> **关于 macOS 支持的诚实说明**：架构与核心引擎均按跨平台设计，已提供 macOS 打包脚本与内置双架构 Node 运行时的 zip 产物，但由于作者手边暂缺真机 Mac，**macOS 端目前属于代码层适配（未在真机实测）**，欢迎有 Mac 的小伙伴测试并提交 PR！
+> **关于 macOS**：核心引擎与双架构打包脚本均按跨平台架构实现，但作者暂缺 Mac 真机实测环境，当前 macOS 端标注为代码层适配，欢迎拥有 Mac 设备的开发者实测并提交 PR。
 
 ---
 
-## 🙏 特别致谢
+## 七、特别致谢
 
-本项目基于 [MIT License](LICENSE) 开源，核心能力与灵感离不开以下优秀开源项目（完整声明与协议见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)）：
+本项目基于 [MIT License](LICENSE) 开源，衷心感谢以下优秀开源项目的授权、架构与美学启发（完整声明见 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)）：
 
-- **[`azwosile/agy-wallpaper-prism`](https://github.com/azwosile/agy-wallpaper-prism)**（MIT）—— 特别感谢原作者开源授权与惊艳的 Obsidian Prism 6 层液态玻璃光学架构、Steam 创意工坊动态壁纸引擎、Fail-Open 温和注入桥与内置浏览器 `[data-browser-hole]` 避让挖洞方案！
-- **[`Fei-Away/Codex-Dream-Skin`](https://github.com/Fei-Away/Codex-Dream-Skin)**（MIT）—— 早期多软件 CDP 注入器与社区主题库设计参考。
-- **[`boilcy/CherryCSS`](https://github.com/boilcy/CherryCSS)**（MIT）、**[`tinted-theming/schemes`](https://github.com/tinted-theming/schemes)**（MIT）、**[`material-foundation/material-color-utilities`](https://github.com/material-foundation/material-color-utilities)**（Apache-2.0）。
+- **[`azwosile/agy-wallpaper-prism`](https://github.com/azwosile/agy-wallpaper-prism)** *(MIT)* — 特别致谢原作者的开源授权与卓越的 Obsidian Prism 6 层液态玻璃光学体系、Steam 创意工坊动态壁纸引擎、温和 Fail-Open 桥接及内置浏览器避让挖洞设计。
+- **[`Fei-Away/Codex-Dream-Skin`](https://github.com/Fei-Away/Codex-Dream-Skin)** *(MIT)* — 早期多软件注入器与社区主题站设计参考。
+- **[`boilcy/CherryCSS`](https://github.com/boilcy/CherryCSS)** *(MIT)* · **[`tinted-theming/schemes`](https://github.com/tinted-theming/schemes)** *(MIT)* · **[`material-foundation/material-color-utilities`](https://github.com/material-foundation/material-color-utilities)** *(Apache-2.0)*。
 
 ---
 
 <div align="center">
 
-如果 **梦境换肤 Prism 4.0** 让你的桌面更好看了，欢迎点一颗免费的 ⭐ **Star** 支持一下！
+<br />
+
+*愿每一次打开屏幕，都像推开一扇通透的窗。*
+
+如果 **DreamSkin Prism** 曾让你的桌面变得更顺眼一点，欢迎点一颗 ⭐ **Star**。
 
 </div>
