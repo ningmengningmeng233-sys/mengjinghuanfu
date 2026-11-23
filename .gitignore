@@ -2,5 +2,6 @@
 build/
 bin/
 obj/
+.lemon/
 # launcher 的 payload 压缩包由 tools/build-launcher.ps1 在构建时生成，不进仓库
 src/launcher/DreamSkin.payload.zip
