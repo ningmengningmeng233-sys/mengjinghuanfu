@@ -4,6 +4,7 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>12.0</LangVersion>
@@ -20,10 +21,14 @@
     <EmbeddedResource Include="DreamSkin.payload.zip" LogicalName="DreamSkin.payload.zip" />
     <EmbeddedResource Include="DreamSkin.app.ico" LogicalName="DreamSkin.app.ico" />
     <EmbeddedResource Include="DreamSkin.logo.png" LogicalName="DreamSkin.logo.png" />
+    <EmbeddedResource Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.2903.40\lib\net462\Microsoft.Web.WebView2.Core.dll" LogicalName="DreamSkin.WebView2.Core.dll" />
+    <EmbeddedResource Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.2903.40\lib\net462\Microsoft.Web.WebView2.WinForms.dll" LogicalName="DreamSkin.WebView2.WinForms.dll" />
+    <EmbeddedResource Include="$(NuGetPackageRoot)microsoft.web.webview2\1.0.2903.40\runtimes\win-x64\native\WebView2Loader.dll" LogicalName="DreamSkin.WebView2Loader.dll" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.26100.1742" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2903.40" PrivateAssets="all" ExcludeAssets="runtime;contentFiles;build;buildTransitive" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Windows.Forms" />
