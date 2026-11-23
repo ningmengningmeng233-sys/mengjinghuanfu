@@ -13,7 +13,7 @@ export function parseSkinFile(text) {
   if (!text) return null;
   try {
     const j = JSON.parse(text);
-    if (j && j.format === 'dreamskin-skin/1' && j.layers && typeof j.layers === 'object') {
+    if (j && (j.format === 'dreamskin-skin/1' || j.format === 'dreamskin-prism/4') && j.layers && typeof j.layers === 'object') {
       return { vars: j.layers.vars || '', parts: j.layers.parts || '', extra: j.layers.extra || '' };
     }
   } catch {}
