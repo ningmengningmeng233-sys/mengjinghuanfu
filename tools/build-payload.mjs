@@ -6,7 +6,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { join, relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { VERSION } from '../src/core/version.mjs';
 
@@ -16,7 +16,7 @@ const platform = argAt('--platform') || 'win32';
 if (!['win32', 'darwin'].includes(platform)) { console.error('未知平台: ' + platform); process.exit(1); }
 const root = fileURLToPath(new URL('..', import.meta.url));
 const srcDir = join(root, 'src');
-const outDir = join(root, argAt('--out') || ('build/payload-' + (platform === 'win32' ? 'win' : 'mac')));
+const outDir = resolve(root, argAt('--out') || ('build/payload-' + (platform === 'win32' ? 'win' : 'mac')));
 const skipRuntime = args.includes('--skip-runtime');
 
 // 平台筛选规则（相对 src/ 的路径，正斜杠）。

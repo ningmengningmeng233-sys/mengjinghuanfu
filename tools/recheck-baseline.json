@@ -1,6 +1,6 @@
 {
     "schema":  "dreamskin-recheck-baseline/1",
-    "productVersion":  "3.0.4",
+    "productVersion":  "4.0.0",
     "apps":  [
                  {
                      "id":  "cherry",

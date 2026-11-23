@@ -53,6 +53,8 @@ import { listAdapters } from './core/adapters.mjs';
 import { selectChannelKind } from './core/channel-select.mjs';
 import { pluginBridge } from './core/plugin-bridge.mjs';
 import { dshPluginChannel } from './channels/index.mjs';
+import { inspectAppShortcuts, enableAppShortcutAutoLoad, disableAppShortcutAutoLoad } from './prism/cdp/shortcuts.mjs';
+import { startStudioDaemon } from './studio-daemon.mjs';
 
 const argAt = (name) => { const a = process.argv.indexOf(name); return a > 0 ? process.argv[a + 1] : undefined; };
 const APP = appRuntimeById(argAt('--app') || 'cherry');
@@ -825,8 +827,32 @@ async function check() {
   return out({ ok, problems, ...(CONFLICT_TOOLS.length ? { conflict } : {}), partsOk: health.partsOk, partsMissing: health.partsMissing, mode: health.mode, info: { app: APP.id, version, versionChanged, lastOkVersion: lastOk.version || '', preview: r.live, wallpaper: r.wall !== 'none', contrast: c ? Number(c.toFixed(2)) : null, preset: choice.preset || '' } });
 }
 
+async function shortcutsStatus() {
+  const info = await inspectAppShortcuts({ app: APP });
+  process.stdout.write(JSON.stringify(info) + '\n');
+  return EXIT.OK;
+}
+async function shortcutsEnable() {
+  const info = await enableAppShortcutAutoLoad({ app: APP });
+  process.stdout.write(JSON.stringify(info) + '\n');
+  return info.ok ? EXIT.OK : EXIT.FAILED;
+}
+async function shortcutsDisable() {
+  const info = await disableAppShortcutAutoLoad({ app: APP });
+  process.stdout.write(JSON.stringify(info) + '\n');
+  return info.ok ? EXIT.OK : EXIT.FAILED;
+}
+async function studioCmd(opts) {
+  const d = await startStudioDaemon({ port: opts.port || 0 });
+  process.stdout.write(JSON.stringify({ ok: true, role: d.role, port: d.port, url: d.url }) + '\n');
+  if (d.role === 'reuse') return EXIT.OK;
+  await new Promise(() => {});
+  return EXIT.OK;
+}
+
 const o = parseArgs(process.argv.slice(2));
 const run = { apply, sync, check, restore, status, 'apps-status': appsStatus, 'plugin-status': pluginStatus, 'plugin-enable': async () => pluginSetEnabled(true), 'plugin-disable': async () => pluginSetEnabled(false), 'plugin-install': pluginInstall, 'plugin-uninstall': pluginUninstall, watch, launch, live, presets: async () => presets(o), schema: async () => schema(), shortcut: async () => shortcut(),
+  studio: studioCmd, 'shortcuts-status': shortcutsStatus, 'shortcuts-enable': shortcutsEnable, 'shortcuts-disable': shortcutsDisable,
   'skin-save': skinSave, 'skin-rename': skinRename, 'skin-delete': skinDelete, 'skin-export': skinExport, 'skin-import': skinImport,
   'gallery-list': galleryList, 'gallery-get': galleryGet, 'gallery-remove': galleryRemove }[o.cmd];
 if (!run) { say('FAILED', '未知命令：' + o.cmd + '（可用 apply / launch / restore / shortcut / status / presets / schema / live / skin-*）'); process.exit(EXIT.FAILED); }

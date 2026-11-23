@@ -2,6 +2,10 @@
 
 本项目复用了以下开源项目的代码、数据或设计，协议见各条目（MIT / Apache-2.0）。
 
+## azwosile/agy-wallpaper-prism（MIT，已获原作者授权直接使用）
+https://github.com/azwosile/agy-wallpaper-prism
+- 梦境换肤 4.0 全面吸收其 Obsidian Prism 6 层液态玻璃光学皮肤内核（`src/prism/host/`、`src/prism/shared/`）、全能动态壁纸引擎（`src/prism/engine/`：Steam Workshop 431960 扫描、MP4 虚拟 faststart、HTTP 206 Range 媒体服、PKGV/LZ4 Scene 提取、Web 交互壁纸沙盒与播放列表）、温和 Fail-Open CDP 桥、两阶段 Boot Canary、纯 Node `[MS-SHLLINK]` 快捷方式补丁与 Antigravity `2.34.0` `[data-browser-hole]` GPU 挖洞机制。
+
 ## Fei-Away/Codex-Dream-Skin（MIT, Copyright (c) 2026 Codex Dream Skin Studio contributors）
 https://github.com/Fei-Away/Codex-Dream-Skin
 - 早期的 ZCode 托盘版（原 `src/zcode/payload/`，2.1 已移除）整体源自其 Windows 版本；当时的 `docs/zcode-dom-map.md` 是 ZCode DOM 实测清单，该批锚点现维护在 `src/adapters/zcode/`（parts-map 与 extra.css）。

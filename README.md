@@ -1,21 +1,17 @@
-# 梦境换肤 Dream Skin
+# 梦境换肤 DreamSkin Prism 4.0
 
-给桌面 AI 应用换主题的 Windows 工具：总控台（`.exe`）+ 内嵌 Node 引擎（payload）。
-通过本机调试通道（CDP）向应用页面注入主题 CSS，不修改应用的任何官方文件，
-一键还原。总控台源码在 `src/launcher/`（由 2.1.0 发布 exe 反编译重建，
-见该目录的 README），Node 引擎入口是 `src/dreamskin.mjs`。
+给桌面 AI 应用与 Google Antigravity（反重力）换皮肤、挂动态壁纸的无侵入工具。
+4.0 基于 `azwosile/agy-wallpaper-prism` 全面重构：融合 **Obsidian Prism 6 层液态玻璃**、**动态壁纸引擎**（图片 / 幻灯片 / MP4 视频 / 网页 / Steam Wallpaper Engine 431960 `scene.pkg` / 在线主题库 `dreamskin.cc`）、**双层极简 Web 控制端**、**多窗口焦点自动冻结省电**、**原图标一键无损升级**与 **Antigravity 原生 Sidecar 插件**，绝不修改目标应用的任何官方文件或 `app.asar`。
 
 English: [README.en.md](README.en.md)
 
-## 支持的应用
+## 支持的应用（共 9 家）
 
-应用支持以「适配器」形式提供：每个应用一份数据（`src/adapters/<id>/`），
-新增应用不需要改核心代码。当前适配器与已测版本见
-[支持矩阵](docs/support-matrix.md)，要点：
+应用支持以「适配器」形式提供（`src/adapters/<id>/`），详细清单见 [支持矩阵](docs/support-matrix.md)：
 
-- Cherry Studio、ZCode：部件层已按实测 DOM 落地。
-- Codex（MSIX）、DeepSeek Harness、MiniMax Code、MiniMax Design：
-  适配器与启动通道已就绪，部件地图待真实 DOM 锚点补全（见支持矩阵的状态列）。
+- **Antigravity（反重力）**：v4.0 一等公民适配，支持 Hub + IDE 双壳、`2.34.0` `[data-browser-hole]` 内置浏览器精准避让挖洞、原图标一键开启、原生侧边栏插件（`dreamskin-prism`），以及与 `obsidian-prism` 插件的冲突检测提醒。
+- **Cherry Studio、ZCode、Codex（MSIX）、DeepSeek Harness（含插件通道）、MiniMax Code、MiniMax Design**：全部通过语义部件桥接升级至 Prism 液态玻璃与动态壁纸引擎，并保留部件体检与更新自动降级保护。
+- **Windsurf、Kiro**：保留 VS Code 系骨架适配器（未实测）。
 
 ## 快速开始（图形界面）
 

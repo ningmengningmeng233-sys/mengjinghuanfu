@@ -2889,6 +2889,8 @@ public class MainForm : Form
 			Environment.Exit(HeadlessLaunch(args[1]));
 			return;
 		}
+		bool useLegacy = args.Any((string a) => a == "--legacy-ui" || a == "--page" || a == "--tab");
+		if (!useLegacy) { StudioTrayApp.Run(); return; }
 		MainForm f = new MainForm();
 		f.Load += delegate
 		{

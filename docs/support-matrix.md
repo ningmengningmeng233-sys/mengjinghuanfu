@@ -7,6 +7,7 @@
 
 | id | 应用 | 启动通道 | 已测版本 | 状态 |
 |---|---|---|---|---|
+| antigravity | Antigravity (反重力) | exe（默认口 `9339` / `DevToolsActivePort`）+ 原生 Sidecar 插件 | 2.34.0 | v4.0 一等公民适配：支持 Hub（React+Tailwind）+ IDE（`.monaco-workbench`）双壳、`[data-browser-hole]` 同步圆角 GPU 挖洞、原图标一键自动加载、`Ctrl+Alt+W` 快捷窗与 `4× Esc` 秒撤；内置 `obsidian-prism` / 旧版 wallpaper-engine 插件冲突检测 |
 | cherry | Cherry Studio | exe | 2.1.6 | 部件地图已按实测 DOM 落地（四必需部件齐全）；2.1.6 已按真机双视图刷新并往返通过（2026-11-05）；应用自带自定义 CSS 入口 `user-defined-custom-css` 参与层叠顺序管理 |
 | zcode | ZCode | exe | 3.15.3 | 部件地图已按实测 DOM 落地 |
 | codex | Codex | msix（包族 `OpenAI.Codex_2p2nqsd0c76g0`，入口 `ChatGPT.exe`） | 26.1021.3705.0 | 真机验证通过：总控台 `--activate` 真激活、主窗口 app://-/index.html；部件地图已按真机快照回填 7 部件（命中 7/7、mode full）；与同类工具的冲突检测已接（对方样式 id 前缀 `codex-dream-skin`，确切 id 待对方工具在场时订正） |
@@ -17,7 +18,7 @@
 | kiro | Kiro | exe | —（未安装） | **未实测**：同 windsurf，按方案与 S-6 写好，部件地图为共享骨架整份复制；装机后先抓 DOM 快照订正再用 |
 
 「已测版本」指该适配器数据经过核对的应用版本（`testedVersions` 字段）。
-现行适配器共 8 个；VS Code 系另有共享骨架目录 `src/adapters/vscode-base/`（非适配器，加载器跳过），windsurf / kiro 两家的骨架条目以它为准、防漂移由单测守住。
+现行适配器共 9 个（含 4.0 新增的 `antigravity`）；VS Code 系另有共享骨架目录 `src/adapters/vscode-base/`（非适配器，加载器跳过），windsurf / kiro 两家的骨架条目以它为准、防漂移由单测守住。
 
 > 注记：2026-11-02 主人决定移除 Claude/Cursor/Trae（应用已卸载）。
 

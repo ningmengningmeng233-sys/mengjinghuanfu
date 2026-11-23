@@ -2,11 +2,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyProduct("梦境换肤 Dream Skin")]
-[assembly: AssemblyFileVersion("3.0.5.0")]
-[assembly: AssemblyDescription("Cherry Studio / ZCode 换肤总控台")]
+[assembly: AssemblyProduct("梦境换肤 DreamSkin Prism")]
+[assembly: AssemblyFileVersion("4.0.0.0")]
+[assembly: AssemblyDescription("梦境换肤 4.0 Prism 多应用动态壁纸与液态玻璃换肤中心")]
 [assembly: AssemblyCopyright("MIT License")]
-[assembly: AssemblyInformationalVersion("3.0.5")]
+[assembly: AssemblyInformationalVersion("4.0.0")]
 [assembly: ComVisible(false)]
-[assembly: AssemblyTitle("梦境换肤")]
-[assembly: AssemblyVersion("3.0.5.0")]
+[assembly: AssemblyTitle("梦境换肤 Prism")]
+[assembly: AssemblyVersion("4.0.0.0")]
