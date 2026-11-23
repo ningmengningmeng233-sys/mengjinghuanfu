@@ -2,10 +2,10 @@
   'use strict';
 
   var SCENE_CARDS = [
-    { id: 'crystal', icon: '✦', name: '通透浮岛', desc: '更透亮，壁纸清晰', patch: { preset: 'crystal', layoutMode: 'islands', glassOpacity: 0.62, scrimOpacity: 0.16, glassBlur: 18, glassSurfaces: true, paused: false } },
-    { id: 'islands', icon: '◈', name: '日常平衡', desc: '好看护眼，默认推荐', patch: { preset: 'islands', layoutMode: 'islands', glassOpacity: 0.76, scrimOpacity: 0.26, glassBlur: 16, glassSurfaces: true, paused: false } },
-    { id: 'focus', icon: '◐', name: '专注护眼', desc: '柔焦压暗，看字轻松', patch: { preset: 'focus', layoutMode: 'flush', glassOpacity: 0.88, scrimOpacity: 0.44, glassBlur: 20, mediaBlur: 8, glassSurfaces: true, paused: false } },
-    { id: 'eco', icon: '🍃', name: '省电静音', desc: '极简定格，几乎不耗电', patch: { preset: 'eco', layoutMode: 'flush', glassOpacity: 0.92, scrimOpacity: 0.34, glassBlur: 0, glassSurfaces: false, paused: true } },
+    { id: 'crystal', icon: '✦', name: '水晶超清', desc: '超清透亮，壁纸锐利', patch: { preset: 'crystal', layoutMode: 'islands', glassOpacity: 0.36, scrimOpacity: 0.06, glassBlur: 3, mediaBlur: 0, glassSurfaces: true, paused: false } },
+    { id: 'islands', icon: '◈', name: '日常平衡', desc: '壁纸清晰又护眼', patch: { preset: 'islands', layoutMode: 'islands', glassOpacity: 0.56, scrimOpacity: 0.14, glassBlur: 8, mediaBlur: 0, glassSurfaces: true, paused: false } },
+    { id: 'focus', icon: '◐', name: '专注护眼', desc: '柔焦压暗，看字轻松', patch: { preset: 'focus', layoutMode: 'flush', glassOpacity: 0.78, scrimOpacity: 0.34, glassBlur: 14, mediaBlur: 4, glassSurfaces: true, paused: false } },
+    { id: 'eco', icon: '🍃', name: '省电静音', desc: '极简定格，几乎不耗电', patch: { preset: 'eco', layoutMode: 'flush', glassOpacity: 0.88, scrimOpacity: 0.26, glassBlur: 0, mediaBlur: 0, glassSurfaces: false, paused: true } },
   ];
 
   var SCHEMES = [
@@ -19,7 +19,14 @@
     { id: 'host-native', name: '跟随原版', dot: '#3B82F6', accent2: '#60A5FA', panelBg: '18, 20, 28' },
   ];
 
-  // Clean bespoke vector SVG data URIs used ONLY if native icon endpoint fails
+  var FILTERS = [
+    { id: 'none', name: '原画高清', css: '' },
+    { id: 'vivid', name: '鲜明通透', css: 'saturate(1.26) contrast(1.06)' },
+    { id: 'warm', name: '暖阳胶片', css: 'sepia(0.18) saturate(1.16) brightness(1.03)' },
+    { id: 'cool', name: '极光冷调', css: 'hue-rotate(10deg) saturate(1.14) contrast(1.05)' },
+    { id: 'contrast', name: '锐利高对比', css: 'contrast(1.16) saturate(1.12)' },
+  ];
+
   var FALLBACK_ICON_DATA = {
     antigravity: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#101526" stroke="#6366F1" stroke-width="2.5"/><path d="M32 14L48 46H39.5L32 30.5L24.5 46H16L32 14Z" fill="#60A5FA"/><circle cx="32" cy="44" r="4.5" fill="#E0F2FE"/></svg>'),
     cherry: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#1E1017" stroke="#FB7185" stroke-width="2"/><path d="M23 36C25 24 33 17 44 15C38 22 36 29 38 38" stroke="#4ADE80" stroke-width="3" stroke-linecap="round"/><circle cx="23" cy="41" r="9" fill="#F43F5E"/><circle cx="40" cy="43" r="9" fill="#E11D48"/></svg>'),
@@ -32,16 +39,21 @@
     windsurf: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0D1E22" stroke="#2DD4BF" stroke-width="2"/><path d="M17 42C22 28 31 20 46 18C41 28 37 35 39 44C32 41 25 40 17 42Z" fill="#2DD4BF"/></svg>'),
   };
 
+  var BUILTIN_DYN = Array.isArray(window.__PRISM_DYNAMIC_THEMES__) ? window.__PRISM_DYNAMIC_THEMES__ : [];
+
   var state = {
     version: '4.0.0',
     activeTab: 'home', // 'home' | 'apps'
-    studioMode: 'prism', // 'prism' | 'classic'
+    studioMode: 'prism', // 'prism' | 'dynamic' | 'classic'
     selectedAppId: 'antigravity',
     libSource: 'all', // 'all' | 'workshop' | 'local'
     searchQuery: '',
+    importUrlText: '',
+    previewDynamicId: '', // live-previewing a built-in interactive dynamic theme
     apps: [],
     v4Store: { version: 4, global: {}, apps: {} },
     items: [],
+    dynamicThemes: BUILTIN_DYN,
     galleryItems: [],
     galleryLoading: false,
     galleryError: '',
@@ -49,7 +61,7 @@
     toast: '',
     toastTimer: 0,
     advOpen: false,
-    showHelp: false, // hidden by default: zero tutorial clutter on main screen
+    showHelp: false,
     showUninstalled: true,
     showTakeoverSteps: false,
     draggingOver: false,
@@ -81,7 +93,11 @@
       return r.text().then(function (txt) {
         var data = {};
         try { data = txt ? JSON.parse(txt) : {}; } catch (_) {}
-        if (!r.ok) throw new Error(data.error || ('请求失败 ' + r.status));
+        if (!r.ok) {
+          var err = new Error(data.error || ('请求失败 ' + r.status));
+          err.status = r.status;
+          throw err;
+        }
         return data;
       });
     });
@@ -148,8 +164,22 @@
     return (state.items && state.items[0]) || null;
   }
 
+  function findDynamicTheme(id) {
+    return (BUILTIN_DYN || []).find(function (t) { return t.id === id; }) || null;
+  }
+
+  function matchedDynamicForItem(item) {
+    if (!item) return null;
+    return (BUILTIN_DYN || []).find(function (t) { return item.title === t.title; }) || null;
+  }
+
   function schemeInfoOf(id) {
     return SCHEMES.find(function (s) { return s.id === id; }) || SCHEMES[0];
+  }
+
+  function filterCssOf(id) {
+    var f = FILTERS.find(function (x) { return x.id === id; });
+    return f ? f.css : '';
   }
 
   function applyAmbientAccent(cfg) {
@@ -222,6 +252,9 @@
       state.apps = Array.isArray(data.apps) ? data.apps : [];
       state.v4Store = data.v4Store || state.v4Store;
       state.items = Array.isArray(data.items) ? data.items : [];
+      if (Array.isArray(data.dynamicThemes) && data.dynamicThemes.length && !BUILTIN_DYN.length) {
+        state.dynamicThemes = data.dynamicThemes;
+      }
       if (state.apps.length && !state.apps.some(function (a) { return a.id === state.selectedAppId; })) {
         state.selectedAppId = state.apps[0].id;
       }
@@ -314,6 +347,32 @@
     }).catch(function (err) { showToast(err.message); });
   }
 
+  function installAndApplyDynamicTheme(dynId) {
+    var dyn = findDynamicTheme(dynId);
+    state.previewDynamicId = dynId;
+    render();
+    showToast('正在加载动态主题「' + (dyn ? dyn.title : dynId) + '」…');
+    apiJson('/api/dynamic-themes/' + encodeURIComponent(dynId) + '/install', { method: 'POST', body: {} }).then(function (res) {
+      var patch = { skinEnabled: true };
+      if (res && res.item && res.item.id) {
+        patch.activeWallpaperId = res.item.id;
+        patch.wallpaperId = res.item.id;
+      }
+      if (res && res.theme && res.theme.recommendedScheme) {
+        patch.colorScheme = res.theme.recommendedScheme;
+      }
+      return loadState().then(function () {
+        return patchCurrentAppConfig(patch, true);
+      });
+    }).catch(function (err) {
+      if (err && err.status === 404) {
+        showToast('已为你开启实时动态预览！重开独立桌面软件或重启插件后即可一键应用到目标软件');
+      } else {
+        showToast(err.message || '加载动态主题失败');
+      }
+    });
+  }
+
   function uploadLocalFile(f) {
     if (!f) return;
     if (/\.dsskin$/i.test(f.name)) {
@@ -333,6 +392,7 @@
       body: f,
     }).then(function (r) { return r.json(); }).then(function (res) {
       showToast(res.duplicate ? '已复用相同壁纸' : '壁纸已导入并选中');
+      state.previewDynamicId = '';
       loadState().then(function () {
         if (res && res.item && res.item.id) {
           patchCurrentAppConfig({ activeWallpaperId: res.item.id, wallpaperId: res.item.id, skinEnabled: true }, true);
@@ -341,7 +401,7 @@
     }).catch(function (err) { showToast('导入失败：' + err.message); });
   }
 
-  function updateLivePreviewDom(clarityPct, scrimPct) {
+  function updateLivePreviewDom(clarityPct, blurPx, scrimPct) {
     var bar = document.getElementById('ds-preview-bar');
     var pane = document.getElementById('ds-preview-pane');
     var side = document.getElementById('ds-preview-side');
@@ -350,20 +410,30 @@
     var sch = schemeInfoOf(cfg.colorScheme);
     var isLight = cfg.themeMode === 'light';
     var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
-    var opacity = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
+    var opacity = Math.max(0.18, Math.min(0.96, (100 - clarityPct) / 100));
     var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
-    if (bar) bar.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.08).toFixed(2) + ')';
-    if (pane) pane.style.background = 'rgba(' + baseRgb + ', ' + opacity.toFixed(2) + ')';
-    if (side) side.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.05).toFixed(2) + ')';
-    if (scrim) scrim.style.background = isLight ? ('rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')') : ('rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')');
+    var bf = blurPx > 0 ? ('blur(' + blurPx + 'px) saturate(1.22)') : 'none';
+    if (bar) {
+      bar.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.08).toFixed(2) + ')';
+      bar.style.backdropFilter = bf;
+    }
+    if (pane) {
+      pane.style.background = 'rgba(' + baseRgb + ', ' + opacity.toFixed(2) + ')';
+      pane.style.backdropFilter = bf;
+    }
+    if (side) {
+      side.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.05).toFixed(2) + ')';
+      side.style.backdropFilter = bf;
+    }
+    if (scrim) scrim.style.background = isLight ? ('rgba(248, 250, 255, ' + (sAlpha * 0.65).toFixed(2) + ')') : ('rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')');
   }
 
   function renderHelpPopover() {
     if (!state.showHelp) return '';
     return '<div class="ds-help-popover">' +
       '<div class="ds-help-head"><span>使用速查</span><button class="ds-btn sm ghost" data-action="toggle-guide">关闭</button></div>' +
-      '<div>• <b>选软件 → 挑壁纸/主题 → 点右上角「应用到软件」</b>即可生效（独立软件和反重力侧边栏数据互通）。<br/>' +
-      '• <b>液态玻璃壁纸</b>：支持图片、MP4 视频与 Steam 创意工坊，可直接把文件拖进窗口；<b>经典主题库</b>：直接下社区成品主题或导入 .dsskin。<br/>' +
+      '<div>• <b>选软件 → 选壁纸或动态主题 → 点右上角「应用到软件」</b>即可生效。<br/>' +
+      '• 觉得壁纸发糊？把 <b>「毛玻璃模糊」拉到 0</b> 或点 <b>「水晶超清」</b> 即可 100% 原画高清透出；按住预览右下角 <b>👀 看原图</b> 可随时对比。<br/>' +
       '• 快捷键：软件内按 <b>Ctrl+Alt+W</b> 快捷调节，连按 <b>4 下 Esc</b> 秒还原原貌。</div>' +
     '</div>';
   }
@@ -405,31 +475,46 @@
 
   function renderPreviewAndControls(app, cfg) {
     var activeItem = activeWallpaperOf(cfg);
-    var isVideo = Boolean(activeItem && activeItem.kind === 'video' && activeItem.mediaUrl);
+    var previewDyn = state.previewDynamicId ? findDynamicTheme(state.previewDynamicId) : matchedDynamicForItem(activeItem);
+    var isVideo = Boolean(!previewDyn && activeItem && activeItem.kind === 'video' && activeItem.mediaUrl);
+    var isWebUrl = Boolean(!previewDyn && activeItem && activeItem.kind === 'web' && activeItem.webUrl);
     var previewImgUrl = activeItem ? (activeItem.kind === 'image' ? (activeItem.mediaUrl || activeItem.thumbUrl) : activeItem.thumbUrl) : '';
-    var wallTitle = activeItem ? (activeItem.title || activeItem.id) : '默认极光画布';
-    var wallKind = activeItem ? (activeItem.kind === 'video' ? '视频' : activeItem.kind === 'scene' ? 'Steam场景' : activeItem.kind === 'web' ? '网页' : '壁纸') : '默认';
-    var rawGlassOpacity = Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.76);
-    var clarityPct = Math.max(4, Math.min(65, Math.round((1 - rawGlassOpacity) * 100)));
-    var scrimPct = Math.max(0, Math.min(85, Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.26)) * 100)));
+    var wallTitle = previewDyn ? previewDyn.title : (activeItem ? (activeItem.title || activeItem.id) : '默认极光画布');
+    var wallKind = previewDyn ? '互动动态' : (activeItem ? (activeItem.kind === 'video' ? '视频' : activeItem.kind === 'scene' ? 'Steam场景' : activeItem.kind === 'web' ? '互动网页' : '高清壁纸') : '默认');
+
+    var rawGlassOpacity = Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.56);
+    var clarityPct = Math.max(4, Math.min(80, Math.round((1 - rawGlassOpacity) * 100)));
+    var blurPx = cfg.glassSurfaces === false ? 0 : Math.max(0, Math.min(24, Math.round(Number(cfg.glassBlur != null ? cfg.glassBlur : 8))));
+    var scrimPct = Math.max(0, Math.min(80, Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.14)) * 100)));
     var sch = schemeInfoOf(cfg.colorScheme);
     var isLight = cfg.themeMode === 'light';
     var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
-    var gAlpha = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
-    var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
-    var blurPx = cfg.glassSurfaces === false ? 0 : Math.min(20, Number(cfg.glassBlur != null ? cfg.glassBlur : 16));
+    var gAlpha = Math.max(0.18, Math.min(0.96, (100 - clarityPct) / 100));
+    var sAlpha = Math.max(0, Math.min(0.82, scrimPct / 100));
     var bgBlurPx = Number(cfg.mediaBlur || 0);
     var isFlush = cfg.layoutMode === 'flush';
 
-    var mediaFilterStyle = 'filter:blur(' + Math.round(bgBlurPx * 0.45) + 'px);transform:scale(' + (bgBlurPx > 0 ? '1.05' : '1') + ');';
-    var bgMediaHtml = isVideo
-      ? '<video class="ds-stage-video" src="' + esc(activeItem.mediaUrl) + '" style="' + mediaFilterStyle + '" ' + (cfg.paused ? '' : 'autoplay ') + 'loop muted playsinline></video>'
-      : '<div class="ds-stage-bg" style="' + (previewImgUrl ? ('background-image:url(\'' + esc(previewImgUrl).replace(/'/g, '%27') + '\');' + mediaFilterStyle) : '') + '"></div>';
+    var extraFilter = filterCssOf(cfg.filterPreset || 'none');
+    var combinedFilter = [bgBlurPx > 0 ? ('blur(' + Math.round(bgBlurPx * 0.45) + 'px)') : '', extraFilter].filter(Boolean).join(' ');
+    var mediaFilterStyle = (combinedFilter ? ('filter:' + combinedFilter + ';') : '') + (bgBlurPx > 0 ? 'transform:scale(1.04);' : '');
+
+    var bgMediaHtml = '';
+    if (previewDyn && previewDyn.html) {
+      bgMediaHtml = '<iframe class="ds-stage-iframe" sandbox="allow-scripts" srcdoc="' + esc(previewDyn.html) + '" style="' + mediaFilterStyle + '"></iframe>';
+    } else if (isWebUrl) {
+      bgMediaHtml = '<iframe class="ds-stage-iframe" sandbox="allow-scripts allow-same-origin" src="' + esc(activeItem.webUrl) + '" style="' + mediaFilterStyle + '"></iframe>';
+    } else if (isVideo) {
+      bgMediaHtml = '<video class="ds-stage-video" src="' + esc(activeItem.mediaUrl) + '" style="' + mediaFilterStyle + '" ' + (cfg.paused ? '' : 'autoplay ') + 'loop muted playsinline></video>';
+    } else {
+      bgMediaHtml = '<div class="ds-stage-bg" style="' + (previewImgUrl ? ('background-image:url(\'' + esc(previewImgUrl).replace(/'/g, '%27') + '\');' + mediaFilterStyle) : mediaFilterStyle) + '"></div>';
+    }
 
     var scrimBg = isLight
-      ? 'rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')'
+      ? 'rgba(248, 250, 255, ' + (sAlpha * 0.65).toFixed(2) + ')'
       : 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
-    var blurCss = 'backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);-webkit-backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);';
+    var blurCss = blurPx > 0
+      ? ('backdrop-filter:blur(' + blurPx + 'px) saturate(1.22);-webkit-backdrop-filter:blur(' + blurPx + 'px) saturate(1.22);')
+      : 'backdrop-filter:none;-webkit-backdrop-filter:none;';
     var barStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.08).toFixed(2) + ');' + blurCss;
     var sideStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.05).toFixed(2) + ');' + blurCss;
     var paneStyle = 'background:rgba(' + baseRgb + ', ' + gAlpha.toFixed(2) + ');' + blurCss;
@@ -452,18 +537,24 @@
       return '<button class="ds-scheme-dot-btn' + act + '" data-scheme="' + s.id + '"><span class="ds-swatch" style="background:' + s.dot + '"></span>' + esc(s.name) + '</button>';
     }).join('');
 
-    var claritySliderPct = Math.round(((clarityPct - 4) / (65 - 4)) * 100);
-    var scrimSliderPct = Math.round((scrimPct / 85) * 100);
+    var filtersHtml = FILTERS.map(function (f) {
+      var act = (cfg.filterPreset || 'none') === f.id ? ' active' : '';
+      return '<button class="ds-chip' + act + '" data-filter-preset="' + f.id + '">' + esc(f.name) + '</button>';
+    }).join('');
+
+    var claritySliderPct = Math.round(((clarityPct - 4) / (80 - 4)) * 100);
+    var blurSliderPct = Math.round((blurPx / 24) * 100);
+    var scrimSliderPct = Math.round((scrimPct / 80) * 100);
 
     return '<div class="ds-hero-grid">' +
-      '<div class="ds-stage-wrap">' +
+      '<div class="ds-stage-wrap" id="ds-stage-wrap">' +
         bgMediaHtml +
         '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:' + scrimBg + '"></div>' +
         '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + (isLight ? ' light-preview' : '') + '">' +
           '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
             '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
             '<span>' + esc(app.name) + ' · 效果预览</span>' +
-            '<span style="opacity:0.65">' + (isFlush ? '一体' : '浮岛') + '</span>' +
+            '<span style="opacity:0.65">' + (blurPx === 0 ? '原画锐利' : (isFlush ? '一体' : '浮岛')) + '</span>' +
           '</div>' +
           '<div class="ds-mock-body">' +
             '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
@@ -473,11 +564,10 @@
               '<div class="ds-mock-nav-item">外观设置</div>' +
             '</div>' +
             '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
-              '<div class="ds-mock-chat-q">这套壁纸的文字清楚吗？</div>' +
-              '<div class="ds-mock-chat-a">拉右侧「玻璃通透感」看壁纸，拉「背景压暗」提清晰度。</div>' +
+              '<div class="ds-mock-chat-q">壁纸现在够清楚吗？</div>' +
+              '<div class="ds-mock-chat-a">把「毛玻璃模糊」拉低或点「水晶超清」，壁纸细节就能纤毫毕现。</div>' +
               '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
-                '<span class="ds-mock-code-kw">const</span> theme = <span class="ds-mock-code-kw">"Prism 4.0"</span>;<br/>' +
-                'glass.opacity = ' + gAlpha.toFixed(2) + ';' +
+                '<span class="ds-mock-code-kw">const</span> prism = { blur: <span class="ds-mock-code-kw">' + blurPx + 'px</span>, clarity: <span class="ds-mock-code-kw">"' + clarityPct + '%"</span> };' +
               '</div>' +
               '<div class="ds-mock-input-bar"><span>输入消息…</span><span>↵</span></div>' +
             '</div>' +
@@ -489,8 +579,9 @@
             '<span class="ds-stage-wall-name" title="' + esc(wallTitle) + '">' + esc(wallTitle) + '</span>' +
           '</div>' +
           '<div class="ds-toolbar" style="gap:6px">' +
+            '<button class="ds-btn sm" id="ds-peek-raw-btn" title="按住隐藏玻璃，直接看无遮挡高清原图">👀 按住看原图</button>' +
+            '<button class="ds-btn sm" data-action="random-wall" title="随机换一张壁纸">🎲 随机</button>' +
             '<button class="ds-btn sm" data-action="step-next">换一张</button>' +
-            '<button class="ds-btn sm" data-action="upload-file">+ 导入</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -500,34 +591,69 @@
         '<div class="ds-sliders-stack">' +
           '<div class="ds-slider-box">' +
             '<div class="ds-slider-head"><span>玻璃通透感（越右越透）</span><span class="ds-slider-val" id="val-glass">' + clarityPct + '%</span></div>' +
-            '<input class="ds-range" type="range" min="4" max="65" value="' + clarityPct + '" style="--pct:' + claritySliderPct + '%" data-slider="glassClarity" />' +
+            '<input class="ds-range" type="range" min="4" max="80" value="' + clarityPct + '" style="--pct:' + claritySliderPct + '%" data-slider="glassClarity" />' +
           '</div>' +
           '<div class="ds-slider-box">' +
-            '<div class="ds-slider-head"><span>背景压暗护眼（越右字越清）</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
-            '<input class="ds-range" type="range" min="0" max="85" value="' + scrimPct + '" style="--pct:' + scrimSliderPct + '%" data-slider="scrimOpacity" />' +
+            '<div class="ds-slider-head"><span>毛玻璃模糊（0 = 原画超清）</span><span class="ds-slider-val" id="val-blur">' + blurPx + 'px</span></div>' +
+            '<input class="ds-range" type="range" min="0" max="24" value="' + blurPx + '" style="--pct:' + blurSliderPct + '%" data-slider="glassBlur" />' +
+          '</div>' +
+          '<div class="ds-slider-box">' +
+            '<div class="ds-slider-head"><span>背景压暗护眼</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
+            '<input class="ds-range" type="range" min="0" max="80" value="' + scrimPct + '" style="--pct:' + scrimSliderPct + '%" data-slider="scrimOpacity" />' +
           '</div>' +
         '</div>' +
         '<div class="ds-scheme-dots">' + schemesHtml + '</div>' +
+        '<div class="ds-filter-bar"><span class="ds-muted">画质氛围：</span>' + filtersHtml + '</div>' +
       '</div>' +
     '</div>';
   }
 
   function renderUnifiedLibraryPanel(cfg) {
-    var isPrism = state.studioMode === 'prism';
+    var mode = state.studioMode;
+    var dynList = state.dynamicThemes || [];
 
     var headerRow = '<div class="ds-sec-title">' +
       '<div class="ds-seg-pill">' +
-        '<button class="ds-seg-btn' + (isPrism ? ' active' : '') + '" data-studio-mode="prism">✦ 液态玻璃壁纸（' + (state.items ? state.items.length : 0) + '）</button>' +
-        '<button class="ds-seg-btn' + (!isPrism ? ' active' : '') + '" data-studio-mode="classic">🎨 经典主题库</button>' +
+        '<button class="ds-seg-btn' + (mode === 'prism' ? ' active' : '') + '" data-studio-mode="prism">✦ 我的壁纸（' + (state.items ? state.items.length : 0) + '）</button>' +
+        '<button class="ds-seg-btn' + (mode === 'dynamic' ? ' active' : '') + '" data-studio-mode="dynamic">🌊 动态主题库（' + dynList.length + '）</button>' +
+        '<button class="ds-seg-btn' + (mode === 'classic' ? ' active' : '') + '" data-studio-mode="classic">🎨 经典在线库</button>' +
       '</div>' +
       '<div class="ds-toolbar">' +
-        (isPrism
+        (mode === 'prism'
           ? '<button class="ds-btn sm primary" data-action="upload-file">+ 导入图片/视频</button><button class="ds-btn sm" data-action="scan-lib">扫描 Steam</button>'
-          : '<button class="ds-btn sm primary" data-action="import-dsskin">导入 .dsskin</button><button class="ds-btn sm" data-action="reload-gallery">刷新</button>') +
+          : mode === 'dynamic'
+            ? '<button class="ds-btn sm primary" data-action="upload-file">+ 导入本地 MP4/网页</button>'
+            : '<button class="ds-btn sm primary" data-action="import-dsskin">导入 .dsskin</button><button class="ds-btn sm" data-action="reload-gallery">刷新</button>') +
       '</div>' +
     '</div>';
 
-    if (!isPrism) {
+    if (mode === 'dynamic') {
+      var dynCards = dynList.map(function (t) {
+        var isSel = state.previewDynamicId === t.id || (activeWallpaperOf(cfg) && activeWallpaperOf(cfg).title === t.title);
+        return '<div class="ds-wall-card' + (isSel ? ' active' : '') + '" data-install-dyn="' + esc(t.id) + '">' +
+          '<div class="ds-wall-thumb">' +
+            '<img src="' + esc(t.thumbUrl) + '" alt="" />' +
+            (isSel ? '<span class="ds-wall-active-badge">● 动态播放中</span>' : '') +
+            '<span class="ds-wall-badge">' + esc(t.category || '动态') + '</span>' +
+          '</div>' +
+          '<div class="ds-wall-meta">' +
+            '<div class="ds-wall-title">' + esc(t.title) + '</div>' +
+            '<div class="ds-dyn-card-sub">' + esc(t.subtitle) + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="ds-section">' +
+        headerRow +
+        '<div class="ds-url-import-bar">' +
+          '<input class="ds-input" id="ds-import-url" placeholder="粘贴 GitHub / 网络 MP4、WebM 或高清图直链，一键导入动态壁纸…" value="' + esc(state.importUrlText) + '" />' +
+          '<button class="ds-btn sm primary" data-action="import-url">下载导入</button>' +
+        '</div>' +
+        '<div class="ds-wall-grid">' + dynCards + '</div>' +
+      '</div>';
+    }
+
+    if (mode === 'classic') {
       var galleryBody = '';
       if (state.galleryLoading) {
         galleryBody = '<div class="ds-muted" style="padding:12px 0">正在加载 dreamskin.cc 在线主题库…</div>';
@@ -557,11 +683,12 @@
 
     var list = filteredLibrary();
     var wallGridHtml = !list.length
-      ? '<div class="ds-muted" style="padding:12px 0">暂无匹配壁纸，点击右上角导入或直接拖入图片 / MP4</div>'
+      ? '<div class="ds-muted" style="padding:12px 0">暂无匹配壁纸，点击右上角导入、切到「🌊 动态主题库」，或直接把图片/MP4 拖进来</div>'
       : '<div class="ds-wall-grid">' + list.slice(0, 60).map(function (it) {
-          var isSel = cfg.activeWallpaperId === it.id;
-          var kindLabel = it.kind === 'video' ? '视频' : it.kind === 'scene' ? 'Steam' : it.kind === 'web' ? '网页' : '图片';
-          var thumb = it.thumbUrl || (it.kind === 'image' ? it.mediaUrl : '');
+          var isSel = !state.previewDynamicId && cfg.activeWallpaperId === it.id;
+          var kindLabel = it.kind === 'video' ? '视频' : it.kind === 'scene' ? 'Steam' : it.kind === 'web' ? '动态主题' : '图片';
+          var dynMatch = matchedDynamicForItem(it);
+          var thumb = dynMatch ? dynMatch.thumbUrl : (it.thumbUrl || (it.kind === 'image' ? it.mediaUrl : ''));
           return '<div class="ds-wall-card' + (isSel ? ' active' : '') + '" data-pick-wall="' + esc(it.id) + '">' +
             '<div class="ds-wall-thumb">' +
               (thumb ? '<img src="' + esc(thumb) + '" loading="lazy" alt="" />' : kindLabel) +
@@ -598,12 +725,15 @@
     var g = state.v4Store.global || {};
     var focusFreeze = g.focusFreezeEnabled !== false;
     var pauseBatt = g.pauseOnBattery !== false;
+    var dynamicAccent = (cfg.accentMode || 'dynamic') === 'dynamic';
+    var fxOn = Boolean(cfg.fxEnabled);
+    var parallaxOn = Boolean(cfg.parallaxEnabled);
 
     return topStrips +
       renderPreviewAndControls(app, cfg) +
       renderUnifiedLibraryPanel(cfg) +
       '<details class="prism-adv-drawer"' + (state.advOpen ? ' open' : '') + '>' +
-        '<summary><span>⚙ 进阶微调（布局、明暗、护眼底板、省电）</span><span class="ds-muted">' + (state.advOpen ? '收起 ▲' : '展开 ▼') + '</span></summary>' +
+        '<summary><span>⚙ 进阶微调（布局、动效视差、自动取色、护眼与省电）</span><span class="ds-muted">' + (state.advOpen ? '收起 ▲' : '展开 ▼') + '</span></summary>' +
         '<div class="ds-adv-body">' +
           '<div class="ds-toolbar">' +
             '<span class="ds-muted">面板形态：</span>' +
@@ -619,6 +749,18 @@
             '<button class="ds-chip' + ((cfg.codeReadabilityMode || 'translucent') === 'translucent' ? ' active' : '') + '" data-code-mode="translucent">通透</button>' +
             '<button class="ds-chip' + (cfg.codeReadabilityMode === 'frosted' ? ' active' : '') + '" data-code-mode="frosted">磨砂护眼</button>' +
             '<button class="ds-chip' + (cfg.codeReadabilityMode === 'solid' ? ' active' : '') + '" data-code-mode="solid">实底清晰</button>' +
+          '</div>' +
+          '<div class="ds-toggle-row">' +
+            '<span>随壁纸主色自动配色（类似 Spicetify / Obsidian 取色）</span>' +
+            '<label class="ds-switch"><input type="checkbox" data-app-toggle="dynamicAccent"' + (dynamicAccent ? ' checked' : '') + ' /><span class="ds-switch-track"></span></label>' +
+          '</div>' +
+          '<div class="ds-toggle-row">' +
+            '<span>鼠标点击涟漪微光动效</span>' +
+            '<label class="ds-switch"><input type="checkbox" data-app-toggle="fxEnabled"' + (fxOn ? ' checked' : '') + ' /><span class="ds-switch-track"></span></label>' +
+          '</div>' +
+          '<div class="ds-toggle-row">' +
+            '<span>3D 鼠标微视差景深（背景随鼠标轻柔移动）</span>' +
+            '<label class="ds-switch"><input type="checkbox" data-app-toggle="parallaxEnabled"' + (parallaxOn ? ' checked' : '') + ' /><span class="ds-switch-track"></span></label>' +
           '</div>' +
           '<div class="ds-toggle-row">' +
             '<span>多窗口智能省电（后台动态壁纸自动定格）</span>' +
@@ -766,9 +908,22 @@
       });
     });
 
+    // Hold-to-peek unobstructed raw HD wallpaper / live dynamic theme
+    var peekBtn = root.querySelector('#ds-peek-raw-btn');
+    var stageWrap = root.querySelector('#ds-stage-wrap');
+    if (peekBtn && stageWrap) {
+      var startPeek = function () { stageWrap.classList.add('peek-raw'); };
+      var endPeek = function () { stageWrap.classList.remove('peek-raw'); };
+      peekBtn.addEventListener('pointerdown', startPeek);
+      peekBtn.addEventListener('pointerup', endPeek);
+      peekBtn.addEventListener('pointerleave', endPeek);
+      peekBtn.addEventListener('pointercancel', endPeek);
+    }
+
     root.querySelectorAll('[data-app-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.selectedAppId = btn.getAttribute('data-app-id');
+        state.previewDynamicId = '';
         state.showTakeoverSteps = false;
         render();
         loadShortcutStatus();
@@ -824,23 +979,52 @@
         var max = Number(el.max || 100);
         var val = Number(el.value);
         el.style.setProperty('--pct', Math.round(((val - min) / (max - min)) * 100) + '%');
-        var lbl = document.getElementById(key === 'glassClarity' ? 'val-glass' : 'val-scrim');
-        if (lbl) lbl.textContent = val + '%';
+        if (key === 'glassClarity') {
+          var l1 = document.getElementById('val-glass');
+          if (l1) l1.textContent = val + '%';
+        } else if (key === 'glassBlur') {
+          var l2 = document.getElementById('val-blur');
+          if (l2) l2.textContent = val + 'px';
+        } else {
+          var l3 = document.getElementById('val-scrim');
+          if (l3) l3.textContent = val + '%';
+        }
         var gEl = root.querySelector('input[data-slider="glassClarity"]');
+        var bEl = root.querySelector('input[data-slider="glassBlur"]');
         var sEl = root.querySelector('input[data-slider="scrimOpacity"]');
-        updateLivePreviewDom(gEl ? Number(gEl.value) : 24, sEl ? Number(sEl.value) : 26);
+        updateLivePreviewDom(gEl ? Number(gEl.value) : 44, bEl ? Number(bEl.value) : 8, sEl ? Number(sEl.value) : 14);
       });
       el.addEventListener('change', function () {
         var key = el.getAttribute('data-slider');
         var patch = {};
         if (key === 'glassClarity') {
           patch.glassOpacity = Math.round(100 - Number(el.value)) / 100;
+        } else if (key === 'glassBlur') {
+          patch.glassBlur = Math.round(Number(el.value));
+          patch.glassSurfaces = patch.glassBlur > 0;
         } else {
           patch[key] = Math.round(Number(el.value)) / 100;
         }
         patchCurrentAppConfig(patch, true);
       });
     });
+
+    root.querySelectorAll('[data-filter-preset]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        patchCurrentAppConfig({ filterPreset: b.getAttribute('data-filter-preset') }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-install-dyn]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        installAndApplyDynamicTheme(card.getAttribute('data-install-dyn'));
+      });
+    });
+
+    var urlInput = root.querySelector('#ds-import-url');
+    if (urlInput) {
+      urlInput.addEventListener('input', function () { state.importUrlText = urlInput.value; });
+    }
 
     root.querySelectorAll('[data-lib-src]').forEach(function (btn) {
       btn.addEventListener('click', function () {
@@ -862,6 +1046,7 @@
 
     root.querySelectorAll('[data-pick-wall]').forEach(function (card) {
       card.addEventListener('click', function () {
+        state.previewDynamicId = '';
         var wid = card.getAttribute('data-pick-wall');
         patchCurrentAppConfig({ activeWallpaperId: wid, wallpaperId: wid, skinEnabled: true }, true);
       });
@@ -873,6 +1058,7 @@
         showToast('正在下载在线主题…');
         apiJson('/api/gallery/download', { method: 'POST', body: { id: gid } }).then(function (r) {
           showToast('已下载并应用');
+          state.previewDynamicId = '';
           loadState().then(function () {
             if (r && r.uploaded && r.uploaded.id) {
               patchCurrentAppConfig({ activeWallpaperId: r.uploaded.id, wallpaperId: r.uploaded.id, skinEnabled: true }, true);
@@ -898,6 +1084,18 @@
     });
     root.querySelectorAll('[data-code-mode]').forEach(function (b) {
       b.addEventListener('click', function () { patchCurrentAppConfig({ codeReadabilityMode: b.getAttribute('data-code-mode') }, true); });
+    });
+    root.querySelectorAll('[data-app-toggle]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var k = cb.getAttribute('data-app-toggle');
+        if (k === 'dynamicAccent') {
+          patchCurrentAppConfig({ accentMode: cb.checked ? 'dynamic' : 'scheme' }, true);
+        } else {
+          var p = {};
+          p[k] = cb.checked;
+          patchCurrentAppConfig(p, true);
+        }
+      });
     });
     root.querySelectorAll('[data-global-toggle]').forEach(function (cb) {
       cb.addEventListener('change', function () {
@@ -940,7 +1138,23 @@
         var act = btn.getAttribute('data-action');
         if (act === 'upload-file' && fileInput) fileInput.click();
         else if (act === 'import-dsskin' && dsskinInput) dsskinInput.click();
-        else if (act === 'toggle-guide') {
+        else if (act === 'import-url') {
+          var u = (state.importUrlText || '').trim();
+          if (!u) { showToast('请先粘贴一个 MP4 / WebM / 图片直链'); return; }
+          showToast('正在从链接下载导入…');
+          apiJson('/api/library/import-url', { method: 'POST', body: { url: u } }).then(function (r) {
+            state.importUrlText = '';
+            state.previewDynamicId = '';
+            showToast('导入成功，正在为你选中');
+            loadState().then(function () {
+              if (r && r.item && r.item.id) {
+                patchCurrentAppConfig({ activeWallpaperId: r.item.id, wallpaperId: r.item.id, skinEnabled: true }, true);
+              }
+            });
+          }).catch(function (err) {
+            showToast(err && err.status === 404 ? '请先重启插件或用新版独立软件以启用链接导入' : (err.message || '导入失败'));
+          });
+        } else if (act === 'toggle-guide') {
           state.showHelp = !state.showHelp;
           state.activeTab = 'home';
           render();
@@ -1004,12 +1218,16 @@
             showToast('已解除保护模式');
             loadState();
           });
+        } else if (act === 'random-wall') {
+          var pool = state.items || [];
+          if (!pool.length) { showToast('壁纸库还没有壁纸'); return; }
+          state.previewDynamicId = '';
+          var pick = pool[Math.floor(Math.random() * pool.length)];
+          patchCurrentAppConfig({ activeWallpaperId: pick.id, wallpaperId: pick.id, skinEnabled: true }, true);
         } else if (act === 'step-next') {
           var list = state.items || [];
-          if (!list.length) {
-            showToast('壁纸库还没有壁纸');
-            return;
-          }
+          if (!list.length) { showToast('壁纸库还没有壁纸'); return; }
+          state.previewDynamicId = '';
           var curWid = currentConfig().activeWallpaperId;
           var idx = list.findIndex(function (it) { return it.id === curWid; });
           var nextItem = list[(idx + 1 + list.length) % list.length];

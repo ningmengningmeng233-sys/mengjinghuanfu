@@ -13,6 +13,11 @@ import { acquireOrReuseDaemonLock } from './core/daemon-lock.mjs';
 import { createFocusArbiter } from './core/focus-arbiter.mjs';
 import { createMultiAppGuardian } from './core/multi-app-guardian.mjs';
 import { resolveAppIcon } from './core/app-icons.mjs';
+import {
+  getBuiltinDynamicTheme,
+  listBuiltinDynamicThemes,
+  materializeDynamicTheme,
+} from './prism/dynamic-themes/index.mjs';
 import { appRuntimeById, listRuntimeProfiles } from './core/app-runtime.mjs';
 import {
   COLOR_SCHEMES,
@@ -238,6 +243,7 @@ export async function startStudioDaemon(opts = {}) {
       v4Store,
       apps: guardian.listAppsFast(),
       items: cachedLibItems,
+      dynamicThemes: listBuiltinDynamicThemes(),
       stats: engine.getStats(),
       presets: await engine.listPresets(),
       scenePresets: SCENE_PRESETS,
@@ -314,6 +320,71 @@ export async function startStudioDaemon(opts = {}) {
         const buf = await readRawBody(req);
         const up = await engine.uploadBuffer(buf, { filename, contentType });
         sendJson(res, 200, up);
+        return;
+      }
+
+      if (method === 'POST' && pathname === '/api/library/import-url') {
+        const body = await readJsonBody(req);
+        const rawUrl = String(body.url || '').trim();
+        if (!/^https?:\/\//i.test(rawUrl)) {
+          sendJson(res, 400, { ok: false, error: '请输入以 http:// 或 https:// 开头的图片或视频直链' });
+          return;
+        }
+        try {
+          const resp = await fetch(rawUrl, { redirect: 'follow', signal: AbortSignal.timeout(25000) });
+          if (!resp.ok) throw new Error(`下载失败（HTTP ${resp.status}）`);
+          const len = Number(resp.headers.get('content-length') || 0);
+          if (len > 120 * 1024 * 1024) throw new Error('文件超过 120 MB 上限');
+          const ab = await resp.arrayBuffer();
+          const buf = Buffer.from(ab);
+          if (buf.length > 120 * 1024 * 1024) throw new Error('文件超过 120 MB 上限');
+          const ct = String(resp.headers.get('content-type') || 'application/octet-stream').split(';')[0].trim();
+          const urlPath = new URL(rawUrl).pathname;
+          const baseName = decodeURIComponent(urlPath.split('/').pop() || 'remote-wallpaper');
+          const extFallback = ct.includes('mp4') ? '.mp4' : ct.includes('webm') ? '.webm' : ct.includes('png') ? '.png' : ct.includes('webp') ? '.webp' : '.jpg';
+          const filename = /\.[a-z0-9]{2,5}$/i.test(baseName) ? baseName : `${baseName}${extFallback}`;
+          const up = await engine.uploadBuffer(buf, { filename, contentType: ct, title: String(body.title || '').trim() || filename.replace(/\.[^.]+$/, '') });
+          const lib = await engine.listLibrary({ refresh: true });
+          cachedLibItems = Array.isArray(lib?.items) ? lib.items : [];
+          sendJson(res, 200, { ok: true, ...up });
+        } catch (err) {
+          sendJson(res, 400, { ok: false, error: err?.message || '在线链接导入失败' });
+        }
+        return;
+      }
+
+      if (method === 'GET' && pathname === '/api/dynamic-themes') {
+        sendJson(res, 200, { ok: true, themes: listBuiltinDynamicThemes() });
+        return;
+      }
+
+      const dynPreviewMatch = /^\/api\/dynamic-themes\/([a-z0-9-]+)\/preview\.html$/.exec(pathname);
+      if (method === 'GET' && dynPreviewMatch) {
+        const theme = getBuiltinDynamicTheme(dynPreviewMatch[1]);
+        if (!theme) {
+          res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+          res.end('Not found');
+          return;
+        }
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+        res.end(theme.html);
+        return;
+      }
+
+      const dynInstallMatch = /^\/api\/dynamic-themes\/([a-z0-9-]+)\/install$/.exec(pathname);
+      if (method === 'POST' && dynInstallMatch) {
+        const id = dynInstallMatch[1];
+        try {
+          const mat = materializeDynamicTheme({ id, uploadDir: engine.store.getUploadDir() });
+          const lib = await engine.listLibrary({ refresh: true });
+          cachedLibItems = Array.isArray(lib?.items) ? lib.items : [];
+          const matchedItem = cachedLibItems.find((it) => it.title === mat.theme.title || String(it.id || '').includes(id))
+            || cachedLibItems.find((it) => it.kind === 'web' && it.title === mat.theme.title)
+            || null;
+          sendJson(res, 200, { ok: true, theme: { id: mat.theme.id, title: mat.theme.title, recommendedScheme: mat.theme.recommendedScheme }, item: matchedItem });
+        } catch (err) {
+          sendJson(res, 400, { ok: false, error: err?.message || '安装动态主题失败' });
+        }
         return;
       }
 

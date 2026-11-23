@@ -731,18 +731,28 @@ body::after {
   flex-direction: column;
   box-shadow: var(--shadow-card);
 }
-.ds-stage-bg, .ds-stage-video {
+.ds-stage-bg, .ds-stage-video, .ds-stage-iframe {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  border: 0;
   object-fit: cover;
   background-size: cover;
   background-position: center;
+  image-rendering: high-quality;
   background-image: radial-gradient(circle at 20% 25%, #38bdf8 0%, transparent 45%),
                     radial-gradient(circle at 80% 70%, #a855f7 0%, transparent 50%),
                     linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d1a 100%);
-  transition: filter 200ms ease, transform 240ms ease;
+  transition: filter 180ms ease, transform 220ms ease;
+}
+.ds-stage-wrap.peek-raw .ds-mock-window,
+.ds-stage-wrap.peek-raw .ds-stage-scrim {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+.ds-stage-wrap .ds-mock-window {
+  transition: opacity 150ms ease, padding 180ms ease, gap 180ms ease;
 }
 .ds-stage-scrim {
   position: absolute;
@@ -936,14 +946,36 @@ body::after {
 }
 .ds-sliders-stack {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
 }
 @media (min-width: 1180px) {
-  .ds-sliders-stack { grid-template-columns: 1fr; gap: 11px; }
+  .ds-sliders-stack { grid-template-columns: 1fr; gap: 10px; }
 }
 @media (max-width: 720px) {
-  .ds-sliders-stack { grid-template-columns: 1fr; gap: 11px; }
+  .ds-sliders-stack { grid-template-columns: 1fr; gap: 10px; }
+}
+.ds-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ds-dyn-card-sub {
+  font-size: 11px;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ds-url-import-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: rgba(8, 12, 22, 0.55);
+  border: 1px solid var(--border);
 }
 .ds-scene-card {
   border: 1px solid var(--border);
