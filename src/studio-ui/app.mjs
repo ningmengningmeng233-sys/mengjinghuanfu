@@ -341,17 +341,21 @@
     }).catch(function (err) { showToast('导入失败：' + err.message); });
   }
 
-  function updateLivePreviewDom(glassPct, scrimPct) {
+  function updateLivePreviewDom(clarityPct, scrimPct) {
+    var bar = document.getElementById('ds-preview-bar');
     var pane = document.getElementById('ds-preview-pane');
     var side = document.getElementById('ds-preview-side');
     var scrim = document.getElementById('ds-preview-scrim');
     var cfg = currentConfig();
     var sch = schemeInfoOf(cfg.colorScheme);
-    var gAlpha = Math.max(0.28, Math.min(0.96, glassPct / 100));
-    var sAlpha = Math.max(0, Math.min(0.88, scrimPct / 100));
-    if (pane) pane.style.background = 'rgba(' + sch.panelBg + ', ' + gAlpha.toFixed(2) + ')';
-    if (side) side.style.background = 'rgba(' + sch.panelBg + ', ' + Math.min(0.96, gAlpha + 0.06).toFixed(2) + ')';
-    if (scrim) scrim.style.background = 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
+    var isLight = cfg.themeMode === 'light';
+    var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
+    var opacity = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
+    var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
+    if (bar) bar.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.08).toFixed(2) + ')';
+    if (pane) pane.style.background = 'rgba(' + baseRgb + ', ' + opacity.toFixed(2) + ')';
+    if (side) side.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.05).toFixed(2) + ')';
+    if (scrim) scrim.style.background = isLight ? ('rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')') : ('rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')');
   }
 
   function renderHelpPopover() {
@@ -401,28 +405,39 @@
 
   function renderPreviewAndControls(app, cfg) {
     var activeItem = activeWallpaperOf(cfg);
-    var thumbUrl = activeItem ? (activeItem.thumbUrl || (activeItem.kind === 'image' ? activeItem.mediaUrl : '')) : '';
+    var isVideo = Boolean(activeItem && activeItem.kind === 'video' && activeItem.mediaUrl);
+    var previewImgUrl = activeItem ? (activeItem.kind === 'image' ? (activeItem.mediaUrl || activeItem.thumbUrl) : activeItem.thumbUrl) : '';
     var wallTitle = activeItem ? (activeItem.title || activeItem.id) : '默认极光画布';
     var wallKind = activeItem ? (activeItem.kind === 'video' ? '视频' : activeItem.kind === 'scene' ? 'Steam场景' : activeItem.kind === 'web' ? '网页' : '壁纸') : '默认';
-    var glassPct = Math.round((Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.76)) * 100);
-    var scrimPct = Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.26)) * 100);
+    var rawGlassOpacity = Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.76);
+    var clarityPct = Math.max(4, Math.min(65, Math.round((1 - rawGlassOpacity) * 100)));
+    var scrimPct = Math.max(0, Math.min(85, Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.26)) * 100)));
     var sch = schemeInfoOf(cfg.colorScheme);
-    var gAlpha = Math.max(0.28, Math.min(0.96, glassPct / 100));
-    var sAlpha = Math.max(0, Math.min(0.88, scrimPct / 100));
+    var isLight = cfg.themeMode === 'light';
+    var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
+    var gAlpha = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
+    var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
     var blurPx = cfg.glassSurfaces === false ? 0 : Math.min(20, Number(cfg.glassBlur != null ? cfg.glassBlur : 16));
     var bgBlurPx = Number(cfg.mediaBlur || 0);
     var isFlush = cfg.layoutMode === 'flush';
 
-    var bgStyle = thumbUrl
-      ? 'background-image:url(\'' + esc(thumbUrl).replace(/'/g, '%27') + '\');filter:blur(' + Math.round(bgBlurPx * 0.4) + 'px);transform:scale(' + (bgBlurPx > 0 ? '1.05' : '1') + ');'
-      : '';
-    var paneStyle = 'background:rgba(' + sch.panelBg + ', ' + gAlpha.toFixed(2) + ');backdrop-filter:blur(' + Math.round(blurPx * 0.65) + 'px);';
-    var sideStyle = 'background:rgba(' + sch.panelBg + ', ' + Math.min(0.96, gAlpha + 0.06).toFixed(2) + ');backdrop-filter:blur(' + Math.round(blurPx * 0.65) + 'px);';
+    var mediaFilterStyle = 'filter:blur(' + Math.round(bgBlurPx * 0.45) + 'px);transform:scale(' + (bgBlurPx > 0 ? '1.05' : '1') + ');';
+    var bgMediaHtml = isVideo
+      ? '<video class="ds-stage-video" src="' + esc(activeItem.mediaUrl) + '" style="' + mediaFilterStyle + '" ' + (cfg.paused ? '' : 'autoplay ') + 'loop muted playsinline></video>'
+      : '<div class="ds-stage-bg" style="' + (previewImgUrl ? ('background-image:url(\'' + esc(previewImgUrl).replace(/'/g, '%27') + '\');' + mediaFilterStyle) : '') + '"></div>';
+
+    var scrimBg = isLight
+      ? 'rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')'
+      : 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
+    var blurCss = 'backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);-webkit-backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);';
+    var barStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.08).toFixed(2) + ');' + blurCss;
+    var sideStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.05).toFixed(2) + ');' + blurCss;
+    var paneStyle = 'background:rgba(' + baseRgb + ', ' + gAlpha.toFixed(2) + ');' + blurCss;
     var codeBg = cfg.codeReadabilityMode === 'solid'
-      ? 'rgba(' + sch.panelBg + ', 0.96)'
+      ? ('rgba(' + baseRgb + ', 0.96)')
       : cfg.codeReadabilityMode === 'frosted'
-        ? 'rgba(' + sch.panelBg + ', 0.82)'
-        : 'rgba(255, 255, 255, 0.05)';
+        ? ('rgba(' + baseRgb + ', 0.84)')
+        : (isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.06)');
 
     var scenesHtml = SCENE_CARDS.map(function (sc) {
       var active = (cfg.preset || 'islands') === sc.id ? ' active' : '';
@@ -437,36 +452,34 @@
       return '<button class="ds-scheme-dot-btn' + act + '" data-scheme="' + s.id + '"><span class="ds-swatch" style="background:' + s.dot + '"></span>' + esc(s.name) + '</button>';
     }).join('');
 
-    var glassSliderPct = Math.round(((glassPct - 35) / (96 - 35)) * 100);
+    var claritySliderPct = Math.round(((clarityPct - 4) / (65 - 4)) * 100);
     var scrimSliderPct = Math.round((scrimPct / 85) * 100);
 
     return '<div class="ds-hero-grid">' +
       '<div class="ds-stage-wrap">' +
-        '<div class="ds-stage-bg" style="' + bgStyle + '"></div>' +
-        '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')"></div>' +
-        '<div class="ds-stage-mock-wrap">' +
-          '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + '">' +
-            '<div class="ds-mock-bar" style="' + sideStyle + '">' +
-              '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
-              '<span>' + esc(app.name) + ' · 实时预览</span>' +
-              '<span style="opacity:0.6">' + (isFlush ? '一体' : '浮岛') + '</span>' +
+        bgMediaHtml +
+        '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:' + scrimBg + '"></div>' +
+        '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + (isLight ? ' light-preview' : '') + '">' +
+          '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
+            '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
+            '<span>' + esc(app.name) + ' · 效果预览</span>' +
+            '<span style="opacity:0.65">' + (isFlush ? '一体' : '浮岛') + '</span>' +
+          '</div>' +
+          '<div class="ds-mock-body">' +
+            '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
+              '<div class="ds-mock-nav-item active">当前对话</div>' +
+              '<div class="ds-mock-nav-item">项目文件</div>' +
+              '<div class="ds-mock-nav-item">插件中心</div>' +
+              '<div class="ds-mock-nav-item">外观设置</div>' +
             '</div>' +
-            '<div class="ds-mock-body">' +
-              '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
-                '<div class="ds-mock-line accent"></div>' +
-                '<div class="ds-mock-line med"></div>' +
-                '<div class="ds-mock-line short"></div>' +
-                '<div class="ds-mock-line med"></div>' +
+            '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
+              '<div class="ds-mock-chat-q">这套壁纸的文字清楚吗？</div>' +
+              '<div class="ds-mock-chat-a">拉右侧「玻璃通透感」看壁纸，拉「背景压暗」提清晰度。</div>' +
+              '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
+                '<span class="ds-mock-code-kw">const</span> theme = <span class="ds-mock-code-kw">"Prism 4.0"</span>;<br/>' +
+                'glass.opacity = ' + gAlpha.toFixed(2) + ';' +
               '</div>' +
-              '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
-                '<div class="ds-mock-line accent" style="width:42%"></div>' +
-                '<div class="ds-mock-line med"></div>' +
-                '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
-                  '<div class="ds-mock-line" style="width:82%"></div>' +
-                  '<div class="ds-mock-line short"></div>' +
-                  '<div class="ds-mock-line med"></div>' +
-                '</div>' +
-              '</div>' +
+              '<div class="ds-mock-input-bar"><span>输入消息…</span><span>↵</span></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -486,11 +499,11 @@
         '<div class="ds-scene-grid">' + scenesHtml + '</div>' +
         '<div class="ds-sliders-stack">' +
           '<div class="ds-slider-box">' +
-            '<div class="ds-slider-head"><span>玻璃通透度</span><span class="ds-slider-val" id="val-glass">' + glassPct + '%</span></div>' +
-            '<input class="ds-range" type="range" min="35" max="96" value="' + glassPct + '" style="--pct:' + glassSliderPct + '%" data-slider="glassOpacity" />' +
+            '<div class="ds-slider-head"><span>玻璃通透感（越右越透）</span><span class="ds-slider-val" id="val-glass">' + clarityPct + '%</span></div>' +
+            '<input class="ds-range" type="range" min="4" max="65" value="' + clarityPct + '" style="--pct:' + claritySliderPct + '%" data-slider="glassClarity" />' +
           '</div>' +
           '<div class="ds-slider-box">' +
-            '<div class="ds-slider-head"><span>背景压暗护眼</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
+            '<div class="ds-slider-head"><span>背景压暗护眼（越右字越清）</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
             '<input class="ds-range" type="range" min="0" max="85" value="' + scrimPct + '" style="--pct:' + scrimSliderPct + '%" data-slider="scrimOpacity" />' +
           '</div>' +
         '</div>' +
@@ -811,16 +824,20 @@
         var max = Number(el.max || 100);
         var val = Number(el.value);
         el.style.setProperty('--pct', Math.round(((val - min) / (max - min)) * 100) + '%');
-        var lbl = document.getElementById(key === 'glassOpacity' ? 'val-glass' : 'val-scrim');
+        var lbl = document.getElementById(key === 'glassClarity' ? 'val-glass' : 'val-scrim');
         if (lbl) lbl.textContent = val + '%';
-        var gEl = root.querySelector('input[data-slider="glassOpacity"]');
+        var gEl = root.querySelector('input[data-slider="glassClarity"]');
         var sEl = root.querySelector('input[data-slider="scrimOpacity"]');
-        updateLivePreviewDom(gEl ? Number(gEl.value) : 76, sEl ? Number(sEl.value) : 26);
+        updateLivePreviewDom(gEl ? Number(gEl.value) : 24, sEl ? Number(sEl.value) : 26);
       });
       el.addEventListener('change', function () {
         var key = el.getAttribute('data-slider');
         var patch = {};
-        patch[key] = Math.round(Number(el.value)) / 100;
+        if (key === 'glassClarity') {
+          patch.glassOpacity = Math.round(100 - Number(el.value)) / 100;
+        } else {
+          patch[key] = Math.round(Number(el.value)) / 100;
+        }
         patchCurrentAppConfig(patch, true);
       });
     });
@@ -988,10 +1005,15 @@
             loadState();
           });
         } else if (act === 'step-next') {
-          apiJson('/api/playlists/step', { method: 'POST', body: { dir: 1 } }).then(function () {
-            showToast('已切换到下一张壁纸');
-            loadState();
-          });
+          var list = state.items || [];
+          if (!list.length) {
+            showToast('壁纸库还没有壁纸');
+            return;
+          }
+          var curWid = currentConfig().activeWallpaperId;
+          var idx = list.findIndex(function (it) { return it.id === curWid; });
+          var nextItem = list[(idx + 1 + list.length) % list.length];
+          patchCurrentAppConfig({ activeWallpaperId: nextItem.id, wallpaperId: nextItem.id, skinEnabled: true }, true);
         }
       });
     });

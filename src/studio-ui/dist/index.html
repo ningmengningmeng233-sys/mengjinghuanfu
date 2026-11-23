@@ -417,28 +417,29 @@ body::after {
 
 /* Main Header */
 .ds-header {
-  padding: 14px 20px;
+  padding: 11px 16px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.015);
 }
-.ds-header-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.ds-cur-title { font-size: 18px; font-weight: 700; letter-spacing: 0.2px; }
+.ds-header-left { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.ds-cur-title { font-size: 16px; font-weight: 700; letter-spacing: 0.2px; white-space: nowrap; }
 .ds-status-pill {
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 99px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--fg-2);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
+  white-space: nowrap;
 }
 .ds-status-pill.ok { border-color: rgba(52, 211, 153, 0.35); background: var(--ok-soft); color: #a7f3d0; }
 .ds-status-pill.warn { border-color: rgba(251, 191, 36, 0.4); background: var(--warn-soft); color: #fde68a; }
@@ -447,7 +448,7 @@ body::after {
 .ds-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -711,7 +712,7 @@ body::after {
 /* Hero Live Preview + Quick Controls Split Stage */
 .ds-hero-grid {
   display: grid;
-  grid-template-columns: minmax(290px, 1.15fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(320px, 1.28fr) minmax(270px, 1fr);
   gap: 14px;
 }
 
@@ -721,113 +722,162 @@ body::after {
   overflow: hidden;
   border: 1px solid var(--border-hi);
   background: #0b0f1d;
-  min-height: 268px;
+  min-height: 292px;
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-card);
 }
-.ds-stage-bg {
+.ds-stage-bg, .ds-stage-video {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   background-size: cover;
   background-position: center;
   background-image: radial-gradient(circle at 20% 25%, #38bdf8 0%, transparent 45%),
                     radial-gradient(circle at 80% 70%, #a855f7 0%, transparent 50%),
                     linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #090d1a 100%);
-  transition: filter 220ms ease, transform 300ms ease;
+  transition: filter 200ms ease, transform 240ms ease;
 }
 .ds-stage-scrim {
   position: absolute;
   inset: 0;
-  transition: background 180ms ease;
+  pointer-events: none;
+  transition: background 140ms ease;
 }
-.ds-stage-mock-wrap {
+/* Full-bleed simulated app window matching actual Prism 6-layer glass layout */
+.ds-mock-window {
   position: relative;
   z-index: 2;
   flex: 1;
-  padding: 16px 16px 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ds-mock-window {
-  width: 100%;
-  height: 196px;
-  border-radius: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
-  transition: all 220ms ease;
+  padding: 9px 9px 48px;
+  gap: 7px;
+  color: #f3f6ff;
+  transition: padding 180ms ease, gap 180ms ease;
 }
-.ds-mock-window.flush { border-radius: 6px; }
+.ds-mock-window.light-preview { color: #0f172a; }
+.ds-mock-window.flush { padding: 0 0 44px; gap: 0; }
+
 .ds-mock-bar {
-  height: 26px;
-  padding: 0 10px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 10.5px;
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background 140ms ease, backdrop-filter 140ms ease;
 }
+.ds-mock-window.light-preview .ds-mock-bar { border-color: rgba(15, 23, 42, 0.1); }
+.ds-mock-window.flush .ds-mock-bar { border-radius: 0; border-left: none; border-right: none; border-top: none; }
 .ds-mock-dots { display: flex; gap: 5px; }
 .ds-mock-dots i { width: 8px; height: 8px; border-radius: 50%; display: block; }
 .ds-mock-dots i:nth-child(1) { background: #fb7185; }
 .ds-mock-dots i:nth-child(2) { background: #fbbf24; }
 .ds-mock-dots i:nth-child(3) { background: #34d399; }
+
 .ds-mock-body {
   flex: 1;
   display: grid;
-  grid-template-columns: 74px 1fr;
-  gap: 8px;
-  padding: 8px;
+  grid-template-columns: 108px 1fr;
+  gap: 7px;
+  min-height: 0;
 }
-.ds-mock-window.flush .ds-mock-body { gap: 0; padding: 0; }
+.ds-mock-window.flush .ds-mock-body { gap: 0; }
+
 .ds-mock-side, .ds-mock-pane {
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 9px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: all 220ms ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: background 140ms ease, backdrop-filter 140ms ease;
+  overflow: hidden;
 }
-.ds-mock-window.flush .ds-mock-side, .ds-mock-window.flush .ds-mock-pane {
-  border-radius: 0;
-  border-top: none;
-  border-bottom: none;
+.ds-mock-window.light-preview .ds-mock-side,
+.ds-mock-window.light-preview .ds-mock-pane { border-color: rgba(15, 23, 42, 0.1); }
+.ds-mock-window.flush .ds-mock-side,
+.ds-mock-window.flush .ds-mock-pane { border-radius: 0; border-top: none; border-bottom: none; }
+
+.ds-mock-nav-item {
+  font-size: 10.5px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  opacity: 0.78;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.ds-mock-line {
-  height: 7px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.16);
+.ds-mock-nav-item.active {
+  opacity: 1;
+  font-weight: 700;
+  background: rgba(104, 164, 255, 0.24);
+  border-left: 2.5px solid var(--accent);
 }
-.ds-mock-line.accent { background: var(--accent); opacity: 0.85; width: 65%; }
-.ds-mock-line.short { width: 48%; }
-.ds-mock-line.med { width: 78%; }
+.ds-mock-chat-q {
+  align-self: flex-end;
+  font-size: 10.5px;
+  padding: 5px 9px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: #ffffff;
+  font-weight: 500;
+  max-width: 82%;
+}
+.ds-mock-chat-a {
+  font-size: 10.5px;
+  line-height: 1.45;
+  opacity: 0.92;
+}
 .ds-mock-code-card {
-  margin-top: auto;
+  margin-top: 2px;
   border-radius: 7px;
-  padding: 7px 8px;
+  padding: 6px 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  opacity: 0.94;
+}
+.ds-mock-window.light-preview .ds-mock-code-card { border-color: rgba(15, 23, 42, 0.1); }
+.ds-mock-code-kw { color: var(--accent); font-weight: 600; }
+.ds-mock-input-bar {
+  margin-top: auto;
+  height: 24px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.16);
+  padding: 0 8px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  opacity: 0.72;
+}
+.ds-mock-window.light-preview .ds-mock-input-bar {
+  border-color: rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.45);
 }
 
 .ds-stage-foot {
   position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  z-index: 3;
-  padding: 7px 10px;
-  border-radius: 10px;
-  background: rgba(8, 11, 20, 0.72);
+  left: 9px;
+  right: 9px;
+  bottom: 8px;
+  z-index: 4;
+  padding: 6px 10px;
+  border-radius: 9px;
+  background: rgba(8, 11, 20, 0.76);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1636,17 +1686,21 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
     }).catch(function (err) { showToast('导入失败：' + err.message); });
   }
 
-  function updateLivePreviewDom(glassPct, scrimPct) {
+  function updateLivePreviewDom(clarityPct, scrimPct) {
+    var bar = document.getElementById('ds-preview-bar');
     var pane = document.getElementById('ds-preview-pane');
     var side = document.getElementById('ds-preview-side');
     var scrim = document.getElementById('ds-preview-scrim');
     var cfg = currentConfig();
     var sch = schemeInfoOf(cfg.colorScheme);
-    var gAlpha = Math.max(0.28, Math.min(0.96, glassPct / 100));
-    var sAlpha = Math.max(0, Math.min(0.88, scrimPct / 100));
-    if (pane) pane.style.background = 'rgba(' + sch.panelBg + ', ' + gAlpha.toFixed(2) + ')';
-    if (side) side.style.background = 'rgba(' + sch.panelBg + ', ' + Math.min(0.96, gAlpha + 0.06).toFixed(2) + ')';
-    if (scrim) scrim.style.background = 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
+    var isLight = cfg.themeMode === 'light';
+    var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
+    var opacity = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
+    var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
+    if (bar) bar.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.08).toFixed(2) + ')';
+    if (pane) pane.style.background = 'rgba(' + baseRgb + ', ' + opacity.toFixed(2) + ')';
+    if (side) side.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.05).toFixed(2) + ')';
+    if (scrim) scrim.style.background = isLight ? ('rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')') : ('rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')');
   }
 
   function renderHelpPopover() {
@@ -1696,28 +1750,39 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
 
   function renderPreviewAndControls(app, cfg) {
     var activeItem = activeWallpaperOf(cfg);
-    var thumbUrl = activeItem ? (activeItem.thumbUrl || (activeItem.kind === 'image' ? activeItem.mediaUrl : '')) : '';
+    var isVideo = Boolean(activeItem && activeItem.kind === 'video' && activeItem.mediaUrl);
+    var previewImgUrl = activeItem ? (activeItem.kind === 'image' ? (activeItem.mediaUrl || activeItem.thumbUrl) : activeItem.thumbUrl) : '';
     var wallTitle = activeItem ? (activeItem.title || activeItem.id) : '默认极光画布';
     var wallKind = activeItem ? (activeItem.kind === 'video' ? '视频' : activeItem.kind === 'scene' ? 'Steam场景' : activeItem.kind === 'web' ? '网页' : '壁纸') : '默认';
-    var glassPct = Math.round((Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.76)) * 100);
-    var scrimPct = Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.26)) * 100);
+    var rawGlassOpacity = Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.76);
+    var clarityPct = Math.max(4, Math.min(65, Math.round((1 - rawGlassOpacity) * 100)));
+    var scrimPct = Math.max(0, Math.min(85, Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.26)) * 100)));
     var sch = schemeInfoOf(cfg.colorScheme);
-    var gAlpha = Math.max(0.28, Math.min(0.96, glassPct / 100));
-    var sAlpha = Math.max(0, Math.min(0.88, scrimPct / 100));
+    var isLight = cfg.themeMode === 'light';
+    var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
+    var gAlpha = Math.max(0.28, Math.min(0.96, (100 - clarityPct) / 100));
+    var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
     var blurPx = cfg.glassSurfaces === false ? 0 : Math.min(20, Number(cfg.glassBlur != null ? cfg.glassBlur : 16));
     var bgBlurPx = Number(cfg.mediaBlur || 0);
     var isFlush = cfg.layoutMode === 'flush';
 
-    var bgStyle = thumbUrl
-      ? 'background-image:url(\'' + esc(thumbUrl).replace(/'/g, '%27') + '\');filter:blur(' + Math.round(bgBlurPx * 0.4) + 'px);transform:scale(' + (bgBlurPx > 0 ? '1.05' : '1') + ');'
-      : '';
-    var paneStyle = 'background:rgba(' + sch.panelBg + ', ' + gAlpha.toFixed(2) + ');backdrop-filter:blur(' + Math.round(blurPx * 0.65) + 'px);';
-    var sideStyle = 'background:rgba(' + sch.panelBg + ', ' + Math.min(0.96, gAlpha + 0.06).toFixed(2) + ');backdrop-filter:blur(' + Math.round(blurPx * 0.65) + 'px);';
+    var mediaFilterStyle = 'filter:blur(' + Math.round(bgBlurPx * 0.45) + 'px);transform:scale(' + (bgBlurPx > 0 ? '1.05' : '1') + ');';
+    var bgMediaHtml = isVideo
+      ? '<video class="ds-stage-video" src="' + esc(activeItem.mediaUrl) + '" style="' + mediaFilterStyle + '" ' + (cfg.paused ? '' : 'autoplay ') + 'loop muted playsinline></video>'
+      : '<div class="ds-stage-bg" style="' + (previewImgUrl ? ('background-image:url(\'' + esc(previewImgUrl).replace(/'/g, '%27') + '\');' + mediaFilterStyle) : '') + '"></div>';
+
+    var scrimBg = isLight
+      ? 'rgba(248, 250, 255, ' + (sAlpha * 0.68).toFixed(2) + ')'
+      : 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
+    var blurCss = 'backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);-webkit-backdrop-filter:blur(' + Math.round(blurPx * 0.7) + 'px);';
+    var barStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.08).toFixed(2) + ');' + blurCss;
+    var sideStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.05).toFixed(2) + ');' + blurCss;
+    var paneStyle = 'background:rgba(' + baseRgb + ', ' + gAlpha.toFixed(2) + ');' + blurCss;
     var codeBg = cfg.codeReadabilityMode === 'solid'
-      ? 'rgba(' + sch.panelBg + ', 0.96)'
+      ? ('rgba(' + baseRgb + ', 0.96)')
       : cfg.codeReadabilityMode === 'frosted'
-        ? 'rgba(' + sch.panelBg + ', 0.82)'
-        : 'rgba(255, 255, 255, 0.05)';
+        ? ('rgba(' + baseRgb + ', 0.84)')
+        : (isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.06)');
 
     var scenesHtml = SCENE_CARDS.map(function (sc) {
       var active = (cfg.preset || 'islands') === sc.id ? ' active' : '';
@@ -1732,36 +1797,34 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
       return '<button class="ds-scheme-dot-btn' + act + '" data-scheme="' + s.id + '"><span class="ds-swatch" style="background:' + s.dot + '"></span>' + esc(s.name) + '</button>';
     }).join('');
 
-    var glassSliderPct = Math.round(((glassPct - 35) / (96 - 35)) * 100);
+    var claritySliderPct = Math.round(((clarityPct - 4) / (65 - 4)) * 100);
     var scrimSliderPct = Math.round((scrimPct / 85) * 100);
 
     return '<div class="ds-hero-grid">' +
       '<div class="ds-stage-wrap">' +
-        '<div class="ds-stage-bg" style="' + bgStyle + '"></div>' +
-        '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')"></div>' +
-        '<div class="ds-stage-mock-wrap">' +
-          '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + '">' +
-            '<div class="ds-mock-bar" style="' + sideStyle + '">' +
-              '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
-              '<span>' + esc(app.name) + ' · 实时预览</span>' +
-              '<span style="opacity:0.6">' + (isFlush ? '一体' : '浮岛') + '</span>' +
+        bgMediaHtml +
+        '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:' + scrimBg + '"></div>' +
+        '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + (isLight ? ' light-preview' : '') + '">' +
+          '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
+            '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
+            '<span>' + esc(app.name) + ' · 效果预览</span>' +
+            '<span style="opacity:0.65">' + (isFlush ? '一体' : '浮岛') + '</span>' +
+          '</div>' +
+          '<div class="ds-mock-body">' +
+            '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
+              '<div class="ds-mock-nav-item active">当前对话</div>' +
+              '<div class="ds-mock-nav-item">项目文件</div>' +
+              '<div class="ds-mock-nav-item">插件中心</div>' +
+              '<div class="ds-mock-nav-item">外观设置</div>' +
             '</div>' +
-            '<div class="ds-mock-body">' +
-              '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
-                '<div class="ds-mock-line accent"></div>' +
-                '<div class="ds-mock-line med"></div>' +
-                '<div class="ds-mock-line short"></div>' +
-                '<div class="ds-mock-line med"></div>' +
+            '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
+              '<div class="ds-mock-chat-q">这套壁纸的文字清楚吗？</div>' +
+              '<div class="ds-mock-chat-a">拉右侧「玻璃通透感」看壁纸，拉「背景压暗」提清晰度。</div>' +
+              '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
+                '<span class="ds-mock-code-kw">const</span> theme = <span class="ds-mock-code-kw">"Prism 4.0"</span>;<br/>' +
+                'glass.opacity = ' + gAlpha.toFixed(2) + ';' +
               '</div>' +
-              '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
-                '<div class="ds-mock-line accent" style="width:42%"></div>' +
-                '<div class="ds-mock-line med"></div>' +
-                '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
-                  '<div class="ds-mock-line" style="width:82%"></div>' +
-                  '<div class="ds-mock-line short"></div>' +
-                  '<div class="ds-mock-line med"></div>' +
-                '</div>' +
-              '</div>' +
+              '<div class="ds-mock-input-bar"><span>输入消息…</span><span>↵</span></div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1781,11 +1844,11 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
         '<div class="ds-scene-grid">' + scenesHtml + '</div>' +
         '<div class="ds-sliders-stack">' +
           '<div class="ds-slider-box">' +
-            '<div class="ds-slider-head"><span>玻璃通透度</span><span class="ds-slider-val" id="val-glass">' + glassPct + '%</span></div>' +
-            '<input class="ds-range" type="range" min="35" max="96" value="' + glassPct + '" style="--pct:' + glassSliderPct + '%" data-slider="glassOpacity" />' +
+            '<div class="ds-slider-head"><span>玻璃通透感（越右越透）</span><span class="ds-slider-val" id="val-glass">' + clarityPct + '%</span></div>' +
+            '<input class="ds-range" type="range" min="4" max="65" value="' + clarityPct + '" style="--pct:' + claritySliderPct + '%" data-slider="glassClarity" />' +
           '</div>' +
           '<div class="ds-slider-box">' +
-            '<div class="ds-slider-head"><span>背景压暗护眼</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
+            '<div class="ds-slider-head"><span>背景压暗护眼（越右字越清）</span><span class="ds-slider-val" id="val-scrim">' + scrimPct + '%</span></div>' +
             '<input class="ds-range" type="range" min="0" max="85" value="' + scrimPct + '" style="--pct:' + scrimSliderPct + '%" data-slider="scrimOpacity" />' +
           '</div>' +
         '</div>' +
@@ -2106,16 +2169,20 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
         var max = Number(el.max || 100);
         var val = Number(el.value);
         el.style.setProperty('--pct', Math.round(((val - min) / (max - min)) * 100) + '%');
-        var lbl = document.getElementById(key === 'glassOpacity' ? 'val-glass' : 'val-scrim');
+        var lbl = document.getElementById(key === 'glassClarity' ? 'val-glass' : 'val-scrim');
         if (lbl) lbl.textContent = val + '%';
-        var gEl = root.querySelector('input[data-slider="glassOpacity"]');
+        var gEl = root.querySelector('input[data-slider="glassClarity"]');
         var sEl = root.querySelector('input[data-slider="scrimOpacity"]');
-        updateLivePreviewDom(gEl ? Number(gEl.value) : 76, sEl ? Number(sEl.value) : 26);
+        updateLivePreviewDom(gEl ? Number(gEl.value) : 24, sEl ? Number(sEl.value) : 26);
       });
       el.addEventListener('change', function () {
         var key = el.getAttribute('data-slider');
         var patch = {};
-        patch[key] = Math.round(Number(el.value)) / 100;
+        if (key === 'glassClarity') {
+          patch.glassOpacity = Math.round(100 - Number(el.value)) / 100;
+        } else {
+          patch[key] = Math.round(Number(el.value)) / 100;
+        }
         patchCurrentAppConfig(patch, true);
       });
     });
@@ -2283,10 +2350,15 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
             loadState();
           });
         } else if (act === 'step-next') {
-          apiJson('/api/playlists/step', { method: 'POST', body: { dir: 1 } }).then(function () {
-            showToast('已切换到下一张壁纸');
-            loadState();
-          });
+          var list = state.items || [];
+          if (!list.length) {
+            showToast('壁纸库还没有壁纸');
+            return;
+          }
+          var curWid = currentConfig().activeWallpaperId;
+          var idx = list.findIndex(function (it) { return it.id === curWid; });
+          var nextItem = list[(idx + 1 + list.length) % list.length];
+          patchCurrentAppConfig({ activeWallpaperId: nextItem.id, wallpaperId: nextItem.id, skinEnabled: true }, true);
         }
       });
     });
