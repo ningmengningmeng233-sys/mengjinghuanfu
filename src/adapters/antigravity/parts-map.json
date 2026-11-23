@@ -1,0 +1,33 @@
+{
+  "app.root": {
+    "scope": "html:has(#root), html:has(.monaco-workbench)",
+    "scopeBody": "body:has(#root), body:has(.monaco-workbench)",
+    "selector": "#root, .agy-shell, .monaco-workbench",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": ".agy-sidebar, [class*=\"bg-sidebar\"], .part.sidebar",
+    "pane": ".agy-sidebar, [class*=\"bg-sidebar\"], .part.sidebar",
+    "required": true
+  },
+  "app.topbar": {
+    "selector": ".part.titlebar, header"
+  },
+  "app.content": {
+    "selector": "[data-testid=\"conversation-view\"], .part.editor",
+    "required": true
+  },
+  "chat.messages": {
+    "selector": "[data-testid=\"conversation-view\"]"
+  },
+  "chat.composer": {
+    "selector": "[data-testid=\"agent-input-box\"], .surface-composer-card",
+    "required": true
+  },
+  "code.block": {
+    "selector": ".monaco-editor-background, pre"
+  },
+  "overlay.panel": {
+    "selector": ".agy-dialog, .agy-popover, .agy-menu, [role=\"dialog\"], [role=\"menu\"], [data-radix-popper-content-wrapper]"
+  }
+}

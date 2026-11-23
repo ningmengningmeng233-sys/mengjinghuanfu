@@ -146,6 +146,18 @@ export function validateAdapter(data, opts = {}) {
     && !(Array.isArray(data.conflicts) && data.conflicts.every((s) => typeof s === 'string'))) {
     errors.push('conflicts must be an array of strings');
   }
+  if (data.prism !== undefined) {
+    if (!isPlainObject(data.prism)) errors.push('prism must be an object');
+    else {
+      if (data.prism.defaultDebugPort !== undefined
+        && !(Number.isInteger(data.prism.defaultDebugPort) && data.prism.defaultDebugPort >= 1024 && data.prism.defaultDebugPort <= 65535)) {
+        errors.push('prism.defaultDebugPort must be an integer port between 1024 and 65535');
+      }
+      if (data.prism.browserHoleSupport !== undefined && typeof data.prism.browserHoleSupport !== 'boolean') {
+        errors.push('prism.browserHoleSupport must be a boolean');
+      }
+    }
+  }
   // Optional shells list (A-2, plan A-2: one app hosted by several shells,
   // the channel is chosen per shell). Declarative only: a shell without
   // exeNames can never be auto-detected and stays an explicit choice.

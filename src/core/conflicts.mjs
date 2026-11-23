@@ -10,11 +10,27 @@
 // codex-dream-skin（其产品名与本机安装目录 ~/.codex/codex-dream-skin-studio 同此名）；
 // 确切 id 待 V-A10 真机验证（把对方实际注入的 style id 读出来）后补进 styleIds 并订正。
 // 我们自己的 style id 是 dream-skin-2-<适配器 id>（core/app-runtime.mjs 推导），与对方不同（§3）。
+import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
 export const FOREIGN_SKIN_TOOLS = {
   'codex-dream-skin': {
     name: 'Codex-Dream-Skin',
     styleIds: [],
     styleIdPrefixes: ['codex-dream-skin'],
+  },
+  'obsidian-prism': {
+    name: 'Obsidian Prism 插件',
+    pluginDir: 'obsidian-prism',
+    styleIds: ['obsidian-prism-css', 'obsidian-prism-style'],
+    styleIdPrefixes: ['obsidian-prism'],
+  },
+  'agy-plugin-wallpaper-engine': {
+    name: '旧版 Wallpaper Studio 插件',
+    pluginDir: 'agy-plugin-wallpaper-engine',
+    styleIds: ['agy-ws-css'],
+    styleIdPrefixes: ['agy-ws-'],
   },
 };
 
@@ -53,4 +69,59 @@ export function detectForeignStyles(pageStyleIds, { ownIds = [], tools = [] } = 
 export function foreignStyleMessage(appName, hit) {
   return `${appName} 的页面里已经有 ${hit.name} 注入的样式（${hit.hits.join('、')}），两个换肤工具同时注入会互相打架。`
     + `梦境换肤这次没有注入任何样式：请先在 ${hit.name} 里还原或退出，再用梦境换肤；或者继续用 ${hit.name}，二选一。`;
+}
+
+// 只读检测本机已安装且启用中的冲突插件（如 Antigravity 的 obsidian-prism / 旧版 wallpaper-engine）。
+// 绝不修改 ~/.gemini/config/config.json 或任何插件目录。
+export function detectInstalledPluginConflicts({ app, pluginsDir, configPath } = {}) {
+  const tools = conflictToolsOf(app);
+  if (!tools.length) return [];
+  const geminiCfgDir = process.env.ANTIGRAVITY_CONFIG_DIR || join(homedir(), '.gemini', 'config');
+  const pDir = pluginsDir || join(geminiCfgDir, 'plugins');
+  const cPath = configPath || join(geminiCfgDir, 'config.json');
+
+  let hostCfg = null;
+  try {
+    if (existsSync(cPath)) {
+      hostCfg = JSON.parse(readFileSync(cPath, 'utf8').replace(/^\uFEFF/, ''));
+    }
+  } catch {
+    hostCfg = null;
+  }
+
+  const hits = [];
+  for (const t of tools) {
+    const def = FOREIGN_SKIN_TOOLS[t.id];
+    if (!def || !def.pluginDir) continue;
+    const dir = join(pDir, def.pluginDir);
+    if (!existsSync(dir)) continue;
+
+    // Check manifest disabled flag
+    let manifestDisabled = false;
+    try {
+      const mf = join(dir, 'plugin.json');
+      if (existsSync(mf)) {
+        const parsed = JSON.parse(readFileSync(mf, 'utf8').replace(/^\uFEFF/, ''));
+        manifestDisabled = parsed?.disabled === true;
+      }
+    } catch {
+      // treat unreadable manifest as not explicitly disabled
+    }
+
+    // Check host config.json override (read-only)
+    const cfgEntry = hostCfg?.plugins?.[def.pluginDir];
+    let enabled = !manifestDisabled;
+    if (cfgEntry && typeof cfgEntry.enabled === 'boolean') {
+      enabled = cfgEntry.enabled;
+    }
+    if (!enabled) continue;
+
+    hits.push({
+      tool: t.id,
+      name: def.name,
+      pluginDir: def.pluginDir,
+      message: `检测到你已经开启了「${def.name}」，它和梦境换肤同时开启可能会让界面样式互相打架。建议先在插件管理里关掉其中一个，再用另一个。`,
+    });
+  }
+  return hits;
 }

@@ -1,0 +1,10 @@
+/* Dream Skin {{version}} · Antigravity (2.34.0 Hub + IDE Workbench) Prism Guardrails */
+html[data-agy-prism-skin][data-has-browser-hole="true"],
+html[data-agy-prism-skin][data-has-browser-hole="true"] body {
+  background: transparent !important;
+}
+html[data-agy-prism-skin] [data-browser-hole]:not([data-browser-hole="false"]) {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}

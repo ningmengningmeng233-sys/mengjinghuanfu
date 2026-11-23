@@ -1,0 +1,65 @@
+{
+  "channel": "exe",
+  "conflicts": [
+    "obsidian-prism",
+    "agy-plugin-wallpaper-engine"
+  ],
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\antigravity\\Antigravity.exe",
+      "%LOCALAPPDATA%\\Programs\\Antigravity\\Antigravity.exe",
+      "%LOCALAPPDATA%\\Antigravity\\Antigravity.exe",
+      "%ProgramFiles%\\Antigravity\\Antigravity.exe"
+    ],
+    "envExe": "DREAMSKIN_ANTIGRAVITY_EXE",
+    "exeNames": [
+      "Antigravity.exe"
+    ],
+    "mac": {
+      "bundle": "Antigravity",
+      "source": "agy-wallpaper-prism 既有 macOS 路径 /Applications/Antigravity.app，未在真 Mac 实测",
+      "status": "unverified"
+    },
+    "macBundle": "Antigravity",
+    "uninstallDisplayName": "Antigravity"
+  },
+  "extraCss": "extra.css",
+  "id": "antigravity",
+  "name": "Antigravity (反重力)",
+  "partsMap": "parts-map.json",
+  "prism": {
+    "browserHoleSupport": true,
+    "defaultDebugPort": 9339
+  },
+  "probes": [
+    [
+      ".agy-shell, #root",
+      "主界面"
+    ],
+    [
+      ".agy-sidebar, [class*=\"bg-sidebar\"], .part.sidebar",
+      "侧边栏"
+    ],
+    [
+      "[data-testid=\"conversation-view\"], .part.editor",
+      "工作区"
+    ],
+    [
+      "[data-testid=\"agent-input-box\"], .surface-composer-card",
+      "输入框"
+    ]
+  ],
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "readySelector": "#root, .monaco-workbench",
+  "restartNote": "开启原图标自动生效后，无需立刻重启，下次正常打开即自动加载皮肤",
+  "schema": "dreamskin-adapter/1",
+  "target": {
+    "rejectPattern": "(?:devtools|plugin://)",
+    "urlPattern": "^https?://(?:127\\.0\\.0\\.1|localhost):[0-9]+/"
+  },
+  "testedVersions": [
+    "2.34.0"
+  ]
+}

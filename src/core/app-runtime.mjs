@@ -53,9 +53,15 @@ function candidatesOf(data) {
 export function makeIsMainTarget(target = {}) {
   const urlRe = target.urlPattern ? new RegExp(target.urlPattern + '(?:[?#].*)?$', 'i') : null;
   const rejectRe = target.rejectPattern ? new RegExp(target.rejectPattern, 'i') : null;
-  const declared = /^\^?([A-Za-z][A-Za-z0-9+.-]*):\/\//.exec(String(target.urlPattern || ''));
-  const scheme = declared ? declared[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : 'file';
-  const schemeRe = new RegExp('^' + scheme + '://', 'i');
+  const pat = String(target.urlPattern || '');
+  let schemeRe;
+  if (/^\^?https\?:\/\//i.test(pat)) {
+    schemeRe = /^https?:\/\//i;
+  } else {
+    const declared = /^\^?([A-Za-z][A-Za-z0-9+.-]*):\/\//.exec(pat);
+    const scheme = declared ? declared[1].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : 'file';
+    schemeRe = new RegExp('^' + scheme + '://', 'i');
+  }
   return (item, port) => {
     if (item?.type !== 'page' || typeof item.id !== 'string' || !item.webSocketDebuggerUrl) return false;
     const url = String(item.url ?? '');
@@ -119,6 +125,10 @@ function buildProfile(data, rootDir) {
     msixPackageFamily: (data.discover && data.discover.msixPackageFamily) || '',
     // 已知冲突的其他换肤工具（§4.2 conflicts，如 codex 的 codex-dream-skin），通道做冲突检测时用。
     conflicts: data.conflicts || [],
+    prism: {
+      defaultDebugPort: (data.prism && Number.isInteger(data.prism.defaultDebugPort)) ? data.prism.defaultDebugPort : 0,
+      browserHoleSupport: Boolean(data.prism && data.prism.browserHoleSupport),
+    },
     // 多外壳声明（A-2）：同一应用的不同外壳各走自己的通道（见 selectShell）。
     shells: (data.shells || []).map((s) => ({
       id: s.id, name: s.name || s.id, channel: s.channel, exeNames: s.exeNames || [],
