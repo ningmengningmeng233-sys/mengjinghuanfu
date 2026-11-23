@@ -3487,9 +3487,38 @@
     return { installed: false };
   }
 
+  function setupPanicShortcutGuard() {
+    var escTimes = [];
+    var onPanicKey = function (ev) {
+      if (destroyed) return;
+      var k = String(ev && ev.key || '');
+      var isChord = ev && ev.ctrlKey && ev.altKey && ev.shiftKey && (k === 'R' || k === 'r');
+      if (isChord) {
+        try { if (W.__agyPrismPanel && W.__agyPrismPanel.destroy) W.__agyPrismPanel.destroy(); } catch (_) {}
+        destroy();
+        return;
+      }
+      if (k === 'Escape') {
+        var now = Date.now();
+        escTimes = escTimes.filter(function (ts) { return now - ts <= 1800; });
+        escTimes.push(now);
+        if (escTimes.length >= 4) {
+          escTimes = [];
+          try { if (W.__agyPrismPanel && W.__agyPrismPanel.destroy) W.__agyPrismPanel.destroy(); } catch (_) {}
+          destroy();
+        }
+      }
+    };
+    W.addEventListener('keydown', onPanicKey, true);
+    cleanups.push(function () {
+      try { W.removeEventListener('keydown', onPanicKey, true); } catch (_) {}
+    });
+  }
+
   setupFocusHandbackGuard();
   setupLifecycleMonitors();
   setupPointerHooks();
+  setupPanicShortcutGuard();
 
   var api = {
     version: VERSION,
