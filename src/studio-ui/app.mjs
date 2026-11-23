@@ -708,7 +708,7 @@
           '<div class="ds-brand">' +
             brandIconHtml +
             '<div class="ds-brand-text">' +
-              '<div class="ds-brand-title">梦境换肤 <span class="ds-ver-badge">PRISM ' + esc(state.version) + '</span></div>' +
+              '<div class="ds-brand-title">梦境换肤 <span class="ds-ver-badge">v' + esc(state.version) + '</span></div>' +
               '<div class="ds-brand-sub">液态玻璃与动态壁纸</div>' +
             '</div>' +
           '</div>' +
