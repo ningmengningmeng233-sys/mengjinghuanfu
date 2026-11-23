@@ -15,7 +15,7 @@
 
 <br />
 
-[![Version](https://img.shields.io/badge/v4.0.0-0f172a?style=flat-square&labelColor=0f172a&color=67e8f9)](https://github.com/ningmengningmeng233-sys/dreamskin-prism/releases)
+[![Version](https://img.shields.io/badge/v4.0.0-0f172a?style=flat-square&labelColor=0f172a&color=67e8f9)](https://github.com/ningmengningmeng233-sys/mengjinghuanfu/releases)
 &nbsp;
 [![License](https://img.shields.io/badge/MIT-0f172a?style=flat-square&labelColor=0f172a&color=a78bfa)](LICENSE)
 &nbsp;
@@ -90,7 +90,7 @@
 ## 四、极简上手
 
 ### 1. 独立原生桌面软件（Windows）
-前往 [Releases](https://github.com/ningmengningmeng233-sys/dreamskin-prism/releases) 下载 `梦境换肤-Windows-4.0.0.zip`，解压后直接双击 **`梦境换肤-4.0.0-Windows.exe`**。内置独立运行环境，无需安装 Node.js，开启系统托盘静默守护。
+前往 [Releases](https://github.com/ningmengningmeng233-sys/mengjinghuanfu/releases) 下载 `梦境换肤-Windows-4.0.0.zip`，解压后直接双击 **`梦境换肤-4.0.0-Windows.exe`**。内置独立运行环境，无需安装 Node.js，开启系统托盘静默守护。
 
 ### 2. 反重力（Antigravity）原生侧边栏
 将仓库中的 `plugin/` 安装至 `~/.gemini/config/plugins/dreamskin-prism`，即可直接在反重力右侧边栏呼出控制面板。双入口共享同一本地后台与配置，实时同步，**0 Agent Token 消耗**。
