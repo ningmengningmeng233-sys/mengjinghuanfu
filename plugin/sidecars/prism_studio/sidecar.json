@@ -1,0 +1,21 @@
+{
+  "command": "node",
+  "args": ["main.mjs"],
+  "restart_policy": "on-failure",
+  "display_name": "梦境换肤 Prism",
+  "description": "梦境换肤 4.0 Prism 侧边栏工作台：零 Token 控制 Antigravity 与其他桌面软件的动态壁纸、液态玻璃皮肤与省电调度。",
+  "has_web_ui": true,
+  "agent_permissions": {
+    "allows_user_interactions": false
+  },
+  "ui_config": {
+    "display_name": "梦境换肤 Prism",
+    "views": [
+      {
+        "path": "/",
+        "entrypoint": "SIDECAR_UI_ENTRYPOINT_AUX_PANE",
+        "title": "梦境换肤 Prism"
+      }
+    ]
+  }
+}

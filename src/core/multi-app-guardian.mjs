@@ -356,7 +356,7 @@ export function createMultiAppGuardian({
   if (!skipInitialScan) {
     setTimeout(() => {
       if (!stopped) refreshAppsStatus().catch(() => {});
-    }, 300).unref?.();
+    }, 5000).unref?.();
   }
 
   return {

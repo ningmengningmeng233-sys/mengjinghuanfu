@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="prismFrame" x1="36" y1="30" x2="220" y2="226" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E2436" />
+      <stop offset="52%" stop-color="#121521" />
+      <stop offset="100%" stop-color="#0B0D14" />
+    </linearGradient>
+    <linearGradient id="prismRim" x1="32" y1="28" x2="224" y2="228" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#93C5FD" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#A58AF8" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#50A37B" stop-opacity="0.75" />
+    </linearGradient>
+    <linearGradient id="facetLeft" x1="72" y1="62" x2="128" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8AB4F8" />
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.72" />
+    </linearGradient>
+    <linearGradient id="facetRight" x1="128" y1="62" x2="188" y2="196" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#CBA6F7" />
+      <stop offset="55%" stop-color="#7AA2F7" />
+      <stop offset="100%" stop-color="#50A37B" />
+    </linearGradient>
+  </defs>
+  <rect x="28" y="28" width="200" height="200" rx="46" fill="url(#prismFrame)" stroke="url(#prismRim)" stroke-width="5" />
+  <path d="M52 40H204" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="2.5" stroke-linecap="round" />
+  <polygon points="128,58 76,132 128,198" fill="url(#facetLeft)" />
+  <polygon points="128,58 180,132 128,198" fill="url(#facetRight)" />
+  <polygon points="128,58 102,132 128,154 154,132" fill="#FFFFFF" fill-opacity="0.26" />
+  <polygon points="128,58 76,132 128,198 180,132" stroke="#F8FAFC" stroke-opacity="0.9" stroke-width="3.5" stroke-linejoin="round" />
+</svg>

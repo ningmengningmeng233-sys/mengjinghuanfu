@@ -346,8 +346,13 @@ export async function createWallpaperPrismEngine(opts = {}) {
         steamPrimaryRoot = warm.discovery?.weInstallDir || '';
         syncPublicLibrary();
         scheduleDeferredRefresh(Number(opts.deferredScanDelayMs) || 4000);
-      } else {
+      } else if (opts.blockingInitialScan) {
         await performScan(false);
+      } else {
+        // Non-blocking cold boot: bind HTTP/Sidecar immediately (<100ms) and scan Steam/local in background
+        rawLibraryItems = [];
+        syncPublicLibrary();
+        scheduleDeferredRefresh(4000);
       }
 
       playlist.syncTimer();
@@ -364,12 +369,15 @@ export async function createWallpaperPrismEngine(opts = {}) {
 
   async function listLibrary({ refresh = false } = {}) {
     if (!initialized) await init();
-    if (refresh || publicLibraryItems.length === 0) {
-      if (refresh && deferredScanTimer) {
+    if (refresh) {
+      if (deferredScanTimer) {
         clearTimeout(deferredScanTimer);
         deferredScanTimer = null;
       }
-      return performScan(Boolean(refresh));
+      return performScan(true);
+    }
+    if (publicLibraryItems.length === 0 && !opts.skipStartupScan && !scanInFlight && !deferredScanTimer) {
+      scheduleDeferredRefresh(100);
     }
     return {
       items: publicLibraryItems,

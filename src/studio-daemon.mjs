@@ -208,10 +208,10 @@ export async function startStudioDaemon(opts = {}) {
     pauseOnBattery: v4Store.global.pauseOnBattery !== false,
   });
 
+  let cachedLibItems = [];
   const getActiveItemForApp = (_appId, effCfg) => {
-    const items = engine.listLibrary().items || [];
     const wid = effCfg?.activeWallpaperId || '';
-    return items.find((i) => i.id === wid) || engine.getActiveItem() || items[0] || null;
+    return cachedLibItems.find((i) => i.id === wid) || engine.getActiveItem() || cachedLibItems[0] || null;
   };
 
   const guardian = createMultiAppGuardian({
@@ -226,8 +226,9 @@ export async function startStudioDaemon(opts = {}) {
 
   const token = String(opts.token || randomBytes(24).toString('hex'));
 
-  function buildFullState() {
-    const lib = engine.listLibrary();
+  async function buildFullState() {
+    const lib = await engine.listLibrary();
+    cachedLibItems = Array.isArray(lib?.items) ? lib.items : [];
     return {
       ok: true,
       version: VERSION,
@@ -235,9 +236,9 @@ export async function startStudioDaemon(opts = {}) {
       mediaOrigin: engine.getMediaOrigin(),
       v4Store,
       apps: guardian.listAppsFast(),
-      items: lib.items || [],
+      items: cachedLibItems,
       stats: engine.getStats(),
-      presets: engine.listPresets(),
+      presets: await engine.listPresets(),
       scenePresets: SCENE_PRESETS,
       scenePresetIds: SCENE_PRESET_IDS,
       colorSchemes: COLOR_SCHEMES,
@@ -289,12 +290,14 @@ export async function startStudioDaemon(opts = {}) {
       }
 
       if (method === 'GET' && pathname === '/api/state') {
-        sendJson(res, 200, buildFullState());
+        sendJson(res, 200, await buildFullState());
         return;
       }
 
       if (method === 'GET' && pathname === '/api/library') {
-        sendJson(res, 200, { ok: true, ...engine.listLibrary(), stats: engine.getStats() });
+        const lib = await engine.listLibrary();
+        cachedLibItems = Array.isArray(lib?.items) ? lib.items : [];
+        sendJson(res, 200, { ok: true, ...lib, stats: engine.getStats() });
         return;
       }
 
@@ -555,6 +558,7 @@ export async function startStudioDaemon(opts = {}) {
     closed = true;
     guardian.stopPolling();
     lockHandle.release();
+    try { server.closeIdleConnections?.(); server.closeAllConnections?.(); } catch {}
     await new Promise((r) => server.close(() => r()));
     await engine.close();
   }
