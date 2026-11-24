@@ -51,7 +51,7 @@ $zipInfo = Get-Item $zipPath
 Write-Host ("    packed {0} files, zip size {1:N0} bytes" -f $files.Count, $zipInfo.Length)
 
 Write-Host "[3/3] Building launcher ($Configuration)..."
-& dotnet build "src/launcher" -c $Configuration
+& dotnet build "src/launcher" -c $Configuration /nodeReuse:false --nologo
 if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with exit code $LASTEXITCODE" }
 $exe = Get-ChildItem (Join-Path $root "src\launcher\bin\$Configuration\net48\*.exe") | Select-Object -First 1
 Write-Host ("Done: {0} ({1:N0} bytes, FileVersion {2})" -f $exe.FullName, $exe.Length, $exe.VersionInfo.FileVersion)

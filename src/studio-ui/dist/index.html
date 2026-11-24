@@ -1681,9 +1681,9 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
   'use strict';
 
   var SCENE_CARDS = [
-    { id: 'crystal', icon: '✦', name: '水晶超清', desc: '超清透亮，壁纸锐利', patch: { preset: 'crystal', layoutMode: 'islands', glassOpacity: 0.36, scrimOpacity: 0.06, glassBlur: 3, mediaBlur: 0, glassSurfaces: true, paused: false } },
+    { id: 'crystal', icon: '✦', name: '水晶超清', desc: '超清透亮，壁纸锐利', patch: { preset: 'crystal', layoutMode: 'islands', glassOpacity: 0.30, scrimOpacity: 0.04, glassBlur: 0, mediaBlur: 0, glassSurfaces: true, paused: false } },
     { id: 'islands', icon: '◈', name: '日常平衡', desc: '壁纸清晰又护眼', patch: { preset: 'islands', layoutMode: 'islands', glassOpacity: 0.56, scrimOpacity: 0.14, glassBlur: 8, mediaBlur: 0, glassSurfaces: true, paused: false } },
-    { id: 'focus', icon: '◐', name: '专注护眼', desc: '柔焦压暗，看字轻松', patch: { preset: 'focus', layoutMode: 'flush', glassOpacity: 0.78, scrimOpacity: 0.34, glassBlur: 14, mediaBlur: 4, glassSurfaces: true, paused: false } },
+    { id: 'focus', icon: '◐', name: '专注护眼', desc: '柔焦压暗，看字轻松', patch: { preset: 'focus', layoutMode: 'flush', glassOpacity: 0.76, scrimOpacity: 0.34, glassBlur: 18, mediaBlur: 4, glassSurfaces: true, paused: false } },
     { id: 'eco', icon: '🍃', name: '省电静音', desc: '极简定格，几乎不耗电', patch: { preset: 'eco', layoutMode: 'flush', glassOpacity: 0.88, scrimOpacity: 0.26, glassBlur: 0, mediaBlur: 0, glassSurfaces: false, paused: true } },
   ];
 
@@ -1712,7 +1712,6 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
     codex: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0F171A" stroke="#34D399" stroke-width="2"/><circle cx="32" cy="32" r="14" stroke="#E2E8F0" stroke-width="3"/><path d="M25 28L30 32L25 36M33 36H40" stroke="#34D399" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     dsh: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0E172A" stroke="#60A5FA" stroke-width="2"/><path d="M16 36C18 24 27 18 37 20C43 21 48 26 49 33C45 31 41 32 38 35C35 39 28 43 20 41C17 40 15.5 38.5 16 36Z" fill="#3B82F6"/></svg>'),
     'minimax-code': 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#1C131C" stroke="#FB923C" stroke-width="2"/><path d="M16 42V22L27 34L37 22V42M43 25L49 32L43 39" stroke="#FB923C" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
-    'minimax-design': 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#1A1224" stroke="#F472B6" stroke-width="2"/><circle cx="28" cy="30" r="11" fill="#EC4899" fill-opacity=".85"/><circle cx="38" cy="36" r="10" fill="#60A5FA" fill-opacity=".7"/></svg>'),
     zcode: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#131126" stroke="#A78BFA" stroke-width="2"/><path d="M19 20H45L20 44H45" stroke="#A78BFA" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     kiro: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#18122B" stroke="#C084FC" stroke-width="2"/><path d="M20 46V29C20 21 25.5 16 32 16C38.5 16 44 21 44 29V46L38 41.5L32 46L26 41.5L20 46Z" fill="#C084FC"/></svg>'),
     windsurf: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0D1E22" stroke="#2DD4BF" stroke-width="2"/><path d="M17 42C22 28 31 20 46 18C41 28 37 35 39 44C32 41 25 40 17 42Z" fill="#2DD4BF"/></svg>'),
@@ -2234,26 +2233,46 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
     var pane = document.getElementById('ds-preview-pane');
     var side = document.getElementById('ds-preview-side');
     var scrim = document.getElementById('ds-preview-scrim');
+    var badge = document.getElementById('ds-preview-mode-badge');
+    var codeEl = document.getElementById('ds-preview-code');
     var cfg = currentConfig();
     var sch = schemeInfoOf(cfg.colorScheme);
     var isLight = cfg.themeMode === 'light';
     var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
-    var opacity = Math.max(0.18, Math.min(0.96, (100 - clarityPct) / 100));
+    var opacity = Math.max(0.16, Math.min(0.96, (100 - clarityPct) / 100));
+    var paneAlpha = Math.max(0.14, Math.min(0.88, opacity * 0.78));
+    var sideAlpha = Math.max(0.18, Math.min(0.92, paneAlpha + 0.06));
+    var barAlpha = Math.max(0.22, Math.min(0.94, paneAlpha + 0.10));
     var sAlpha = Math.max(0, Math.min(0.85, scrimPct / 100));
-    var bf = blurPx > 0 ? ('blur(' + blurPx + 'px) saturate(1.22)') : 'none';
+    var bf = blurPx > 0 ? ('blur(' + blurPx + 'px) saturate(1.32)') : 'none';
+    var frostBorder = blurPx > 0
+      ? (isLight ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255, 255, 255, 0.16)')
+      : (isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(147, 197, 253, 0.24)');
     if (bar) {
-      bar.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.08).toFixed(2) + ')';
+      bar.style.background = 'rgba(' + baseRgb + ', ' + barAlpha.toFixed(2) + ')';
       bar.style.backdropFilter = bf;
+      bar.style.webkitBackdropFilter = bf;
+      bar.style.borderColor = frostBorder;
     }
     if (pane) {
-      pane.style.background = 'rgba(' + baseRgb + ', ' + opacity.toFixed(2) + ')';
+      pane.style.background = 'rgba(' + baseRgb + ', ' + paneAlpha.toFixed(2) + ')';
       pane.style.backdropFilter = bf;
+      pane.style.webkitBackdropFilter = bf;
+      pane.style.borderColor = frostBorder;
     }
     if (side) {
-      side.style.background = 'rgba(' + baseRgb + ', ' + Math.min(0.96, opacity + 0.05).toFixed(2) + ')';
+      side.style.background = 'rgba(' + baseRgb + ', ' + sideAlpha.toFixed(2) + ')';
       side.style.backdropFilter = bf;
+      side.style.webkitBackdropFilter = bf;
+      side.style.borderColor = frostBorder;
     }
     if (scrim) scrim.style.background = isLight ? ('rgba(248, 250, 255, ' + (sAlpha * 0.65).toFixed(2) + ')') : ('rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')');
+    if (badge) {
+      badge.textContent = blurPx === 0 ? '0px 原画超清' : ('毛玻璃 ' + blurPx + 'px');
+    }
+    if (codeEl) {
+      codeEl.innerHTML = '<span class="ds-mock-code-kw">const</span> prism = { blur: <span class="ds-mock-code-kw">' + blurPx + 'px</span>, clarity: <span class="ds-mock-code-kw">"' + clarityPct + '%"</span> };';
+    }
   }
 
   function renderHelpPopover() {
@@ -2317,7 +2336,10 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
     var sch = schemeInfoOf(cfg.colorScheme);
     var isLight = cfg.themeMode === 'light';
     var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
-    var gAlpha = Math.max(0.18, Math.min(0.96, (100 - clarityPct) / 100));
+    var gAlpha = Math.max(0.16, Math.min(0.96, (100 - clarityPct) / 100));
+    var paneAlpha = Math.max(0.14, Math.min(0.88, gAlpha * 0.78));
+    var sideAlpha = Math.max(0.18, Math.min(0.92, paneAlpha + 0.06));
+    var barAlpha = Math.max(0.22, Math.min(0.94, paneAlpha + 0.10));
     var sAlpha = Math.max(0, Math.min(0.82, scrimPct / 100));
     var bgBlurPx = Number(cfg.mediaBlur || 0);
     var isFlush = cfg.layoutMode === 'flush';
@@ -2341,11 +2363,11 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
       ? 'rgba(248, 250, 255, ' + (sAlpha * 0.65).toFixed(2) + ')'
       : 'rgba(6, 9, 18, ' + sAlpha.toFixed(2) + ')';
     var blurCss = blurPx > 0
-      ? ('backdrop-filter:blur(' + blurPx + 'px) saturate(1.22);-webkit-backdrop-filter:blur(' + blurPx + 'px) saturate(1.22);')
+      ? ('backdrop-filter:blur(' + blurPx + 'px) saturate(1.32);-webkit-backdrop-filter:blur(' + blurPx + 'px) saturate(1.32);')
       : 'backdrop-filter:none;-webkit-backdrop-filter:none;';
-    var barStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.08).toFixed(2) + ');' + blurCss;
-    var sideStyle = 'background:rgba(' + baseRgb + ', ' + Math.min(0.96, gAlpha + 0.05).toFixed(2) + ');' + blurCss;
-    var paneStyle = 'background:rgba(' + baseRgb + ', ' + gAlpha.toFixed(2) + ');' + blurCss;
+    var barStyle = 'background:rgba(' + baseRgb + ', ' + barAlpha.toFixed(2) + ');' + blurCss;
+    var sideStyle = 'background:rgba(' + baseRgb + ', ' + sideAlpha.toFixed(2) + ');' + blurCss;
+    var paneStyle = 'background:rgba(' + baseRgb + ', ' + paneAlpha.toFixed(2) + ');' + blurCss;
     var codeBg = cfg.codeReadabilityMode === 'solid'
       ? ('rgba(' + baseRgb + ', 0.96)')
       : cfg.codeReadabilityMode === 'frosted'
@@ -2383,7 +2405,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
           '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
             '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
             '<span>' + esc(app.name) + ' · 效果预览</span>' +
-            '<span style="opacity:0.65">' + (blurPx === 0 ? '原画锐利' : (isFlush ? '一体' : '浮岛')) + '</span>' +
+            '<span id="ds-preview-mode-badge" style="opacity:0.78">' + (blurPx === 0 ? '0px 原画超清' : ('毛玻璃 ' + blurPx + 'px')) + '</span>' +
           '</div>' +
           '<div class="ds-mock-body">' +
             '<div class="ds-mock-side" id="ds-preview-side" style="' + sideStyle + '">' +
@@ -2395,7 +2417,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
             '<div class="ds-mock-pane" id="ds-preview-pane" style="' + paneStyle + '">' +
               '<div class="ds-mock-chat-q">壁纸现在够清楚吗？</div>' +
               '<div class="ds-mock-chat-a">把「毛玻璃模糊」拉低或点「水晶超清」，壁纸细节就能纤毫毕现。</div>' +
-              '<div class="ds-mock-code-card" style="background:' + codeBg + '">' +
+              '<div class="ds-mock-code-card" id="ds-preview-code" style="background:' + codeBg + '">' +
                 '<span class="ds-mock-code-kw">const</span> prism = { blur: <span class="ds-mock-code-kw">' + blurPx + 'px</span>, clarity: <span class="ds-mock-code-kw">"' + clarityPct + '%"</span> };' +
               '</div>' +
               '<div class="ds-mock-input-bar"><span>输入消息…</span><span>↵</span></div>' +
