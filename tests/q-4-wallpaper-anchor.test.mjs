@@ -14,7 +14,7 @@ import { resolvePalette } from '../src/theme/palettes.mjs';
 
 const PALETTE = resolvePalette('ink-gold');
 const PHOTO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
-const APPS = ['cherry', 'zcode', 'codex', 'dsh', 'minimax-design', 'minimax-code'];
+const APPS = ['cherry', 'zcode', 'codex', 'dsh', 'minimax-code'];
 const scopeBodyOf = (id) => appRuntimeById(id).partsMap['app.root'].scopeBody;
 
 test('photo wallpaper rule is derived from each app scopeBody', () => {

@@ -42,11 +42,11 @@ test('readyWaitFor: DSH 就绪窗口最长（Web UI 渲染晚），其余统一 
   assert.ok(readyWaitFor({ id: 'dsh' }) > readyWaitFor({ id: 'minimax-code' }));
 });
 
-test('recheck-baseline.json: 六家齐全、版本与探查口径与预期 mode 都在', () => {
+test('recheck-baseline.json: 五家齐全、版本与探查口径与预期 mode 都在', () => {
   const baseline = JSON.parse(readFileSync(join(HERE, '..', 'tools', 'recheck-baseline.json'), 'utf8'));
   assert.equal(baseline.schema, 'dreamskin-recheck-baseline/1');
   const ids = baseline.apps.map((a) => a.id).sort();
-  assert.deepEqual(ids, ['cherry', 'codex', 'dsh', 'minimax-code', 'minimax-design', 'zcode']);
+  assert.deepEqual(ids, ['cherry', 'codex', 'dsh', 'minimax-code', 'zcode']);
   for (const app of baseline.apps) {
     assert.ok(app.version && app.version.length > 0, app.id + ' 应有基线版本');
     assert.ok(app.probe && (app.probe.kind === 'registry' || app.probe.kind === 'appx'), app.id + ' 应有探查口径');
@@ -55,14 +55,6 @@ test('recheck-baseline.json: 六家齐全、版本与探查口径与预期 mode 
   }
   const dsh = baseline.apps.find((a) => a.id === 'dsh');
   assert.ok(dsh.startWaitMs >= DSH_MIN_WAIT_MS, 'DSH 基线等待窗口不得低于 15 分钟');
-});
-
-test('recheck-baseline.json: MiniMax Design 慢启动窗口下限（Q-4 修正）', () => {
-  // 240 秒窗口曾连续误判（韧性批 3 次 + Q-4 批入口 3 次主窗口超时，实例其后正常出窗），
-  // 基线窗口按实测上调到与 DSH 同档（18 分钟），防止改回去重蹈误判。
-  const baseline = JSON.parse(readFileSync(join(HERE, '..', 'tools', 'recheck-baseline.json'), 'utf8'));
-  const md = baseline.apps.find((a) => a.id === 'minimax-design');
-  assert.ok(md.startWaitMs >= DSH_MIN_WAIT_MS, 'MiniMax Design 基线等待窗口不得低于 15 分钟');
 });
 
 test('recheck 工具 exe 启动走产品 exe 通道（与入口 ensurePort 同口径，Q-4 接线守卫）', () => {

@@ -149,7 +149,7 @@ test('e2e headless browser: Studio UI two-tier simplicity + Antigravity Hub hole
     assert.equal(uiCheck.drawerCollapsed, true, 'Advanced tweaks drawer must be collapsed by default');
     assert.ok(uiCheck.visibleSliderCount <= 3, `Default view must show <= 3 sliders, got ${uiCheck.visibleSliderCount}`);
     assert.equal(uiCheck.sceneCards, 4, 'Default view must display 4 simple scene preset cards');
-    assert.equal(uiCheck.appItems, 9, 'App switcher must list all 9 adapters including Antigravity');
+    assert.equal(uiCheck.appItems, 8, 'App switcher must list all 8 adapters including Antigravity');
     await browser1.close();
     browser1 = null;
 

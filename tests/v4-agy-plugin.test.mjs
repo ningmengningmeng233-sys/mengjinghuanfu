@@ -84,7 +84,7 @@ test('agy-plugin: install-agy-plugin.mjs copies real files (no junctions) and cr
       });
       assert.equal(st.ok, true);
       assert.equal(st.version, '4.0.0');
-      assert.equal(st.apps.length, 9);
+      assert.equal(st.apps.length, 8);
     } finally {
       try { child.stdout.destroy(); } catch {}
       try { child.stderr.destroy(); } catch {}

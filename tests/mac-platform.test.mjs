@@ -127,7 +127,6 @@ test('Windows 行为不变：六家 profile 的 channel / exeName / macBundle �
     codex: { channel: 'msix', exeName: 'ChatGPT.exe', macBundle: 'Codex' },
     dsh: { channel: 'exe', exeName: 'DSH Desktop.exe', macBundle: 'DSH Desktop', candidates: 1 },
     'minimax-code': { channel: 'exe', exeName: 'MiniMax Code.exe', macBundle: 'MiniMax Code', candidates: 1 },
-    'minimax-design': { channel: 'exe', exeName: 'MiniMax Design.exe', macBundle: 'MiniMax Design', candidates: 1 },
   };
   for (const [id, w] of Object.entries(want)) {
     const p = appRuntimeById(id);

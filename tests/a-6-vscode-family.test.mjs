@@ -30,11 +30,11 @@ test("base: skeleton only uses catalogue part ids and app.root is fully formed",
   assert.equal(baseMap["app.root"].selector, ".monaco-workbench");
 });
 
-test("registry: all nine adapters (including antigravity) load; vscode-base stays a non-adapter", () => {
+test("registry: all eight adapters (including antigravity) load; vscode-base stays a non-adapter", () => {
   const { adapters, errors } = loadAdapters();
   assert.deepEqual(errors, []);
   assert.deepEqual(adapters.map((a) => a.id).sort(), [
-    "antigravity", "cherry", "codex", "dsh", "kiro", "minimax-code", "minimax-design", "windsurf", "zcode",
+    "antigravity", "cherry", "codex", "dsh", "kiro", "minimax-code", "windsurf", "zcode",
   ]);
 });
 

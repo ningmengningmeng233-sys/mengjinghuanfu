@@ -6,7 +6,7 @@ import { getHostSkinScript, getHostPanelScript, buildClientSkinPayload } from '.
 import { appRuntimeById } from '../src/core/app-runtime.mjs';
 
 test('prism-bridge: compiles all existing adapters parts-map to --prism-* CSS with scroll perf guardrail', () => {
-  for (const appId of ['cherry', 'zcode', 'codex', 'dsh', 'minimax-code', 'minimax-design']) {
+  for (const appId of ['cherry', 'zcode', 'codex', 'dsh', 'minimax-code']) {
     const profile = appRuntimeById(appId);
     const out = compileAdapterPrismCss({
       appId,

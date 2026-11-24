@@ -32,18 +32,6 @@ test('codex (msix) main target is the measured app:// window', () => {
   assert.equal(p.isMainTarget(item('app://-/index.html', port, { type: 'other' }), port), false);
 });
 
-test('minimax-design main target is the measured app://./workspace', () => {
-  const p = appRuntimeById('minimax-design');
-  const port = 9222;
-  assert.equal(p.isMainTarget(item('app://./workspace', port), port), true);
-  // 实测 URL 带工作区标识 query，仍须命中（后缀 (?:[?#].*)?$ 口径）。
-  assert.equal(p.isMainTarget(item('app://./workspace?ws=abc', port), port), true);
-  assert.equal(p.isMainTarget(item('app://./archon', port), port), false);
-  assert.equal(p.isMainTarget(item('file://./workspace', port), port), false);
-  // 回环 http 没有实测声明，不在本批放行范围。
-  assert.equal(p.isMainTarget(item('http://127.0.0.1:9222/workspace', port), port), false);
-});
-
 test('minimax-code main target is the measured app://./archon only', () => {
   const p = appRuntimeById('minimax-code');
   const port = 9222;

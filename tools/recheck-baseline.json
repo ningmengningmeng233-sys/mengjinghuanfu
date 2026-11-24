@@ -55,19 +55,6 @@
                      "startWaitMs":  1080000
                  },
                  {
-                     "id":  "minimax-design",
-                     "name":  "MiniMax Design",
-                     "version":  "3.0.13",
-                     "probe":  {
-                                   "kind":  "registry",
-                                   "displayNamePattern":  "^MiniMax Design$"
-                               },
-                     "partsTotal":  9,
-                     "partsRequired":  4,
-                     "expectedMode":  "full",
-                     "startWaitMs":  1080000
-                 },
-                 {
                      "id":  "minimax-code",
                      "name":  "MiniMax Code",
                      "version":  "3.1.0",
