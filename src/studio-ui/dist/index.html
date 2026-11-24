@@ -193,7 +193,7 @@ body::after {
   flex-shrink: 0;
 }
 
-/* Sidebar app list */
+/* Sidebar app list with magnetic sliding glass indicator & hover pill */
 .ds-apps-scroll {
   flex: 1;
   overflow-y: auto;
@@ -201,6 +201,51 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  position: relative;
+}
+.ds-nav-indicator {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 0;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(92, 225, 230, 0.16), rgba(104, 164, 255, 0.18) 52%, rgba(167, 139, 250, 0.14));
+  border: 1px solid rgba(126, 178, 255, 0.46);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24), 0 0 18px rgba(104, 164, 255, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  will-change: transform, height;
+  transition: transform 340ms cubic-bezier(0.32, 1.25, 0.48, 1), height 240ms ease, opacity 180ms ease;
+}
+.ds-nav-indicator::before {
+  content: '';
+  position: absolute;
+  left: -1px;
+  top: 20%;
+  bottom: 20%;
+  width: 3.5px;
+  border-radius: 99px;
+  background: linear-gradient(180deg, #5ce1e6, #68a4ff, #a78bfa);
+  box-shadow: 0 0 12px rgba(92, 225, 230, 0.85);
+}
+.ds-nav-indicator.instant {
+  transition: none !important;
+}
+.ds-nav-hover {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 0;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.055);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), height 180ms ease, opacity 160ms ease;
 }
 .ds-nav-group-label {
   font-size: 11px;
@@ -211,6 +256,8 @@ body::after {
   align-items: center;
   justify-content: space-between;
   letter-spacing: 0.3px;
+  position: relative;
+  z-index: 1;
 }
 .ds-app-row {
   display: flex;
@@ -224,20 +271,30 @@ body::after {
   color: var(--fg-2);
   cursor: pointer;
   text-align: left;
-  transition: all 150ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: color 180ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 180ms ease;
   position: relative;
+  z-index: 1;
 }
 .ds-app-row:hover {
-  background: var(--bg-hover);
   color: var(--fg);
+}
+.ds-app-row:active {
+  transform: scale(0.975);
 }
 .ds-app-row.uninstalled { opacity: 0.56; }
 .ds-app-row.uninstalled:hover, .ds-app-row.uninstalled.active { opacity: 1; }
 .ds-app-row.active {
-  background: linear-gradient(135deg, rgba(104, 164, 255, 0.18), rgba(167, 139, 250, 0.12));
-  border-color: rgba(126, 178, 255, 0.42);
+  background: transparent;
+  border-color: transparent;
   color: var(--fg);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.ds-app-row.active .ds-app-icon-wrap {
+  transform: scale(1.06);
+  border-color: rgba(147, 197, 253, 0.42);
+  box-shadow: 0 4px 12px rgba(104, 164, 255, 0.25);
+}
+.ds-app-row .ds-app-icon-wrap {
+  transition: transform 280ms cubic-bezier(0.32, 1.25, 0.48, 1), border-color 220ms ease, box-shadow 220ms ease;
 }
 .ds-app-icon-wrap {
   width: 30px;
@@ -1566,6 +1623,29 @@ details.prism-adv-drawer > summary::-webkit-details-marker { display: none; }
   contain: layout style paint;
 }
 
+/* Directional fluid transition for right workspace when switching sidebar apps */
+@keyframes dsSlideFromBelow {
+  0% { opacity: 0.18; transform: translate3d(0, 14px, 0) scale(0.992); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes dsSlideFromAbove {
+  0% { opacity: 0.18; transform: translate3d(0, -14px, 0) scale(0.992); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes dsHeaderPop {
+  0% { opacity: 0.25; transform: translate3d(-8px, 0, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+.ds-body.ds-dir-down > * {
+  animation: dsSlideFromBelow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ds-body.ds-dir-up > * {
+  animation: dsSlideFromAbove 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ds-header-left.ds-hdr-enter {
+  animation: dsHeaderPop 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 </style>
 </head>
 <body>
@@ -2058,7 +2138,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
         triggerPrismSweep(false);
       }
     } else {
-      render({ preserveScroll: true, mediaSweep: isWallChange });
+      renderMainOnly({ preserveScroll: true, mediaSweep: isWallChange });
     }
 
     return apiJson('/api/apps/' + encodeURIComponent(appId) + '/config', {
@@ -2098,7 +2178,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
   function installAndApplyDynamicTheme(dynId) {
     var dyn = findDynamicTheme(dynId);
     state.previewDynamicId = dynId;
-    render({ preserveScroll: true, mediaSweep: true });
+    renderMainOnly({ preserveScroll: true, mediaSweep: true });
     showToast('正在加载动态主题「' + (dyn ? dyn.title : dynId) + '」…');
     apiJson('/api/dynamic-themes/' + encodeURIComponent(dynId) + '/install', { method: 'POST', body: {} }).then(function (res) {
       var patch = { skinEnabled: true };
@@ -2567,6 +2647,85 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
     '</button>';
   }
 
+  function renderMainInner(app, cfg) {
+    return '<header class="ds-header">' +
+      '<div class="ds-header-left" id="ds-header-left">' +
+        appIconHtml(app.id, 'ds-cur-app-icon') +
+        '<span class="ds-cur-title">' + esc(app.name) + '</span>' +
+        '<span class="ds-status-pill ' + statusPillClass(app) + '"><span class="ds-dot ' + dotClass(app) + '"></span>' + esc(appStatusText(app)) + '</span>' +
+      '</div>' +
+      '<div class="ds-header-right">' +
+        '<label class="ds-switch" title="开启或暂停对此软件的换肤">' +
+          '<input type="checkbox" id="ds-app-enabled-toggle"' + (cfg.skinEnabled !== false ? ' checked' : '') + ' />' +
+          '<span class="ds-switch-track"></span>' +
+          '<span>' + (cfg.skinEnabled !== false ? '开启' : '暂停') + '</span>' +
+        '</label>' +
+        '<button class="ds-btn primary sm" data-action="apply-cur">✦ 应用到软件</button>' +
+        '<div class="ds-tabs">' +
+          '<button class="ds-tab' + (state.activeTab === 'home' ? ' active' : '') + '" data-tab="home">外观</button>' +
+          '<button class="ds-tab' + (state.activeTab === 'apps' ? ' active' : '') + '" data-tab="apps">软件</button>' +
+        '</div>' +
+        '<button class="ds-btn sm ghost" data-action="toggle-guide" title="速查说明">?</button>' +
+      '</div>' +
+    '</header>' +
+    '<section class="ds-body">' +
+      (state.activeTab === 'home' ? renderHome(app, cfg) : renderAppsTab()) +
+    '</section>';
+  }
+
+  function positionSidebarIndicator(animate) {
+    var nav = document.getElementById('ds-apps-scroll');
+    var ind = document.getElementById('ds-nav-indicator');
+    if (!nav || !ind) return;
+    var activeBtn = nav.querySelector('.ds-app-row.active');
+    if (!activeBtn) {
+      ind.style.opacity = '0';
+      return;
+    }
+    if (!animate) ind.classList.add('instant');
+    ind.style.height = activeBtn.offsetHeight + 'px';
+    ind.style.transform = 'translate3d(0, ' + activeBtn.offsetTop + 'px, 0)';
+    ind.style.opacity = '1';
+    if (!animate) {
+      void ind.offsetWidth;
+      ind.classList.remove('instant');
+    }
+  }
+
+  function renderMainOnly(opts) {
+    opts = opts || {};
+    var mainEl = document.getElementById('ds-main');
+    if (!mainEl) { render(opts); return; }
+    var prevBodyScroll = 0;
+    if (opts.preserveScroll) {
+      var pb = mainEl.querySelector('.ds-body');
+      if (pb) prevBodyScroll = pb.scrollTop;
+    }
+    var app = currentApp();
+    var cfg = currentConfig();
+    applyAmbientAccent(cfg);
+    mainEl.innerHTML = renderMainInner(app, cfg);
+    bindEvents(mainEl, true);
+    renderToastOnly();
+    if (opts.preserveScroll) {
+      var nb = mainEl.querySelector('.ds-body');
+      if (nb && prevBodyScroll) nb.scrollTop = prevBodyScroll;
+    }
+    var bodyEl = mainEl.querySelector('.ds-body');
+    var hdrEl = mainEl.querySelector('#ds-header-left');
+    if (bodyEl) {
+      if (opts.direction === 'up') bodyEl.classList.add('ds-dir-up');
+      else if (opts.direction === 'down') bodyEl.classList.add('ds-dir-down');
+      else if (opts.tabAnimate) bodyEl.classList.add('ds-tab-enter');
+    }
+    if (hdrEl && opts.direction) {
+      hdrEl.classList.add('ds-hdr-enter');
+    }
+    if (opts.mediaSweep) {
+      triggerPrismSweep(true);
+    }
+  }
+
   function render(opts) {
     var root = document.getElementById('app');
     if (!root) return;
@@ -2591,7 +2750,9 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
       ? '<img class="ds-brand-icon" src="' + iconUri + '" alt="梦境换肤" />'
       : '<span class="ds-app-icon-wrap">' + appIconHtml('antigravity') + '</span>';
 
-    var appListHtml = '<div class="ds-nav-group-label"><span>本机软件（' + installedApps.length + '）</span></div>' +
+    var appListHtml = '<div class="ds-nav-hover" id="ds-nav-hover"></div>' +
+      '<div class="ds-nav-indicator" id="ds-nav-indicator"></div>' +
+      '<div class="ds-nav-group-label"><span>本机软件（' + installedApps.length + '）</span></div>' +
       installedApps.map(function (a) { return renderAppRow(a, app.id); }).join('');
 
     if (otherApps.length > 0) {
@@ -2612,37 +2773,15 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
               '<div class="ds-brand-sub">液态玻璃与动态壁纸</div>' +
             '</div>' +
           '</div>' +
-          '<div class="ds-apps-scroll">' + appListHtml + '</div>' +
+          '<div class="ds-apps-scroll" id="ds-apps-scroll">' + appListHtml + '</div>' +
           '<div class="ds-sidebar-foot">' +
             '<button class="ds-btn primary" data-action="sync-all">同步外观到全部</button>' +
             '<button class="ds-btn danger" data-action="restore-cur">还原当前软件</button>' +
           '</div>' +
         '</aside>' +
 
-        '<main class="ds-main">' +
-          '<header class="ds-header">' +
-            '<div class="ds-header-left">' +
-              appIconHtml(app.id, 'ds-cur-app-icon') +
-              '<span class="ds-cur-title">' + esc(app.name) + '</span>' +
-              '<span class="ds-status-pill ' + statusPillClass(app) + '"><span class="ds-dot ' + dotClass(app) + '"></span>' + esc(appStatusText(app)) + '</span>' +
-            '</div>' +
-            '<div class="ds-header-right">' +
-              '<label class="ds-switch" title="开启或暂停对此软件的换肤">' +
-                '<input type="checkbox" id="ds-app-enabled-toggle"' + (cfg.skinEnabled !== false ? ' checked' : '') + ' />' +
-                '<span class="ds-switch-track"></span>' +
-                '<span>' + (cfg.skinEnabled !== false ? '开启' : '暂停') + '</span>' +
-              '</label>' +
-              '<button class="ds-btn primary sm" data-action="apply-cur">✦ 应用到软件</button>' +
-              '<div class="ds-tabs">' +
-                '<button class="ds-tab' + (state.activeTab === 'home' ? ' active' : '') + '" data-tab="home">外观</button>' +
-                '<button class="ds-tab' + (state.activeTab === 'apps' ? ' active' : '') + '" data-tab="apps">软件</button>' +
-              '</div>' +
-              '<button class="ds-btn sm ghost" data-action="toggle-guide" title="速查说明">?</button>' +
-            '</div>' +
-          '</header>' +
-          '<section class="ds-body">' +
-            (state.activeTab === 'home' ? renderHome(app, cfg) : renderAppsTab()) +
-          '</section>' +
+        '<main class="ds-main" id="ds-main">' +
+          renderMainInner(app, cfg) +
         '</main>' +
       '</div>' +
       '<div class="ds-drop-overlay' + (state.draggingOver ? ' show' : '') + '" id="ds-drop-overlay">' +
@@ -2651,8 +2790,9 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
       '<input type="file" id="ds-file-input" style="display:none" accept="image/*,video/mp4,video/webm,.mov" />' +
       '<input type="file" id="ds-dsskin-input" style="display:none" accept=".dsskin,application/json" />';
 
-    bindEvents(root);
+    bindEvents(root, false);
     renderToastOnly();
+    positionSidebarIndicator(false);
     if (opts.preserveScroll) {
       var nextBody = root.querySelector('.ds-body');
       var nextNav = root.querySelector('.ds-apps-scroll');
@@ -2668,7 +2808,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
     }
   }
 
-  function bindEvents(root) {
+  function bindEvents(root, mainOnly) {
     root.querySelectorAll('img[data-fallback-src]').forEach(function (img) {
       img.addEventListener('error', function () {
         var fb = img.getAttribute('data-fallback-src');
@@ -2691,20 +2831,56 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
       peekBtn.addEventListener('pointercancel', endPeek);
     }
 
-    root.querySelectorAll('[data-app-id]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        state.selectedAppId = btn.getAttribute('data-app-id');
-        state.previewDynamicId = '';
-        state.showTakeoverSteps = false;
-        render({ tabAnimate: true, mediaSweep: true });
-        loadShortcutStatus();
+    if (!mainOnly) {
+      var navScroll = root.querySelector('#ds-apps-scroll');
+      var hoverPill = root.querySelector('#ds-nav-hover');
+      var rows = Array.prototype.slice.call(root.querySelectorAll('.ds-app-row[data-app-id]'));
+
+      if (navScroll && hoverPill) {
+        navScroll.addEventListener('mouseleave', function () {
+          hoverPill.style.opacity = '0';
+        });
+      }
+
+      rows.forEach(function (btn, idx) {
+        if (hoverPill) {
+          btn.addEventListener('mouseenter', function () {
+            if (btn.classList.contains('active')) {
+              hoverPill.style.opacity = '0';
+              return;
+            }
+            hoverPill.style.height = btn.offsetHeight + 'px';
+            hoverPill.style.transform = 'translate3d(0, ' + btn.offsetTop + 'px, 0)';
+            hoverPill.style.opacity = '1';
+          });
+        }
+        btn.addEventListener('click', function () {
+          var nextId = btn.getAttribute('data-app-id');
+          if (nextId === state.selectedAppId) return;
+          var prevBtn = navScroll ? navScroll.querySelector('.ds-app-row.active') : null;
+          var prevIdx = prevBtn ? rows.indexOf(prevBtn) : -1;
+          var dir = (prevIdx >= 0 && idx < prevIdx) ? 'up' : 'down';
+
+          state.selectedAppId = nextId;
+          state.previewDynamicId = '';
+          state.showTakeoverSteps = false;
+
+          // Keep sidebar DOM intact -> magnetic indicator glides with spring physics!
+          rows.forEach(function (r) { r.classList.toggle('active', r === btn); });
+          if (hoverPill) hoverPill.style.opacity = '0';
+          positionSidebarIndicator(true);
+          renderMainOnly({ direction: dir, mediaSweep: true });
+          loadShortcutStatus();
+        });
       });
-    });
+    }
 
     root.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        state.activeTab = btn.getAttribute('data-tab');
-        render({ tabAnimate: true });
+        var nextTab = btn.getAttribute('data-tab');
+        if (nextTab === state.activeTab) return;
+        state.activeTab = nextTab;
+        renderMainOnly({ tabAnimate: true });
       });
     });
 
@@ -2715,7 +2891,7 @@ window.__PRISM_ICON_URI__="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAAC
         if (nextMode === 'classic' && !state.galleryItems.length && !state.galleryLoading) {
           loadGallery();
         } else {
-          render();
+          renderMainOnly({ preserveScroll: true, tabAnimate: true });
         }
       });
     });

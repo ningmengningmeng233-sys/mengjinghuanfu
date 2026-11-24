@@ -459,7 +459,7 @@
         triggerPrismSweep(false);
       }
     } else {
-      render({ preserveScroll: true, mediaSweep: isWallChange });
+      renderMainOnly({ preserveScroll: true, mediaSweep: isWallChange });
     }
 
     return apiJson('/api/apps/' + encodeURIComponent(appId) + '/config', {
@@ -499,7 +499,7 @@
   function installAndApplyDynamicTheme(dynId) {
     var dyn = findDynamicTheme(dynId);
     state.previewDynamicId = dynId;
-    render({ preserveScroll: true, mediaSweep: true });
+    renderMainOnly({ preserveScroll: true, mediaSweep: true });
     showToast('正在加载动态主题「' + (dyn ? dyn.title : dynId) + '」…');
     apiJson('/api/dynamic-themes/' + encodeURIComponent(dynId) + '/install', { method: 'POST', body: {} }).then(function (res) {
       var patch = { skinEnabled: true };
@@ -968,6 +968,85 @@
     '</button>';
   }
 
+  function renderMainInner(app, cfg) {
+    return '<header class="ds-header">' +
+      '<div class="ds-header-left" id="ds-header-left">' +
+        appIconHtml(app.id, 'ds-cur-app-icon') +
+        '<span class="ds-cur-title">' + esc(app.name) + '</span>' +
+        '<span class="ds-status-pill ' + statusPillClass(app) + '"><span class="ds-dot ' + dotClass(app) + '"></span>' + esc(appStatusText(app)) + '</span>' +
+      '</div>' +
+      '<div class="ds-header-right">' +
+        '<label class="ds-switch" title="开启或暂停对此软件的换肤">' +
+          '<input type="checkbox" id="ds-app-enabled-toggle"' + (cfg.skinEnabled !== false ? ' checked' : '') + ' />' +
+          '<span class="ds-switch-track"></span>' +
+          '<span>' + (cfg.skinEnabled !== false ? '开启' : '暂停') + '</span>' +
+        '</label>' +
+        '<button class="ds-btn primary sm" data-action="apply-cur">✦ 应用到软件</button>' +
+        '<div class="ds-tabs">' +
+          '<button class="ds-tab' + (state.activeTab === 'home' ? ' active' : '') + '" data-tab="home">外观</button>' +
+          '<button class="ds-tab' + (state.activeTab === 'apps' ? ' active' : '') + '" data-tab="apps">软件</button>' +
+        '</div>' +
+        '<button class="ds-btn sm ghost" data-action="toggle-guide" title="速查说明">?</button>' +
+      '</div>' +
+    '</header>' +
+    '<section class="ds-body">' +
+      (state.activeTab === 'home' ? renderHome(app, cfg) : renderAppsTab()) +
+    '</section>';
+  }
+
+  function positionSidebarIndicator(animate) {
+    var nav = document.getElementById('ds-apps-scroll');
+    var ind = document.getElementById('ds-nav-indicator');
+    if (!nav || !ind) return;
+    var activeBtn = nav.querySelector('.ds-app-row.active');
+    if (!activeBtn) {
+      ind.style.opacity = '0';
+      return;
+    }
+    if (!animate) ind.classList.add('instant');
+    ind.style.height = activeBtn.offsetHeight + 'px';
+    ind.style.transform = 'translate3d(0, ' + activeBtn.offsetTop + 'px, 0)';
+    ind.style.opacity = '1';
+    if (!animate) {
+      void ind.offsetWidth;
+      ind.classList.remove('instant');
+    }
+  }
+
+  function renderMainOnly(opts) {
+    opts = opts || {};
+    var mainEl = document.getElementById('ds-main');
+    if (!mainEl) { render(opts); return; }
+    var prevBodyScroll = 0;
+    if (opts.preserveScroll) {
+      var pb = mainEl.querySelector('.ds-body');
+      if (pb) prevBodyScroll = pb.scrollTop;
+    }
+    var app = currentApp();
+    var cfg = currentConfig();
+    applyAmbientAccent(cfg);
+    mainEl.innerHTML = renderMainInner(app, cfg);
+    bindEvents(mainEl, true);
+    renderToastOnly();
+    if (opts.preserveScroll) {
+      var nb = mainEl.querySelector('.ds-body');
+      if (nb && prevBodyScroll) nb.scrollTop = prevBodyScroll;
+    }
+    var bodyEl = mainEl.querySelector('.ds-body');
+    var hdrEl = mainEl.querySelector('#ds-header-left');
+    if (bodyEl) {
+      if (opts.direction === 'up') bodyEl.classList.add('ds-dir-up');
+      else if (opts.direction === 'down') bodyEl.classList.add('ds-dir-down');
+      else if (opts.tabAnimate) bodyEl.classList.add('ds-tab-enter');
+    }
+    if (hdrEl && opts.direction) {
+      hdrEl.classList.add('ds-hdr-enter');
+    }
+    if (opts.mediaSweep) {
+      triggerPrismSweep(true);
+    }
+  }
+
   function render(opts) {
     var root = document.getElementById('app');
     if (!root) return;
@@ -992,7 +1071,9 @@
       ? '<img class="ds-brand-icon" src="' + iconUri + '" alt="梦境换肤" />'
       : '<span class="ds-app-icon-wrap">' + appIconHtml('antigravity') + '</span>';
 
-    var appListHtml = '<div class="ds-nav-group-label"><span>本机软件（' + installedApps.length + '）</span></div>' +
+    var appListHtml = '<div class="ds-nav-hover" id="ds-nav-hover"></div>' +
+      '<div class="ds-nav-indicator" id="ds-nav-indicator"></div>' +
+      '<div class="ds-nav-group-label"><span>本机软件（' + installedApps.length + '）</span></div>' +
       installedApps.map(function (a) { return renderAppRow(a, app.id); }).join('');
 
     if (otherApps.length > 0) {
@@ -1013,37 +1094,15 @@
               '<div class="ds-brand-sub">液态玻璃与动态壁纸</div>' +
             '</div>' +
           '</div>' +
-          '<div class="ds-apps-scroll">' + appListHtml + '</div>' +
+          '<div class="ds-apps-scroll" id="ds-apps-scroll">' + appListHtml + '</div>' +
           '<div class="ds-sidebar-foot">' +
             '<button class="ds-btn primary" data-action="sync-all">同步外观到全部</button>' +
             '<button class="ds-btn danger" data-action="restore-cur">还原当前软件</button>' +
           '</div>' +
         '</aside>' +
 
-        '<main class="ds-main">' +
-          '<header class="ds-header">' +
-            '<div class="ds-header-left">' +
-              appIconHtml(app.id, 'ds-cur-app-icon') +
-              '<span class="ds-cur-title">' + esc(app.name) + '</span>' +
-              '<span class="ds-status-pill ' + statusPillClass(app) + '"><span class="ds-dot ' + dotClass(app) + '"></span>' + esc(appStatusText(app)) + '</span>' +
-            '</div>' +
-            '<div class="ds-header-right">' +
-              '<label class="ds-switch" title="开启或暂停对此软件的换肤">' +
-                '<input type="checkbox" id="ds-app-enabled-toggle"' + (cfg.skinEnabled !== false ? ' checked' : '') + ' />' +
-                '<span class="ds-switch-track"></span>' +
-                '<span>' + (cfg.skinEnabled !== false ? '开启' : '暂停') + '</span>' +
-              '</label>' +
-              '<button class="ds-btn primary sm" data-action="apply-cur">✦ 应用到软件</button>' +
-              '<div class="ds-tabs">' +
-                '<button class="ds-tab' + (state.activeTab === 'home' ? ' active' : '') + '" data-tab="home">外观</button>' +
-                '<button class="ds-tab' + (state.activeTab === 'apps' ? ' active' : '') + '" data-tab="apps">软件</button>' +
-              '</div>' +
-              '<button class="ds-btn sm ghost" data-action="toggle-guide" title="速查说明">?</button>' +
-            '</div>' +
-          '</header>' +
-          '<section class="ds-body">' +
-            (state.activeTab === 'home' ? renderHome(app, cfg) : renderAppsTab()) +
-          '</section>' +
+        '<main class="ds-main" id="ds-main">' +
+          renderMainInner(app, cfg) +
         '</main>' +
       '</div>' +
       '<div class="ds-drop-overlay' + (state.draggingOver ? ' show' : '') + '" id="ds-drop-overlay">' +
@@ -1052,8 +1111,9 @@
       '<input type="file" id="ds-file-input" style="display:none" accept="image/*,video/mp4,video/webm,.mov" />' +
       '<input type="file" id="ds-dsskin-input" style="display:none" accept=".dsskin,application/json" />';
 
-    bindEvents(root);
+    bindEvents(root, false);
     renderToastOnly();
+    positionSidebarIndicator(false);
     if (opts.preserveScroll) {
       var nextBody = root.querySelector('.ds-body');
       var nextNav = root.querySelector('.ds-apps-scroll');
@@ -1069,7 +1129,7 @@
     }
   }
 
-  function bindEvents(root) {
+  function bindEvents(root, mainOnly) {
     root.querySelectorAll('img[data-fallback-src]').forEach(function (img) {
       img.addEventListener('error', function () {
         var fb = img.getAttribute('data-fallback-src');
@@ -1092,20 +1152,56 @@
       peekBtn.addEventListener('pointercancel', endPeek);
     }
 
-    root.querySelectorAll('[data-app-id]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        state.selectedAppId = btn.getAttribute('data-app-id');
-        state.previewDynamicId = '';
-        state.showTakeoverSteps = false;
-        render({ tabAnimate: true, mediaSweep: true });
-        loadShortcutStatus();
+    if (!mainOnly) {
+      var navScroll = root.querySelector('#ds-apps-scroll');
+      var hoverPill = root.querySelector('#ds-nav-hover');
+      var rows = Array.prototype.slice.call(root.querySelectorAll('.ds-app-row[data-app-id]'));
+
+      if (navScroll && hoverPill) {
+        navScroll.addEventListener('mouseleave', function () {
+          hoverPill.style.opacity = '0';
+        });
+      }
+
+      rows.forEach(function (btn, idx) {
+        if (hoverPill) {
+          btn.addEventListener('mouseenter', function () {
+            if (btn.classList.contains('active')) {
+              hoverPill.style.opacity = '0';
+              return;
+            }
+            hoverPill.style.height = btn.offsetHeight + 'px';
+            hoverPill.style.transform = 'translate3d(0, ' + btn.offsetTop + 'px, 0)';
+            hoverPill.style.opacity = '1';
+          });
+        }
+        btn.addEventListener('click', function () {
+          var nextId = btn.getAttribute('data-app-id');
+          if (nextId === state.selectedAppId) return;
+          var prevBtn = navScroll ? navScroll.querySelector('.ds-app-row.active') : null;
+          var prevIdx = prevBtn ? rows.indexOf(prevBtn) : -1;
+          var dir = (prevIdx >= 0 && idx < prevIdx) ? 'up' : 'down';
+
+          state.selectedAppId = nextId;
+          state.previewDynamicId = '';
+          state.showTakeoverSteps = false;
+
+          // Keep sidebar DOM intact -> magnetic indicator glides with spring physics!
+          rows.forEach(function (r) { r.classList.toggle('active', r === btn); });
+          if (hoverPill) hoverPill.style.opacity = '0';
+          positionSidebarIndicator(true);
+          renderMainOnly({ direction: dir, mediaSweep: true });
+          loadShortcutStatus();
+        });
       });
-    });
+    }
 
     root.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        state.activeTab = btn.getAttribute('data-tab');
-        render({ tabAnimate: true });
+        var nextTab = btn.getAttribute('data-tab');
+        if (nextTab === state.activeTab) return;
+        state.activeTab = nextTab;
+        renderMainOnly({ tabAnimate: true });
       });
     });
 
@@ -1116,7 +1212,7 @@
         if (nextMode === 'classic' && !state.galleryItems.length && !state.galleryLoading) {
           loadGallery();
         } else {
-          render();
+          renderMainOnly({ preserveScroll: true, tabAnimate: true });
         }
       });
     });
