@@ -17,6 +17,8 @@
 
 [![Version](https://img.shields.io/badge/v4.0.0-0f172a?style=flat-square&labelColor=0f172a&color=67e8f9)](https://github.com/ningmengningmeng233-sys/mengjinghuanfu/releases)
 &nbsp;
+[![Author](https://img.shields.io/badge/Author-lemon-0f172a?style=flat-square&labelColor=0f172a&color=f9a8d4)](https://github.com/ningmengningmeng233-sys/mengjinghuanfu)
+&nbsp;
 [![License](https://img.shields.io/badge/MIT-0f172a?style=flat-square&labelColor=0f172a&color=a78bfa)](LICENSE)
 &nbsp;
 [![Non-Invasive](https://img.shields.io/badge/app.asar-零侵入-0f172a?style=flat-square&labelColor=0f172a&color=34d399)](#克制的边界)
@@ -144,6 +146,6 @@ node --test "tests/*.test.mjs"                                          # 294 �
 
 *愿每一次打开屏幕，都像推开一扇通透的窗。*
 
-如果 **DreamSkin Prism** 曾让你的桌面变得更顺眼一点，欢迎点一颗 ⭐ **Star**。
+Crafted by **lemon** · 如果 **DreamSkin Prism** 曾让你的桌面变得更顺眼一点，欢迎点一颗 ⭐ **Star**。
 
 </div>

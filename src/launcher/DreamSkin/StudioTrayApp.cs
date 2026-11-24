@@ -532,7 +532,7 @@ internal sealed class PrismSplashCanvas : Panel
 			g.FillRectangle(fillBrush, barX, barY, fillW, barH);
 		}
 
-		g.DrawString("光影落入界面 · 克制成就通透", footFont, footBrush, cx, cy + 168f, sf);
+		g.DrawString("光影落入界面 · 克制成就通透  ·  by lemon", footFont, footBrush, cx, cy + 168f, sf);
 	}
 
 	protected override void Dispose(bool disposing)

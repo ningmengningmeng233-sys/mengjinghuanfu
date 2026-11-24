@@ -1091,7 +1091,7 @@
             brandIconHtml +
             '<div class="ds-brand-text">' +
               '<div class="ds-brand-title">梦境换肤 <span class="ds-ver-badge">v' + esc(state.version) + '</span></div>' +
-              '<div class="ds-brand-sub">液态玻璃与动态壁纸</div>' +
+              '<div class="ds-brand-sub">液态玻璃 · by lemon</div>' +
             '</div>' +
           '</div>' +
           '<div class="ds-apps-scroll" id="ds-apps-scroll">' + appListHtml + '</div>' +
