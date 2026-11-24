@@ -75,10 +75,10 @@ test('studio-daemon: unified API enforces token, isolates per-app configs, syncs
     const unauth = await reqJson(`${base}/api/config`, { method: 'POST', body: { glassOpacity: 0.7 } });
     assert.equal(unauth.status, 401);
 
-    // 4. GET /api/state returns 9 adapters including antigravity
+    // 4. GET /api/state returns 8 adapters including antigravity
     const st = await reqJson(`${base}/api/state`);
     assert.equal(st.status, 200);
-    assert.equal(st.json.apps.length, 9);
+    assert.equal(st.json.apps.length, 8);
     assert.ok(st.json.apps.some((a) => a.id === 'antigravity'));
 
     // 5. Per-app independent config does not pollute sibling app
