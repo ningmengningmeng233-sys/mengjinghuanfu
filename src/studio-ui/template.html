@@ -10,12 +10,29 @@
 </head>
 <body>
   <div id="app" data-prism-ready="false">
-    <div class="ds-boot">
-      <img class="ds-boot-icon" src="<!-- PRISM_ICON_DATA_URI -->" alt="梦境换肤 Prism" />
+    <div class="ds-boot" id="ds-boot-screen">
+      <div class="ds-boot-halo">
+        <div class="ds-boot-ring"></div>
+        <div class="ds-boot-ring r2"></div>
+        <img class="ds-boot-icon" src="<!-- PRISM_ICON_DATA_URI -->" alt="梦境换肤 Prism" />
+      </div>
       <div class="ds-boot-title">梦境换肤 Prism</div>
-      <div class="ds-boot-sub">正在唤醒本地换肤管家…</div>
+      <div class="ds-boot-sub" id="ds-boot-tip">正在唤醒棱镜光学引擎…</div>
+      <div class="ds-boot-bar"><div class="ds-boot-bar-fill"></div></div>
     </div>
   </div>
+  <script>
+    (function () {
+      var tips = ['正在唤醒棱镜光学引擎…', '正在识别本机 AI 软件与原图标…', '正在铺展 6 层液态玻璃画境…', '马上就好，静候光影落入界面…'];
+      var idx = 0;
+      var timer = setInterval(function () {
+        var el = document.getElementById('ds-boot-tip');
+        if (!el) { clearInterval(timer); return; }
+        idx = (idx + 1) % tips.length;
+        el.textContent = tips[idx];
+      }, 1150);
+    })();
+  </script>
   <!-- PRISM_INLINE_SCRIPT -->
 </body>
 </html>

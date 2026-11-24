@@ -276,9 +276,14 @@
       state.shortcutInfo = null;
       return;
     }
+    var reqAppId = app.id;
     apiJson('/api/apps/' + encodeURIComponent(app.id) + '/shortcuts').then(function (info) {
+      if (state.selectedAppId !== reqAppId) return;
+      var prevEnabled = state.shortcutInfo && state.shortcutInfo.enabled;
       state.shortcutInfo = info;
-      render();
+      if (state.activeTab === 'apps' && prevEnabled !== (info && info.enabled)) {
+        render({ preserveScroll: true });
+      }
     }).catch(function () {});
   }
 
@@ -318,20 +323,164 @@
     });
   }
 
+  var OPTICAL_ONLY_KEYS = {
+    preset: 1, glassOpacity: 1, glassBlur: 1, glassSurfaces: 1, scrimOpacity: 1,
+    mediaBlur: 1, colorScheme: 1, filterPreset: 1, layoutMode: 1, themeMode: 1,
+    codeReadabilityMode: 1, accentMode: 1, paused: 1,
+  };
+
+  function isOpticalOnlyPatch(patch) {
+    if (!patch || typeof patch !== 'object') return false;
+    var keys = Object.keys(patch);
+    if (!keys.length) return false;
+    for (var i = 0; i < keys.length; i++) {
+      if (!OPTICAL_ONLY_KEYS[keys[i]]) return false;
+    }
+    return true;
+  }
+
+  function triggerPrismSweep(withMediaReveal) {
+    var wrap = document.getElementById('ds-stage-wrap');
+    var sweep = document.getElementById('ds-prism-sweep');
+    if (sweep) {
+      sweep.classList.remove('run');
+      void sweep.offsetWidth;
+      sweep.classList.add('run');
+    }
+    if (withMediaReveal && wrap) {
+      wrap.classList.remove('ds-media-entering');
+      void wrap.offsetWidth;
+      wrap.classList.add('ds-media-entering');
+    }
+  }
+
+  function triggerAppliedPulse() {
+    var wrap = document.getElementById('ds-stage-wrap');
+    if (!wrap) return;
+    wrap.classList.remove('ds-applied-pulse');
+    void wrap.offsetWidth;
+    wrap.classList.add('ds-applied-pulse');
+  }
+
+  function applyOptimisticEntry(appId, patch) {
+    if (!state.v4Store) state.v4Store = { version: 4, global: {}, apps: {} };
+    if (!state.v4Store.apps) state.v4Store.apps = {};
+    var prev = state.v4Store.apps[appId] || { inheritGlobal: false, skinEnabled: true, overrides: {} };
+    var nextOverrides = Object.assign({}, prev.inheritGlobal ? (state.v4Store.global || {}) : (prev.overrides || {}), patch);
+    var nextEnabled = patch.skinEnabled != null ? Boolean(patch.skinEnabled) : (prev.skinEnabled !== false);
+    state.v4Store.apps[appId] = Object.assign({}, prev, {
+      inheritGlobal: false,
+      skinEnabled: nextEnabled,
+      overrides: nextOverrides,
+    });
+  }
+
+  function syncOpticalControlsInPlace(cfg) {
+    applyAmbientAccent(cfg);
+    var rawGlassOpacity = Number(cfg.glassOpacity != null ? cfg.glassOpacity : 0.56);
+    var clarityPct = Math.max(4, Math.min(80, Math.round((1 - rawGlassOpacity) * 100)));
+    var blurPx = cfg.glassSurfaces === false ? 0 : Math.max(0, Math.min(24, Math.round(Number(cfg.glassBlur != null ? cfg.glassBlur : 8))));
+    var scrimPct = Math.max(0, Math.min(80, Math.round((Number(cfg.scrimOpacity != null ? cfg.scrimOpacity : 0.14)) * 100)));
+    var isLight = cfg.themeMode === 'light';
+    var isFlush = cfg.layoutMode === 'flush';
+
+    updateLivePreviewDom(clarityPct, blurPx, scrimPct);
+
+    // Update mock window layout/light classes & media filters smoothly in-place
+    var wrap = document.getElementById('ds-stage-wrap');
+    if (wrap) {
+      var mockWin = wrap.querySelector('.ds-mock-window');
+      if (mockWin) {
+        mockWin.classList.toggle('flush', isFlush);
+        mockWin.classList.toggle('light-preview', isLight);
+      }
+      var bgBlurPx = Number(cfg.mediaBlur || 0);
+      var extraFilter = filterCssOf(cfg.filterPreset || 'none');
+      var combined = [bgBlurPx > 0 ? ('blur(' + Math.round(bgBlurPx * 0.45) + 'px)') : '', extraFilter].filter(Boolean).join(' ');
+      var mediaEl = wrap.querySelector('.ds-stage-bg, .ds-stage-video, .ds-stage-iframe');
+      if (mediaEl) {
+        mediaEl.style.filter = combined || 'none';
+        mediaEl.style.transform = bgBlurPx > 0 ? 'scale(1.04)' : 'scale(1)';
+      }
+      var codeEl = wrap.querySelector('.ds-mock-code-card');
+      if (codeEl) {
+        var sch = schemeInfoOf(cfg.colorScheme);
+        var baseRgb = isLight ? '248, 250, 255' : sch.panelBg;
+        codeEl.style.background = cfg.codeReadabilityMode === 'solid'
+          ? ('rgba(' + baseRgb + ', 0.96)')
+          : cfg.codeReadabilityMode === 'frosted'
+            ? ('rgba(' + baseRgb + ', 0.84)')
+            : (isLight ? 'rgba(15, 23, 42, 0.06)' : 'rgba(255, 255, 255, 0.06)');
+        codeEl.innerHTML = '<span class="ds-mock-code-kw">const</span> prism = { blur: <span class="ds-mock-code-kw">' + blurPx + 'px</span>, clarity: <span class="ds-mock-code-kw">"' + clarityPct + '%"</span> };';
+      }
+    }
+
+    // Sync sliders & labels without rebuilding DOM
+    var gEl = document.querySelector('input[data-slider="glassClarity"]');
+    if (gEl) { gEl.value = String(clarityPct); gEl.style.setProperty('--pct', Math.round(((clarityPct - 4) / (80 - 4)) * 100) + '%'); }
+    var bEl = document.querySelector('input[data-slider="glassBlur"]');
+    if (bEl) { bEl.value = String(blurPx); bEl.style.setProperty('--pct', Math.round((blurPx / 24) * 100) + '%'); }
+    var sEl = document.querySelector('input[data-slider="scrimOpacity"]');
+    if (sEl) { sEl.value = String(scrimPct); sEl.style.setProperty('--pct', Math.round((scrimPct / 80) * 100) + '%'); }
+    var v1 = document.getElementById('val-glass'); if (v1) v1.textContent = clarityPct + '%';
+    var v2 = document.getElementById('val-blur'); if (v2) v2.textContent = blurPx + 'px';
+    var v3 = document.getElementById('val-scrim'); if (v3) v3.textContent = scrimPct + '%';
+
+    // Sync active highlights on presets, schemes, filters, layout & theme buttons
+    document.querySelectorAll('[data-scene-preset]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-scene-preset') === (cfg.preset || 'islands'));
+    });
+    document.querySelectorAll('[data-scheme]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-scheme') === (cfg.colorScheme || 'prism-default'));
+    });
+    document.querySelectorAll('[data-filter-preset]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-filter-preset') === (cfg.filterPreset || 'none'));
+    });
+    document.querySelectorAll('[data-layout]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-layout') === (cfg.layoutMode || 'islands'));
+    });
+    document.querySelectorAll('[data-theme-mode]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-theme-mode') === (cfg.themeMode || 'dark'));
+    });
+    document.querySelectorAll('[data-code-mode]').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-code-mode') === (cfg.codeReadabilityMode || 'frosted'));
+    });
+  }
+
   function patchCurrentAppConfig(patch, andApply) {
     var appId = state.selectedAppId;
+    var opticalOnly = isOpticalOnlyPatch(patch);
+    var isWallChange = Boolean(patch && (patch.activeWallpaperId || patch.wallpaperId));
+    applyOptimisticEntry(appId, patch);
+
+    if (opticalOnly && document.getElementById('ds-stage-wrap')) {
+      syncOpticalControlsInPlace(currentConfig());
+      if (patch.preset || patch.colorScheme || patch.themeMode || patch.layoutMode || patch.filterPreset) {
+        triggerPrismSweep(false);
+      }
+    } else {
+      render({ preserveScroll: true, mediaSweep: isWallChange });
+    }
+
     return apiJson('/api/apps/' + encodeURIComponent(appId) + '/config', {
       method: 'POST',
       body: patch,
     }).then(function (res) {
       if (!state.v4Store.apps) state.v4Store.apps = {};
-      state.v4Store.apps[appId] = res.entry;
-      render();
+      if (res && res.entry) state.v4Store.apps[appId] = res.entry;
+      if (opticalOnly && document.getElementById('ds-stage-wrap')) {
+        syncOpticalControlsInPlace(currentConfig());
+      }
       if (andApply) {
         return apiJson('/api/apps/' + encodeURIComponent(appId) + '/apply', { method: 'POST', body: {} }).then(function (r) {
-          if (r && r.ok && !r.skipped) showToast('已应用到 ' + currentApp().name);
-          else if (r && r.reason === 'not-debuggable') showToast('已保存（打开目标软件后自动生效）');
-          else if (r && r.message && r.reason !== 'plugin-conflict') showToast(r.message);
+          if (r && r.ok && !r.skipped) {
+            triggerAppliedPulse();
+            showToast('已生效 · ' + currentApp().name);
+          } else if (r && r.reason === 'not-debuggable') {
+            showToast('已保存（打开目标软件后自动生效）');
+          } else if (r && r.message && r.reason !== 'plugin-conflict') {
+            showToast(r.message);
+          }
         });
       }
     }).catch(function (err) {
@@ -350,7 +499,7 @@
   function installAndApplyDynamicTheme(dynId) {
     var dyn = findDynamicTheme(dynId);
     state.previewDynamicId = dynId;
-    render();
+    render({ preserveScroll: true, mediaSweep: true });
     showToast('正在加载动态主题「' + (dyn ? dyn.title : dynId) + '」…');
     apiJson('/api/dynamic-themes/' + encodeURIComponent(dynId) + '/install', { method: 'POST', body: {} }).then(function (res) {
       var patch = { skinEnabled: true };
@@ -550,6 +699,7 @@
       '<div class="ds-stage-wrap" id="ds-stage-wrap">' +
         bgMediaHtml +
         '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:' + scrimBg + '"></div>' +
+        '<div class="ds-prism-sweep" id="ds-prism-sweep"></div>' +
         '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + (isLight ? ' light-preview' : '') + '">' +
           '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
             '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
@@ -818,9 +968,18 @@
     '</button>';
   }
 
-  function render() {
+  function render(opts) {
     var root = document.getElementById('app');
     if (!root) return;
+    opts = opts || {};
+    var prevBodyScroll = 0;
+    var prevNavScroll = 0;
+    if (opts.preserveScroll) {
+      var prevBody = root.querySelector('.ds-body');
+      var prevNav = root.querySelector('.ds-apps-scroll');
+      if (prevBody) prevBodyScroll = prevBody.scrollTop;
+      if (prevNav) prevNavScroll = prevNav.scrollTop;
+    }
     var app = currentApp();
     var cfg = currentConfig();
     applyAmbientAccent(cfg);
@@ -895,6 +1054,19 @@
 
     bindEvents(root);
     renderToastOnly();
+    if (opts.preserveScroll) {
+      var nextBody = root.querySelector('.ds-body');
+      var nextNav = root.querySelector('.ds-apps-scroll');
+      if (nextBody && prevBodyScroll) nextBody.scrollTop = prevBodyScroll;
+      if (nextNav && prevNavScroll) nextNav.scrollTop = prevNavScroll;
+    }
+    if (opts.tabAnimate) {
+      var animBody = root.querySelector('.ds-body');
+      if (animBody) animBody.classList.add('ds-tab-enter');
+    }
+    if (opts.mediaSweep) {
+      triggerPrismSweep(true);
+    }
   }
 
   function bindEvents(root) {
@@ -925,7 +1097,7 @@
         state.selectedAppId = btn.getAttribute('data-app-id');
         state.previewDynamicId = '';
         state.showTakeoverSteps = false;
-        render();
+        render({ tabAnimate: true, mediaSweep: true });
         loadShortcutStatus();
       });
     });
@@ -933,7 +1105,7 @@
     root.querySelectorAll('[data-tab]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.activeTab = btn.getAttribute('data-tab');
-        render();
+        render({ tabAnimate: true });
       });
     });
 
