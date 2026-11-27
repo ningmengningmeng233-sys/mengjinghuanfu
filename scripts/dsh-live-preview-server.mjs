@@ -1103,7 +1103,7 @@ export function renderPreviewHtml() {
   /* ── Authentic Obsidian Prism Control Center Drawer (1:1 ported from style.css lines 588-662) ── */
   #ds-drawer {
     position: fixed; top: 52px; right: 16px; z-index: 2147483645;
-    width: 468px; max-width: calc(100vw - 24px); max-height: calc(100vh - 68px);
+    width: 468px; max-width: calc(100vw - 24px); max-height: min(640px, calc(100vh - 245px));
     overflow-y: auto;
     padding: 14px; border-radius: 14px;
     background-color: var(--op-menu-bg);
@@ -2175,6 +2175,18 @@ export function renderPreviewHtml() {
         happy: '小紫猫心情极佳 · 冒爱心啦',
         sleep: '小紫猫打盹中…点我轻轻叫醒',
         loaf: '小紫猫揣手变成紫薯面包啦',
+        letter: '小紫猫正在读一封像素小信件',
+        plant: '小紫猫正在给像素小盆栽浇水',
+        polish: '桌宠正在认真擦亮棱镜边角',
+        eat: '桌宠正在吧唧吧唧吃零食',
+        stretch: '桌宠舒舒服服伸了个大懒腰',
+        spinHop: '桌宠开心地原地转圈蹦高高！',
+        wave: '桌宠正在朝你招手打招呼',
+        yawn: '桌宠张嘴打了个小哈欠',
+        salute: '桌宠立正敬礼 · 准备出发！',
+        readAlong: '桌宠正跟着你一起读代码',
+        dragonFlame: '银白龙呼出一朵酷炫像素龙息！',
+        whaleSpout: 'Deepy 小蓝鲸开心喷起水花啦！',
         foxWisp: '小赤狐挥动大尾巴放出了灵狐星火！',
         pandaBamboo: '团子小熊猫正津津有味啃着脆竹子！',
       };
