@@ -692,112 +692,71 @@ export function renderPreviewHtml() {
   .mq-row:hover .mq-fill { filter: brightness(1.12) saturate(1.12); }
   .mq-detail { display: flex; justify-content: space-between; font-size: 10px; color: var(--dsw-alias-label-secondary, #8a8a98); font-family: var(--ag-cs-mono-stack, monospace); }
 
-  /* ── DSH NEXT Draggable Starfield Reasoning Effort Slider (Inspired by dsh-codex-effort-slider) ── */
-  .comp-effort-pill {
-    height: 28px; padding: 0 9px; border-radius: 999px;
-    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
-    color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 11.8px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
-    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
-    transition: all 140ms ease;
+  /* ── Authentic Model Selector Popup with Native AntigravityCodexEffortSlider Inside ── */
+  .comp-model-btn { gap: 5px; padding: 0 9px; }
+  .comp-model-effort {
+    font-size: 11px; font-weight: 600; color: #a855f7;
+    transition: color 150ms ease;
   }
-  .comp-effort-pill:hover, .comp-effort-pill[aria-expanded="true"] {
-    background: color-mix(in srgb, var(--eff-color, #818cf8) 18%, var(--op-k0));
-    border-color: color-mix(in srgb, var(--eff-color, #818cf8) 52%, transparent);
-    color: var(--dsw-alias-label-primary, #fff);
-  }
-  .eff-dot {
-    width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0;
-    background: var(--eff-color, #818cf8);
-    box-shadow: 0 0 8px var(--eff-color, #818cf8);
-    transition: background-color 180ms ease, box-shadow 180ms ease;
-  }
-  #ds-effort-pop {
-    position: fixed; left: 50%; bottom: 132px; transform: translateX(-220px);
-    z-index: 2147483645; width: 328px; max-width: calc(100vw - 28px);
-    padding: 13px 14px 12px; border-radius: 14px;
+  .comp-model-chev { opacity: 0.65; flex-shrink: 0; transition: transform 150ms ease; }
+  .comp-model-btn[aria-expanded="true"] .comp-model-chev { transform: rotate(180deg); }
+  #ds-model-pop {
+    position: fixed; left: 50%; bottom: 132px;
+    z-index: 2147483645; width: 312px; max-width: calc(100vw - 24px);
+    padding: 8px; border-radius: 14px;
     background-color: var(--op-menu-bg); background-image: var(--op-menu-sheen);
     backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid var(--op-menu-bd);
-    box-shadow: inset 0 1px 0 rgba(235,243,255,0.16), 0 24px 60px -14px rgba(0,0,0,0.78);
+    box-shadow: inset 0 1px 0 rgba(235,243,255,0.14), 0 24px 60px -14px rgba(0,0,0,0.78);
     color: var(--dsw-alias-label-primary, #f2f2f5);
-    display: none; flex-direction: column; gap: 10px;
+    display: none; flex-direction: column; gap: 4px;
     animation: opPopIn 150ms cubic-bezier(.16,1,.3,1);
     user-select: none;
   }
-  #ds-effort-pop.open { display: flex; }
-  .eff-pop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .eff-pop-title { font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
-  .eff-pop-val {
-    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.5px; font-weight: 700;
-    padding: 2px 8px; border-radius: 999px;
-    background: color-mix(in srgb, var(--eff-color, #818cf8) 18%, transparent);
-    border: 1px solid color-mix(in srgb, var(--eff-color, #818cf8) 46%, transparent);
-    color: var(--eff-text, #c4b5fd);
+  #ds-model-pop.open { display: flex; }
+  .mdl-pop-head {
+    font-size: 11.5px; font-weight: 500; color: var(--dsw-alias-label-secondary, #8a8a98);
+    padding: 4px 8px 3px;
   }
-  .ds-effort-track {
-    position: relative; height: 28px; border-radius: 999px; cursor: pointer; touch-action: none;
-    background: rgba(128,128,145,0.18);
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.24), inset 0 0 0 1px rgba(255,255,255,0.06);
-    overflow: visible;
-    transition: box-shadow 200ms ease;
+  .mdl-list { display: flex; flex-direction: column; gap: 2px; }
+  .mdl-row {
+    width: 100%; border: 1px solid transparent; border-radius: 9px;
+    padding: 7px 9px; background: transparent; color: inherit;
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; text-align: left;
+    transition: background-color 120ms ease, border-color 120ms ease;
   }
-  .ds-effort-track[data-energy="1"] {
-    box-shadow: 0 0 14px rgba(168,85,247,0.34), inset 0 1px 2px rgba(0,0,0,0.24);
+  .mdl-row:hover { background: rgba(255,255,255,0.052); }
+  .mdl-row[data-active="1"] {
+    background: rgba(255,255,255,0.072);
+    border-color: rgba(255,255,255,0.12);
+    font-weight: 600;
   }
-  html[data-prism-theme="light"] .ds-effort-track {
-    background: rgba(15,23,42,0.10);
-    box-shadow: inset 0 1px 2px rgba(15,23,42,0.14), inset 0 0 0 1px rgba(15,23,42,0.08);
+  html[data-prism-theme="light"] .mdl-row:hover { background: rgba(15,23,42,0.048); }
+  html[data-prism-theme="light"] .mdl-row[data-active="1"] {
+    background: rgba(15,23,42,0.078);
+    border-color: rgba(15,23,42,0.12);
   }
-  .ds-effort-track[data-dragging="1"] { cursor: grabbing; }
-  .ds-effort-clip { position: absolute; inset: 0; border-radius: 999px; overflow: hidden; pointer-events: none; }
-  .ds-effort-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 14px 0 0 14px;
-    transition: width 90ms cubic-bezier(.2,0,0,1), background 180ms ease;
+  .mdl-row-ico { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .mdl-row-name { flex: 0 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mdl-row-eff { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .mdl-row-tag {
+    margin-left: auto; font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12); color: var(--dsw-alias-label-secondary, #9ea3b4);
+    flex-shrink: 0;
   }
-  .ds-effort-track[data-dragging="1"] .ds-effort-fill { transition: none; }
-  .ds-effort-stars {
-    position: absolute; inset: 0; pointer-events: none; opacity: var(--eff-star-op, 0);
-    transition: opacity 200ms ease;
-    background-image:
-      radial-gradient(1.5px 1.5px at 8px 9px, rgba(245,243,255,0.88), transparent),
-      radial-gradient(1.2px 1.2px at 22px 19px, rgba(216,180,254,0.80), transparent),
-      radial-gradient(1px 1px at 34px 12px, rgba(245,243,255,0.68), transparent);
-    background-size: 42px 28px;
-    animation: ag-cs-star-drift 3.6s linear infinite;
+  html[data-prism-theme="light"] .mdl-row-tag { border-color: rgba(15,23,42,0.14); }
+  .mdl-divider { height: 1px; background: var(--op-kb); margin: 4px 2px; }
+  .mdl-usage-row {
+    width: 100%; border: 0; border-radius: 8px; padding: 7px 9px;
+    background: transparent; color: var(--dsw-alias-label-secondary, #c4c4ce);
+    font-family: inherit; font-size: 12.5px; font-weight: 500;
+    display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    transition: background-color 120ms ease, color 120ms ease;
   }
-  .ds-effort-ticks {
-    position: absolute; inset: 0 14px; display: flex; align-items: center; justify-content: space-between;
-    pointer-events: none; z-index: 3;
-  }
-  .ds-effort-tick {
-    width: 3px; height: 3px; border-radius: 999px;
-    background: rgba(255,255,255,0.28); transition: background-color 120ms ease;
-  }
-  .ds-effort-tick.is-on {
-    background: rgba(255,255,255,0.65);
-  }
-  .ds-effort-knob {
-    position: absolute; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
-    border-radius: 999px; z-index: 4; pointer-events: none;
-    background: #ffffff;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.34), 0 0 0 0.5px rgba(0,0,0,0.06);
-    transition: left 90ms cubic-bezier(.2,0,0,1);
-    will-change: left;
-  }
-  .ds-effort-track[data-dragging="1"] .ds-effort-knob { transition: none; }
-  .eff-stops { display: flex; justify-content: space-between; padding: 0 2px; }
-  .eff-stop-btn {
-    border: 0; background: transparent; padding: 2px 4px; border-radius: 5px; cursor: pointer;
-    font-size: 11px; font-weight: 500; color: var(--dsw-alias-label-secondary, #8a8a98);
-    transition: color 130ms ease, background-color 130ms ease;
-  }
-  .eff-stop-btn:hover { color: var(--dsw-alias-label-primary, #f2f2f5); }
-  .eff-stop-btn[data-active="1"] { color: var(--eff-text, #c4b5fd); font-weight: 700; }
-  .eff-desc {
-    font-size: 11px; color: var(--dsw-alias-label-secondary, #9ea3b4);
-    padding: 6px 8px; border-radius: 8px; background: rgba(128,136,156,0.06); border: 1px solid var(--op-kb);
-  }
+  .mdl-usage-row:hover { background: rgba(255,255,255,0.055); color: var(--dsw-alias-label-primary, #fff); }
+  html[data-prism-theme="light"] .mdl-usage-row:hover { background: rgba(15,23,42,0.05); color: #0f172a; }
+  .mdl-usage-l { display: inline-flex; align-items: center; gap: 7px; }
 
   /* ── GitHub-Inspired Global Command Palette (Ctrl+K) ── */
   #ds-cmd-backdrop {
@@ -1611,13 +1570,11 @@ export function renderPreviewHtml() {
             <div class="comp-foot">
               <div class="comp-tools">
                 <button class="comp-icon-btn" id="btn-comp-add" title="添加上下文"><span data-icon-slot="plus-spin"></span></button>
-                <button class="comp-pill" id="btn-comp-model">
+                <button class="comp-pill comp-model-btn" id="btn-comp-model" aria-expanded="false" title="点击切换模型并拖动底部星轨滑块调节推理等级">
                   <span id="comp-model-spark"></span>
                   <span id="comp-model-label">DeepSeek-R1</span>
-                </button>
-                <button class="comp-effort-pill" id="btn-effort-pill" aria-expanded="false" title="点击展开星轨思考强度拖动条（可拖动切换关闭/低/中/高/极高）">
-                  <span class="eff-dot" id="eff-pill-dot"></span>
-                  <span id="eff-pill-txt">思考 高</span>
+                  <span class="comp-model-effort" id="comp-model-effort">超高</span>
+                  <svg class="comp-model-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
                 <button class="comp-pill" id="btn-comp-stage">
                   <span data-icon-slot="layers-stack"></span>
@@ -1653,35 +1610,28 @@ export function renderPreviewHtml() {
     <div id="ds-client-list"></div>
   </div>
 
-  <!-- DSH NEXT Draggable Starfield Thinking Effort Popover -->
-  <div id="ds-effort-pop" data-dreamskin-control-panel="1" role="dialog" aria-label="DSH 星轨思考强度滑块">
-    <div class="eff-pop-head">
-      <span class="eff-pop-title">✦ 思考强度 · 星轨滑块</span>
-      <span class="eff-pop-val" id="eff-pop-val">高 · High</span>
-    </div>
-    <div class="ds-effort-track" id="ds-effort-track" role="slider" tabindex="0" aria-label="思考强度" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3" data-dragging="0">
-      <div class="ds-effort-clip">
-        <div class="ds-effort-fill" id="ds-effort-fill" style="width:75%">
-          <div class="ds-effort-stars"></div>
+  <!-- Authentic Model Selector Popup (Directly hosts original AntigravityCodexEffortSlider underneath models) -->
+  <div id="ds-model-pop" data-dreamskin-control-panel="1" role="dialog" aria-label="选择模型与推理等级">
+    <div class="mdl-pop-head">模型</div>
+    <div class="mdl-list" id="ds-model-list"></div>
+    <div class="mdl-divider"></div>
+    <div class="ces-ag-section" id="ds-model-effort-section">
+      <div class="ces-ag-effort-row" id="ds-model-effort-row" data-ces-effort-row="true">
+        <div class="ces-ag-effort-head">
+          <span class="ces-ag-effort-title">推理等级</span>
+          <span class="ces-ag-effort-value" id="ds-model-effort-val">超高</span>
         </div>
+        <div class="ces-inline" id="ds-real-effort-mount"></div>
       </div>
-      <div class="ds-effort-ticks" id="ds-effort-ticks">
-        <span class="ds-effort-tick is-on"></span>
-        <span class="ds-effort-tick is-on"></span>
-        <span class="ds-effort-tick is-on"></span>
-        <span class="ds-effort-tick is-on"></span>
-        <span class="ds-effort-tick"></span>
-      </div>
-      <div class="ds-effort-knob" id="ds-effort-knob" style="left:calc(13px + (100% - 26px) * 0.75)"></div>
     </div>
-    <div class="eff-stops" id="ds-effort-stops">
-      <button class="eff-stop-btn" data-eidx="0">关闭</button>
-      <button class="eff-stop-btn" data-eidx="1">低</button>
-      <button class="eff-stop-btn" data-eidx="2">中</button>
-      <button class="eff-stop-btn" data-eidx="3" data-active="1">高</button>
-      <button class="eff-stop-btn" data-eidx="4">极高</button>
-    </div>
-    <div class="eff-desc" id="eff-desc">高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）</div>
+    <div class="mdl-divider"></div>
+    <button class="mdl-usage-row" id="btn-model-open-usage">
+      <span class="mdl-usage-l">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12 16 8"/><path d="M8.5 16.5h7"/></svg>
+        <span>查看用量明细</span>
+      </span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
   </div>
 
   <!-- Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) -->
@@ -3273,6 +3223,7 @@ export function renderPreviewHtml() {
       var toggleTelPop = function (force) {
         var next = typeof force === 'boolean' ? force : !telPop.classList.contains('open');
         telPop.classList.toggle('open', next);
+        if (next && typeof toggleModelPop === 'function') toggleModelPop(false);
         telPill.setAttribute('aria-expanded', next ? 'true' : 'false');
         if (next) {
           drawer.classList.remove('open');
@@ -3302,124 +3253,201 @@ export function renderPreviewHtml() {
         if (telPop.classList.contains('open') && !telPop.contains(ev.target) && !telPill.contains(ev.target) && !sbQuotaPill.contains(ev.target)) {
           toggleTelPop(false);
         }
-        if (effortPop && effortPop.classList.contains('open') && !effortPop.contains(ev.target) && !effortPill.contains(ev.target)) {
-          toggleEffortPop(false);
+        if (modelPop && modelPop.classList.contains('open') && !modelPop.contains(ev.target) && !modelBtn.contains(ev.target)) {
+          toggleModelPop(false);
         }
       });
 
-      // Restrained Original Obsidian Prism Reasoning Effort Slider (5 tiers: off -> low -> medium -> high -> xhigh)
-      var EFFORT_TIERS = [
-        { key: 'off', label: '关闭', pill: '思考 关', badge: '关闭 · Off', color: '#64748b', text: '#94a3b8', grad: 'rgba(128,128,145,0.22)', starOp: 0, energy: '0', desc: '关闭深度思考 · 毫秒级直出，适合简单问答' },
-        { key: 'low', label: '低', pill: '思考 低', badge: '低 · Low', color: '#4d93f8', text: '#93c5fd', grad: '#4d93f8', starOp: 0, energy: '0', desc: '轻度推理 · 响应轻快，大幅节省额度消耗' },
-        { key: 'medium', label: '中', pill: '思考 中', badge: '中 · Medium', color: '#5d86f5', text: '#a5b4fc', grad: '#5d86f5', starOp: 0, energy: '0', desc: '均衡档位 · 日常编码与多文件改写最稳妥' },
-        { key: 'high', label: '高', pill: '思考 高', badge: '高 · High', color: '#8b5cf6', text: '#c4b5fd', grad: 'linear-gradient(90deg, #4b47c8 0%, #7c3aed 65%, #9b5ef0 100%)', starOp: 0.42, energy: '1', desc: '高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）' },
-        { key: 'xhigh', label: '极高', pill: '思考 极高', badge: '极高 · Max', color: '#a855f7', text: '#d8b4fe', grad: 'linear-gradient(90deg, #3b1178 0%, #6d28d9 30%, #9333ea 62%, #c084fc 100%)', starOp: 0.88, energy: '1', desc: '极限算力 · 紫云星轨满载，桌宠同步进入专注高能态' },
+      // Authentic Model Selector + Native AntigravityCodexEffortSlider (22-particle accelerating starfield + Claude pixel dither)
+      var EFFORT_LEVELS = [
+        { effort: 'off', label: '关闭' },
+        { effort: 'low', label: '低' },
+        { effort: 'medium', label: '中等' },
+        { effort: 'high', label: '高' },
+        { effort: 'xhigh', label: '超高' },
       ];
-      var effortIdx = 3;
-      var effortPop = document.getElementById('ds-effort-pop');
-      var effortPill = document.getElementById('btn-effort-pill');
-      var effortTrack = document.getElementById('ds-effort-track');
-      var effortFill = document.getElementById('ds-effort-fill');
-      var effortKnob = document.getElementById('ds-effort-knob');
-      var effortValEl = document.getElementById('eff-pop-val');
-      var effortDescEl = document.getElementById('eff-desc');
-      var effortPillTxt = document.getElementById('eff-pill-txt');
-      var renderEffortVisual = function (pct, idx, notify) {
-        var tier = EFFORT_TIERS[idx] || EFFORT_TIERS[3];
-        var clampedPct = Math.max(0, Math.min(1, pct));
-        var posExpr = 'calc(14px + (100% - 28px) * ' + clampedPct.toFixed(4) + ')';
-        if (effortPop) {
-          effortPop.style.setProperty('--eff-color', tier.color);
-          effortPop.style.setProperty('--eff-text', tier.text);
-          effortPop.style.setProperty('--eff-star-op', String(tier.starOp));
+      var MODEL_CATALOG = [
+        { id: 'deepseek-r1', name: 'DeepSeek-R1', camp: 'deepseek', effort: 'xhigh', tag: '主力', icon: 'spark' },
+        { id: 'gemini-4-neon', name: 'Gemini 4 Neon', camp: 'gemini', effort: 'xhigh', tag: '新', icon: 'spark' },
+        { id: 'gemini-4-hydrogen', name: 'Gemini 4 Hydrogen', camp: 'gemini', effort: 'high', tag: '新', icon: 'spark' },
+        { id: 'claude-opus-55', name: 'Claude Opus 5.5', camp: 'claude', effort: 'high', tag: '点阵', icon: 'claude' },
+        { id: 'claude-sonnet-55', name: 'Claude Sonnet 5.5', camp: 'claude', effort: 'medium', tag: '点阵', icon: 'claude' },
+        { id: 'gpt-52-codex', name: 'GPT-5.2 Codex', camp: 'gpt', effort: 'high', tag: 'Codex', icon: 'gpt' },
+      ];
+      var activeModelId = 'deepseek-r1';
+      var modelPop = document.getElementById('ds-model-pop');
+      var modelBtn = document.getElementById('btn-comp-model');
+      var modelListEl = document.getElementById('ds-model-list');
+      var modelEffBadgeEl = document.getElementById('comp-model-effort');
+      var modelEffRowEl = document.getElementById('ds-model-effort-row');
+      var modelEffValEl = document.getElementById('ds-model-effort-val');
+      var realEffMountEl = document.getElementById('ds-real-effort-mount');
+      var modelOpenUsageBtn = document.getElementById('btn-model-open-usage');
+      var realEffortHandle = null;
+
+      var getActiveModel = function () {
+        for (var i = 0; i < MODEL_CATALOG.length; i += 1) {
+          if (MODEL_CATALOG[i].id === activeModelId) return MODEL_CATALOG[i];
         }
-        if (effortPill) effortPill.style.setProperty('--eff-color', tier.color);
-        if (effortFill) {
-          effortFill.style.width = posExpr;
-          effortFill.style.background = tier.grad;
-        }
-        if (effortKnob) effortKnob.style.left = posExpr;
-        if (effortTrack) {
-          effortTrack.setAttribute('aria-valuenow', String(idx));
-          effortTrack.setAttribute('data-energy', tier.energy);
-        }
-        if (effortValEl) effortValEl.textContent = tier.badge;
-        if (effortDescEl) effortDescEl.textContent = tier.desc;
-        if (effortPillTxt) effortPillTxt.textContent = tier.pill;
-        document.querySelectorAll('#ds-effort-ticks .ds-effort-tick').forEach(function (tk, i) {
-          tk.classList.toggle('is-on', i <= idx);
-        });
-        document.querySelectorAll('#ds-effort-stops .eff-stop-btn').forEach(function (b) {
-          b.setAttribute('data-active', Number(b.getAttribute('data-eidx')) === idx ? '1' : '0');
-        });
-        if (notify && window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
-          window.__dreamSkinOptical.notifyMascot('effort-tier', { tier: tier.key });
-        }
+        return MODEL_CATALOG[0];
       };
-      var toggleEffortPop = function (force) {
-        if (!effortPop || !effortPill) return;
-        var next = typeof force === 'boolean' ? force : !effortPop.classList.contains('open');
-        effortPop.classList.toggle('open', next);
-        effortPill.setAttribute('aria-expanded', next ? 'true' : 'false');
+      var effortMetaOf = function (key, isClaude) {
+        var idx = 3;
+        for (var i = 0; i < EFFORT_LEVELS.length; i += 1) {
+          if (EFFORT_LEVELS[i].effort === key) { idx = i; break; }
+        }
+        var item = EFFORT_LEVELS[idx];
+        var isMax = idx === EFFORT_LEVELS.length - 1;
+        var lib = window.AntigravityCodexEffortSlider;
+        var color = (lib && typeof lib.valueColorFor === 'function')
+          ? lib.valueColorFor(item.label, idx, EFFORT_LEVELS.length, isMax, true, Boolean(isClaude), 'follow')
+          : (idx <= 0 ? '#94a3b8' : idx <= 2 ? '#60a5fa' : idx === 3 ? '#9466f5' : '#b77cff');
+        return { idx: idx, effort: item.effort, label: item.label, isMax: isMax, color: color || '#60a5fa' };
+      };
+      var modelIconSvg = function (kind, active) {
+        if (kind === 'claude') {
+          return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + (active ? '#c4b5fd' : 'currentColor') + '" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6 5.6 18.4"/></svg>';
+        }
+        if (kind === 'gpt') {
+          return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="' + (active ? '#7dd3fc' : 'currentColor') + '" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 6.9 4M12 20a8 8 0 0 1-6.9-4"/></svg>';
+        }
+        return '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (active ? '#60a5fa' : 'currentColor') + '" opacity="' + (active ? '1' : '0.68') + '"><path d="M12 2.5C12 8 16 12 21.5 12 16 12 12 16 12 21.5 12 16 8 12 2.5 12 8 12 12 8 12 2.5Z"/></svg>';
+      };
+      var syncModelTriggerUi = function () {
+        var m = getActiveModel();
+        var isCl = /claude/i.test(m.name);
+        var meta = effortMetaOf(m.effort, isCl);
+        var lbl = document.getElementById('comp-model-label');
+        if (lbl) lbl.textContent = m.name;
+        if (modelEffBadgeEl) {
+          modelEffBadgeEl.textContent = meta.label;
+          modelEffBadgeEl.style.color = meta.color;
+        }
+        var popModelName = document.getElementById('pop-model-name');
+        if (popModelName) popModelName.textContent = m.name;
+      };
+      var renderModelList = function () {
+        if (!modelListEl) return;
+        modelListEl.innerHTML = MODEL_CATALOG.map(function (m) {
+          var isAct = m.id === activeModelId;
+          var isCl = /claude/i.test(m.name);
+          var meta = effortMetaOf(m.effort, isCl);
+          return '<button class="mdl-row" data-mid="' + m.id + '" data-active="' + (isAct ? '1' : '0') + '">' +
+            '<span class="mdl-row-ico">' + modelIconSvg(m.icon, isAct) + '</span>' +
+            '<span class="mdl-row-name">' + m.name + '</span>' +
+            '<span class="mdl-row-eff" style="color:' + meta.color + '">' + meta.label + '</span>' +
+            (m.tag ? '<span class="mdl-row-tag">' + m.tag + '</span>' : '') +
+          '</button>';
+        }).join('');
+        modelListEl.querySelectorAll('.mdl-row').forEach(function (btn) {
+          btn.onclick = function () {
+            var mid = btn.getAttribute('data-mid');
+            if (!mid) return;
+            activeModelId = mid;
+            var m = getActiveModel();
+            syncModelTriggerUi();
+            renderModelList();
+            mountRealEffortSlider();
+            if (window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
+              window.__dreamSkinOptical.notifyMascot('model-shift', { model: m.name });
+            }
+            if (window.__dreamSkinOptical && window.__dreamSkinOptical.setCamp) {
+              window.__dreamSkinOptical.setCamp(m.camp || m.name);
+            }
+          };
+        });
+      };
+      var mountRealEffortSlider = function () {
+        if (realEffortHandle && typeof realEffortHandle.unmount === 'function') {
+          try { realEffortHandle.unmount(); } catch (_) {}
+          realEffortHandle = null;
+        }
+        var lib = window.AntigravityCodexEffortSlider;
+        if (!realEffMountEl || !lib || typeof lib.mountCodexEffortSlider !== 'function') return;
+        var seat = {
+          _read: function () {
+            var m = getActiveModel();
+            var isCl = /claude/i.test(m.name);
+            return {
+              baseName: m.name,
+              isClaude: isCl,
+              theme: isCl ? 'claude' : 'codex',
+              locked: false,
+              levels: EFFORT_LEVELS,
+              currentEffort: m.effort,
+            };
+          },
+          selectEffort: function (item) {
+            var m = getActiveModel();
+            var key = (item && item.effort) || String(item || 'high');
+            m.effort = key;
+            syncModelTriggerUi();
+            renderModelList();
+            if (window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
+              window.__dreamSkinOptical.notifyMascot('effort-tier', { tier: key });
+            }
+          },
+        };
+        realEffortHandle = lib.mountCodexEffortSlider({
+          container: realEffMountEl,
+          row: modelEffRowEl,
+          valueElement: modelEffValEl,
+          seat: seat,
+          document: document,
+          window: window,
+          onVisualChange: function (vis) {
+            if (!vis) return;
+            var m = getActiveModel();
+            var isCl = /claude/i.test(m.name);
+            var meta = effortMetaOf(vis.effort || m.effort, isCl);
+            if (modelEffBadgeEl) {
+              modelEffBadgeEl.textContent = vis.label || meta.label;
+              modelEffBadgeEl.style.color = meta.color;
+            }
+          },
+        });
+      };
+      var toggleModelPop = function (force) {
+        if (!modelPop || !modelBtn) return;
+        var next = typeof force === 'boolean' ? force : !modelPop.classList.contains('open');
+        modelPop.classList.toggle('open', next);
+        modelBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
         if (next) {
           toggleTelPop(false);
           drawer.classList.remove('open');
-          var r = effortPill.getBoundingClientRect();
-          effortPop.style.left = Math.max(16, Math.min(window.innerWidth - 344, Math.round(r.left - 40))) + 'px';
-          effortPop.style.transform = 'none';
-          renderEffortVisual(effortIdx / 4, effortIdx, false);
+          var r = modelBtn.getBoundingClientRect();
+          modelPop.style.left = Math.max(12, Math.min(window.innerWidth - 324, Math.round(r.left - 8))) + 'px';
+          renderModelList();
+          mountRealEffortSlider();
         }
       };
-      if (effortPop) effortPop.addEventListener('click', function (ev) { ev.stopPropagation(); });
-      if (effortPill) effortPill.onclick = function (ev) { ev.stopPropagation(); toggleEffortPop(); };
-      document.querySelectorAll('#ds-effort-stops .eff-stop-btn').forEach(function (btn) {
-        btn.onclick = function () {
-          var nextIdx = Number(btn.getAttribute('data-eidx'));
-          var changed = nextIdx !== effortIdx;
-          effortIdx = nextIdx;
-          renderEffortVisual(effortIdx / 4, effortIdx, changed);
+      if (modelPop) modelPop.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      if (modelBtn) modelBtn.onclick = function (ev) { ev.stopPropagation(); toggleModelPop(); };
+      if (modelOpenUsageBtn) {
+        modelOpenUsageBtn.onclick = function (ev) {
+          ev.stopPropagation();
+          toggleModelPop(false);
+          toggleTelPop(true);
         };
-      });
-      if (effortTrack) {
-        var effDragging = false;
-        var pctFromClientX = function (clientX) {
-          var r = effortTrack.getBoundingClientRect();
-          return Math.max(0, Math.min(1, (clientX - r.left - 13) / Math.max(1, r.width - 26)));
-        };
-        effortTrack.addEventListener('pointerdown', function (ev) {
-          ev.preventDefault();
-          effDragging = true;
-          effortTrack.setAttribute('data-dragging', '1');
-          try { effortTrack.setPointerCapture(ev.pointerId); } catch (_) {}
-          var p = pctFromClientX(ev.clientX);
-          var nextIdx = Math.round(p * 4);
-          var changed = nextIdx !== effortIdx;
-          effortIdx = nextIdx;
-          renderEffortVisual(p, effortIdx, changed);
-        });
-        effortTrack.addEventListener('pointermove', function (ev) {
-          if (!effDragging) return;
-          var p = pctFromClientX(ev.clientX);
-          var nextIdx = Math.round(p * 4);
-          var changed = nextIdx !== effortIdx;
-          effortIdx = nextIdx;
-          renderEffortVisual(p, effortIdx, changed);
-        });
-        var endEffDrag = function (ev) {
-          if (!effDragging) return;
-          effDragging = false;
-          effortTrack.setAttribute('data-dragging', '0');
-          try { effortTrack.releasePointerCapture(ev.pointerId); } catch (_) {}
-          renderEffortVisual(effortIdx / 4, effortIdx, false);
-        };
-        effortTrack.addEventListener('pointerup', endEffDrag);
-        effortTrack.addEventListener('pointercancel', endEffDrag);
-        effortTrack.addEventListener('keydown', function (ev) {
-          if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { ev.preventDefault(); effortIdx = Math.min(4, effortIdx + 1); renderEffortVisual(effortIdx / 4, effortIdx, true); }
-          else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { ev.preventDefault(); effortIdx = Math.max(0, effortIdx - 1); renderEffortVisual(effortIdx / 4, effortIdx, true); }
-        });
-        renderEffortVisual(effortIdx / 4, effortIdx, false);
       }
+      window.__dsPreviewModelApi = {
+        open: function () { toggleModelPop(true); },
+        close: function () { toggleModelPop(false); },
+        selectModel: function (id) {
+          activeModelId = id;
+          syncModelTriggerUi();
+          renderModelList();
+          mountRealEffortSlider();
+        },
+        setEffort: function (key) {
+          var m = getActiveModel();
+          m.effort = key;
+          syncModelTriggerUi();
+          renderModelList();
+          mountRealEffortSlider();
+        },
+      };
+      syncModelTriggerUi();
 
       // Global Command Palette (Ctrl+K) + Zen Mode (Ctrl+Shift+Z)
       var cmdBackdrop = document.getElementById('ds-cmd-backdrop');
@@ -3455,7 +3483,7 @@ export function renderPreviewHtml() {
           { title: '点亮 / 关闭小紫猫彩虹极光羽衣', sub: '原版隐藏彩蛋', run: function () { document.getElementById('btn-home-rainbow').click(); } },
           { title: '召唤四宠同台 (Clawd + 小紫猫 + 银白龙 + Deepy)', sub: '桌宠选角舞台', run: function () { state.config.mascotSpec = 'quad'; state.config.modules = Object.assign({}, state.config.modules, { pixelCompanion: true }); applyNow(); } },
           { title: '打开自适应上下文试管与多源配额浮窗', sub: 'DeepSeek / Claude / Gemini / Codex', run: function () { toggleTelPop(true); } },
-          { title: '打开 DSH 星轨思考强度拖动滑块', sub: '关闭 / 低 / 中 / 高 / 极高 Max', run: function () { toggleEffortPop(true); } },
+          { title: '打开模型选择与原版星轨推理滑块', sub: '关闭 / 低 / 中等 / 高 / 超高（支持加速星尘与 Claude 点阵）', run: function () { toggleModelPop(true); } },
           { title: '切换 Zen 专注模式 (隐藏/显示侧栏)', sub: 'Ctrl+Shift+Z', run: function () { setZen(); } },
           { title: '切换视图：首页光场 / 对话视图', sub: 'Studio Home ⇄ Conversation', run: function () { setView(document.body.getAttribute('data-view') === 'home' ? 'conv' : 'home'); } },
         ].concat(clientCmds);
@@ -3483,6 +3511,7 @@ export function renderPreviewHtml() {
       var openCmd = function () {
         drawer.classList.remove('open');
         toggleTelPop(false);
+        toggleModelPop(false);
         cmdBackdrop.classList.add('open');
         cmdInput.value = '';
         studioState.cmdIndex = 0;
@@ -3502,7 +3531,7 @@ export function renderPreviewHtml() {
       document.addEventListener('keydown', function (ev) {
         if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); if (cmdBackdrop.classList.contains('open')) closeCmd(); else openCmd(); }
         else if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && ev.key.toLowerCase() === 'z') { ev.preventDefault(); setZen(); }
-        else if (ev.key === 'Escape') { closeCmd(); toggleTelPop(false); drawer.classList.remove('open'); }
+        else if (ev.key === 'Escape') { closeCmd(); toggleTelPop(false); toggleModelPop(false); drawer.classList.remove('open'); }
       });
 
       // Boot
