@@ -510,14 +510,29 @@ export function renderPreviewHtml() {
 
   /* ── Whisper-Minimal Sidebar Multi-Source Pill (Zero Clutter! Click to Open Glass Telemetry Popover) ── */
   .sb-quota-pill {
-    margin-top: auto; width: 100%; height: 32px; padding: 0 9px;
-    border-radius: 8px; border: 1px solid var(--op-kb);
+    margin-top: auto; width: 100%; min-height: 38px; padding: 6px 9px 7px;
+    border-radius: 9px; border: 1px solid var(--op-kb);
     background: rgba(128,136,156,0.055);
     color: var(--dsw-alias-label-secondary, #a8aab8);
     font-size: 11.5px; font-weight: 500; cursor: pointer;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    display: flex; flex-direction: column; gap: 5px;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.055);
     transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+  }
+  .sb-quota-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .sb-quota-mini-bar {
+    position: relative; width: 100%; height: 3.5px; border-radius: 999px; overflow: hidden;
+    background: rgba(148,163,184,0.14); box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.45);
+  }
+  .sb-quota-mini-fill {
+    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
+    background: linear-gradient(90deg, #4D6BFE 0%, #5CC6FC 100%);
+    box-shadow: 0 0 8px rgba(92,198,252,0.58);
+    transition: width 360ms cubic-bezier(.22,1,.36,1);
+  }
+  .sb-quota-mini-fill::after {
+    content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 5px; border-radius: 999px;
+    background: #FFFFFF; box-shadow: 0 0 6px #FFFFFF; opacity: 0.88;
   }
   .sb-quota-pill:hover {
     background: rgba(var(--prism-accent-rgb, 102,157,246), 0.12);
@@ -642,9 +657,149 @@ export function renderPreviewHtml() {
   .mq-dot { width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0; box-shadow: 0 0 7px currentColor; }
   .mq-val { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
   .mq-eta { font-size: 10px; font-weight: 400; color: var(--dsw-alias-label-secondary, #8a8a98); }
-  .mq-bar { position: relative; height: 4.5px; border-radius: 999px; background: var(--op-k1); box-shadow: var(--op-kw); overflow: hidden; }
-  .mq-fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; transition: width 320ms cubic-bezier(.22,1,.36,1); }
+  /* Upgraded Crystal-Luminous Quota Remaining Bars (Recessed Trough + Quarter Ticks + Specular Beam + Glowing Tip) */
+  .mq-bar {
+    position: relative; height: 7px; border-radius: 999px;
+    background: linear-gradient(180deg, rgba(8,10,16,0.68) 0%, rgba(22,26,38,0.52) 100%);
+    box-shadow: inset 0 1px 2.5px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  html[data-prism-theme="light"] .mq-bar {
+    background: linear-gradient(180deg, rgba(15,23,42,0.11) 0%, rgba(15,23,42,0.06) 100%);
+    box-shadow: inset 0 1px 2px rgba(15,23,42,0.12), inset 0 0 0 1px rgba(15,23,42,0.06);
+  }
+  .mq-bar::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(255,255,255,0.14) calc(25% - 1px), rgba(255,255,255,0.14) 25%);
+  }
+  .mq-fill {
+    position: absolute; inset: 0 auto 0 0; border-radius: 999px; z-index: 2;
+    box-shadow: 0 0 11px -1px var(--q-glow, rgba(92,198,252,0.55)), inset 0 1px 0 rgba(255,255,255,0.42);
+    transition: width 360ms cubic-bezier(.22,1,.36,1), filter 180ms ease;
+    overflow: hidden;
+  }
+  .mq-fill::before {
+    content: ""; position: absolute; inset: 0 0 48% 0; border-radius: 999px 999px 0 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0) 100%);
+    pointer-events: none;
+  }
+  .mq-fill::after {
+    content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 7px; border-radius: 999px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.92) 100%);
+    box-shadow: 0 0 8px rgba(255,255,255,0.85);
+    pointer-events: none;
+  }
+  .mq-row:hover .mq-fill { filter: brightness(1.12) saturate(1.12); }
   .mq-detail { display: flex; justify-content: space-between; font-size: 10px; color: var(--dsw-alias-label-secondary, #8a8a98); font-family: var(--ag-cs-mono-stack, monospace); }
+
+  /* ── DSH NEXT Draggable Starfield Reasoning Effort Slider (Inspired by dsh-codex-effort-slider) ── */
+  .comp-effort-pill {
+    height: 28px; padding: 0 10px; border-radius: 999px;
+    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
+    color: var(--dsw-alias-label-secondary, #c4c4ce);
+    font-size: 11.8px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    transition: all 140ms ease;
+  }
+  .comp-effort-pill:hover, .comp-effort-pill[aria-expanded="true"] {
+    background: color-mix(in srgb, var(--eff-color, #818cf8) 18%, var(--op-k0));
+    border-color: color-mix(in srgb, var(--eff-color, #818cf8) 52%, transparent);
+    color: var(--dsw-alias-label-primary, #fff);
+  }
+  .eff-dot {
+    width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0;
+    background: var(--eff-color, #818cf8);
+    box-shadow: 0 0 8px var(--eff-color, #818cf8);
+    transition: background-color 180ms ease, box-shadow 180ms ease;
+  }
+  #ds-effort-pop {
+    position: fixed; left: 50%; bottom: 132px; transform: translateX(-220px);
+    z-index: 2147483645; width: 328px; max-width: calc(100vw - 28px);
+    padding: 13px 14px 12px; border-radius: 14px;
+    background-color: var(--op-menu-bg); background-image: var(--op-menu-sheen);
+    backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid var(--op-menu-bd);
+    box-shadow: inset 0 1px 0 rgba(235,243,255,0.16), 0 24px 60px -14px rgba(0,0,0,0.78);
+    color: var(--dsw-alias-label-primary, #f2f2f5);
+    display: none; flex-direction: column; gap: 10px;
+    animation: opPopIn 150ms cubic-bezier(.16,1,.3,1);
+    user-select: none;
+  }
+  #ds-effort-pop.open { display: flex; }
+  .eff-pop-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .eff-pop-title { font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .eff-pop-val {
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 999px;
+    background: color-mix(in srgb, var(--eff-color, #818cf8) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--eff-color, #818cf8) 46%, transparent);
+    color: var(--eff-text, #c4b5fd);
+  }
+  .ds-effort-track {
+    position: relative; height: 28px; border-radius: 999px; cursor: grab; touch-action: none;
+    background: linear-gradient(180deg, rgba(7,9,15,0.88) 0%, rgba(18,22,34,0.82) 100%);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.62), 0 1px 0 rgba(255,255,255,0.05);
+    overflow: visible;
+  }
+  html[data-prism-theme="light"] .ds-effort-track {
+    background: linear-gradient(180deg, rgba(15,23,42,0.10) 0%, rgba(15,23,42,0.05) 100%);
+    border-color: rgba(15,23,42,0.12); box-shadow: inset 0 1px 3px rgba(15,23,42,0.14);
+  }
+  .ds-effort-track[data-dragging="1"] { cursor: grabbing; }
+  .ds-effort-clip { position: absolute; inset: 1px; border-radius: 999px; overflow: hidden; pointer-events: none; }
+  .ds-effort-fill {
+    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
+    transition: width 110ms cubic-bezier(.22,1,.36,1), background 220ms ease;
+    box-shadow: 0 0 18px -2px var(--eff-color, rgba(129,140,248,0.65));
+  }
+  .ds-effort-track[data-dragging="1"] .ds-effort-fill { transition: none; }
+  .ds-effort-stars {
+    position: absolute; inset: 0; pointer-events: none; opacity: var(--eff-star-op, 0.75);
+    background-image:
+      radial-gradient(1.3px 1.3px at 6px 8px, rgba(255,255,255,0.92), transparent),
+      radial-gradient(1.2px 1.2px at 18px 18px, rgba(186,230,253,0.85), transparent),
+      radial-gradient(1px 1px at 29px 11px, rgba(255,255,255,0.75), transparent);
+    background-size: 36px 26px;
+    animation: ag-cs-star-drift 3.4s linear infinite;
+  }
+  .ds-effort-ticks {
+    position: absolute; inset: 0 13px; display: flex; align-items: center; justify-content: space-between;
+    pointer-events: none; z-index: 3;
+  }
+  .ds-effort-tick {
+    width: 4.5px; height: 4.5px; border-radius: 999px;
+    background: rgba(148,163,184,0.34); transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+  .ds-effort-tick.is-on {
+    background: rgba(255,255,255,0.94); box-shadow: 0 0 6px rgba(255,255,255,0.85); transform: scale(1.12);
+  }
+  .ds-effort-knob {
+    position: absolute; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+    border-radius: 999px; z-index: 4; pointer-events: none;
+    background: radial-gradient(circle at 36% 32%, #FFFFFF 0%, #E0E7FF 58%, #93C5FD 100%);
+    border: 1.5px solid rgba(255,255,255,0.94);
+    box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--eff-color, #818cf8) 34%, transparent), 0 3px 12px rgba(0,0,0,0.55), 0 0 14px var(--eff-color, rgba(129,140,248,0.68));
+    display: flex; align-items: center; justify-content: center;
+    transition: left 110ms cubic-bezier(.22,1,.36,1), transform 140ms cubic-bezier(.34,1.4,.64,1);
+  }
+  .ds-effort-track[data-dragging="1"] .ds-effort-knob { transition: none; transform: scale(1.12); }
+  .ds-effort-knob::after {
+    content: ""; width: 6px; height: 6px; border-radius: 999px;
+    background: var(--eff-color, #6366f1); box-shadow: 0 0 6px var(--eff-color, #6366f1);
+  }
+  .eff-stops { display: flex; justify-content: space-between; padding: 0 2px; }
+  .eff-stop-btn {
+    border: 0; background: transparent; padding: 2px 4px; border-radius: 5px; cursor: pointer;
+    font-size: 11px; font-weight: 500; color: var(--dsw-alias-label-secondary, #8a8a98);
+    transition: color 130ms ease, background-color 130ms ease;
+  }
+  .eff-stop-btn:hover { color: var(--dsw-alias-label-primary, #f2f2f5); }
+  .eff-stop-btn[data-active="1"] { color: var(--eff-text, #c4b5fd); font-weight: 700; }
+  .eff-desc {
+    font-size: 11px; color: var(--dsw-alias-label-secondary, #9ea3b4);
+    padding: 6px 8px; border-radius: 8px; background: rgba(128,136,156,0.06); border: 1px solid var(--op-kb);
+  }
 
   /* ── GitHub-Inspired Global Command Palette (Ctrl+K) ── */
   #ds-cmd-backdrop {
@@ -1076,16 +1231,16 @@ export function renderPreviewHtml() {
   }
   .comp-icon-btn:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
   .comp-pill {
-    height: 28px; padding: 0 10px; border-radius: 999px;
+    height: 28px; padding: 0 9px; border-radius: 999px;
     border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
     color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 12px; font-weight: 500;
-    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
     transition: background-color 130ms ease, color 130ms ease;
   }
   .comp-pill:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
-  .comp-right { display: inline-flex; align-items: center; gap: 10px; }
-  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8a98); }
+  .comp-right { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8a98); white-space: nowrap; flex-shrink: 0; }
   /* Authentic Obsidian Prism specular circular ↑ send button */
   .comp-send {
     width: 30px; height: 30px; border-radius: 999px; border: 0; padding: 0;
@@ -1338,11 +1493,14 @@ export function renderPreviewHtml() {
 
       <!-- Whisper-Minimal Sidebar Multi-Source Status Pill (Click to Open Floating Glass Popover!) -->
       <button class="sb-quota-pill" id="btn-sb-quota-pill" title="查看上下文试管与 4 源配额明细">
-        <span class="sb-quota-l">
-          <span class="sb-dots" id="sb-quota-dots"></span>
-          <span>多源配额</span>
+        <span class="sb-quota-top">
+          <span class="sb-quota-l">
+            <span class="sb-dots" id="sb-quota-dots"></span>
+            <span>多源配额</span>
+          </span>
+          <span class="sb-quota-r" id="sb-quota-pct">88%</span>
         </span>
-        <span class="sb-quota-r" id="sb-quota-pct">88%</span>
+        <span class="sb-quota-mini-bar"><span class="sb-quota-mini-fill" id="sb-quota-mini-fill" style="width:88%"></span></span>
       </button>
 
       <button class="sb-foot-btn" id="btn-foot-settings">
@@ -1459,6 +1617,10 @@ export function renderPreviewHtml() {
                   <span id="comp-model-spark"></span>
                   <span id="comp-model-label">DeepSeek-R1</span>
                 </button>
+                <button class="comp-effort-pill" id="btn-effort-pill" aria-expanded="false" title="点击展开 DSH 星轨思考强度拖动条（可拖动切换关闭/低/中/高/极高）">
+                  <span class="eff-dot" id="eff-pill-dot"></span>
+                  <span id="eff-pill-txt">思考 · 高</span>
+                </button>
                 <button class="comp-pill" id="btn-comp-stage">
                   <span data-icon-slot="layers-stack"></span>
                   <span>桌宠选角舞台</span>
@@ -1488,9 +1650,40 @@ export function renderPreviewHtml() {
   </div>
 
   <!-- Multi-Client Adapter Switcher Popover -->
-  <div id="ds-client-pop" data-dreamskin-control-panel="1" role="menu" aria-label="切换已适配客户端">
-    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>14 端全适配</span></div>
+  <div id="ds-client-pop" data-dreamskin-control-panel="1" role="menu" aria-label="切换客户端预览">
+    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>多端配置预览</span></div>
     <div id="ds-client-list"></div>
+  </div>
+
+  <!-- DSH NEXT Draggable Starfield Thinking Effort Popover -->
+  <div id="ds-effort-pop" data-dreamskin-control-panel="1" role="dialog" aria-label="DSH 星轨思考强度滑块">
+    <div class="eff-pop-head">
+      <span class="eff-pop-title">✦ 思考强度 · 星轨滑块</span>
+      <span class="eff-pop-val" id="eff-pop-val">高 · High</span>
+    </div>
+    <div class="ds-effort-track" id="ds-effort-track" role="slider" tabindex="0" aria-label="思考强度" aria-valuemin="0" aria-valuemax="4" aria-valuenow="3" data-dragging="0">
+      <div class="ds-effort-clip">
+        <div class="ds-effort-fill" id="ds-effort-fill" style="width:75%">
+          <div class="ds-effort-stars"></div>
+        </div>
+      </div>
+      <div class="ds-effort-ticks" id="ds-effort-ticks">
+        <span class="ds-effort-tick is-on"></span>
+        <span class="ds-effort-tick is-on"></span>
+        <span class="ds-effort-tick is-on"></span>
+        <span class="ds-effort-tick is-on"></span>
+        <span class="ds-effort-tick"></span>
+      </div>
+      <div class="ds-effort-knob" id="ds-effort-knob" style="left:calc(13px + (100% - 26px) * 0.75)"></div>
+    </div>
+    <div class="eff-stops" id="ds-effort-stops">
+      <button class="eff-stop-btn" data-eidx="0">关闭</button>
+      <button class="eff-stop-btn" data-eidx="1">低</button>
+      <button class="eff-stop-btn" data-eidx="2">中</button>
+      <button class="eff-stop-btn" data-eidx="3" data-active="1">高</button>
+      <button class="eff-stop-btn" data-eidx="4">极高</button>
+    </div>
+    <div class="eff-desc" id="eff-desc">高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）</div>
   </div>
 
   <!-- Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) -->
@@ -1859,12 +2052,18 @@ export function renderPreviewHtml() {
           }).join('');
         }
         if (pctEl && activeSrc) pctEl.textContent = activeSrc.pct5h + '%';
+        var miniFill = document.getElementById('sb-quota-mini-fill');
+        if (miniFill && activeSrc) {
+          miniFill.style.width = activeSrc.pct5h + '%';
+          miniFill.style.background = activeSrc.grad;
+          miniFill.style.boxShadow = '0 0 8px ' + activeSrc.color;
+        }
         var popModel = document.getElementById('pop-model-name');
         if (popModel && activeSrc) popModel.textContent = activeSrc.model;
         if (!popListEl) return;
         popListEl.innerHTML = QUOTA_SOURCES.map(function (q) {
           var sel = studioState.selectedSource === q.id;
-          return '<button class="mq-row" data-qsrc="' + q.id + '" data-selected="' + (sel ? '1' : '0') + '">' +
+          return '<button class="mq-row" data-qsrc="' + q.id + '" data-selected="' + (sel ? '1' : '0') + '" style="--q-glow:' + q.color + '">' +
             '<div class="mq-row-top">' +
               '<span class="mq-src"><span class="mq-dot" style="background:' + q.color + ';color:' + q.color + '"></span><span>' + q.name + '</span></span>' +
               '<span class="mq-val"><span>' + q.pct5h + '%</span><span class="mq-eta">' + q.eta + '</span></span>' +
@@ -3105,7 +3304,120 @@ export function renderPreviewHtml() {
         if (telPop.classList.contains('open') && !telPop.contains(ev.target) && !telPill.contains(ev.target) && !sbQuotaPill.contains(ev.target)) {
           toggleTelPop(false);
         }
+        if (effortPop && effortPop.classList.contains('open') && !effortPop.contains(ev.target) && !effortPill.contains(ev.target)) {
+          toggleEffortPop(false);
+        }
       });
+
+      // DSH NEXT Draggable Starfield Reasoning Effort Slider (5 tiers: off -> low -> medium -> high -> xhigh)
+      var EFFORT_TIERS = [
+        { key: 'off', label: '关闭', pill: '思考 · 关', badge: '关闭 · Off', color: '#64748b', text: '#94a3b8', grad: 'linear-gradient(90deg, #475569 0%, #64748b 100%)', starOp: 0.12, desc: '关闭深度思考 · 毫秒级直出，适合简单问答' },
+        { key: 'low', label: '低', pill: '思考 · 低', badge: '低 · Low', color: '#38bdf8', text: '#7dd3fc', grad: 'linear-gradient(90deg, #0284c7 0%, #38bdf8 100%)', starOp: 0.45, desc: '轻度推理 · 响应轻快，大幅节省额度消耗' },
+        { key: 'medium', label: '中', pill: '思考 · 中', badge: '中 · Medium', color: '#60a5fa', text: '#93c5fd', grad: 'linear-gradient(90deg, #2563eb 0%, #60a5fa 60%, #818cf8 100%)', starOp: 0.68, desc: '均衡档位 · 日常编码与多文件改写最稳妥' },
+        { key: 'high', label: '高', pill: '思考 · 高', badge: '高 · High', color: '#818cf8', text: '#c4b5fd', grad: 'linear-gradient(90deg, #3b82f6 0%, #6366f1 52%, #a855f7 100%)', starOp: 0.88, desc: '高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）' },
+        { key: 'xhigh', label: '极高', pill: '思考 · 极高', badge: '极高 · Max', color: '#c084fc', text: '#f5d0fe', grad: 'linear-gradient(90deg, #38bdf8 0%, #6366f1 34%, #a855f7 66%, #ec4899 86%, #fbbf24 100%)', starOp: 1, desc: '极限算力 · 全谱星轨满载，桌宠同步进入高能爆气态！' },
+      ];
+      var effortIdx = 3;
+      var effortPop = document.getElementById('ds-effort-pop');
+      var effortPill = document.getElementById('btn-effort-pill');
+      var effortTrack = document.getElementById('ds-effort-track');
+      var effortFill = document.getElementById('ds-effort-fill');
+      var effortKnob = document.getElementById('ds-effort-knob');
+      var effortValEl = document.getElementById('eff-pop-val');
+      var effortDescEl = document.getElementById('eff-desc');
+      var effortPillTxt = document.getElementById('eff-pill-txt');
+      var renderEffortVisual = function (pct, idx, notify) {
+        var tier = EFFORT_TIERS[idx] || EFFORT_TIERS[3];
+        var clampedPct = Math.max(0, Math.min(1, pct));
+        if (effortPop) {
+          effortPop.style.setProperty('--eff-color', tier.color);
+          effortPop.style.setProperty('--eff-text', tier.text);
+          effortPop.style.setProperty('--eff-star-op', String(tier.starOp));
+        }
+        if (effortPill) effortPill.style.setProperty('--eff-color', tier.color);
+        if (effortFill) {
+          effortFill.style.width = (idx === 0 && clampedPct < 0.04 ? 8 : Math.max(10, clampedPct * 100)) + '%';
+          effortFill.style.background = tier.grad;
+        }
+        if (effortKnob) effortKnob.style.left = 'calc(13px + (100% - 26px) * ' + clampedPct.toFixed(4) + ')';
+        if (effortTrack) effortTrack.setAttribute('aria-valuenow', String(idx));
+        if (effortValEl) effortValEl.textContent = tier.badge;
+        if (effortDescEl) effortDescEl.textContent = tier.desc;
+        if (effortPillTxt) effortPillTxt.textContent = tier.pill;
+        document.querySelectorAll('#ds-effort-ticks .ds-effort-tick').forEach(function (tk, i) {
+          tk.classList.toggle('is-on', i <= idx);
+        });
+        document.querySelectorAll('#ds-effort-stops .eff-stop-btn').forEach(function (b) {
+          b.setAttribute('data-active', Number(b.getAttribute('data-eidx')) === idx ? '1' : '0');
+        });
+        if (notify && window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
+          window.__dreamSkinOptical.notifyMascot('effort-tier', { tier: tier.key });
+        }
+      };
+      var toggleEffortPop = function (force) {
+        if (!effortPop || !effortPill) return;
+        var next = typeof force === 'boolean' ? force : !effortPop.classList.contains('open');
+        effortPop.classList.toggle('open', next);
+        effortPill.setAttribute('aria-expanded', next ? 'true' : 'false');
+        if (next) {
+          toggleTelPop(false);
+          drawer.classList.remove('open');
+          var r = effortPill.getBoundingClientRect();
+          effortPop.style.left = Math.max(16, Math.min(window.innerWidth - 344, Math.round(r.left - 40))) + 'px';
+          effortPop.style.transform = 'none';
+          renderEffortVisual(effortIdx / 4, effortIdx, false);
+        }
+      };
+      if (effortPop) effortPop.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      if (effortPill) effortPill.onclick = function (ev) { ev.stopPropagation(); toggleEffortPop(); };
+      document.querySelectorAll('#ds-effort-stops .eff-stop-btn').forEach(function (btn) {
+        btn.onclick = function () {
+          var nextIdx = Number(btn.getAttribute('data-eidx'));
+          var changed = nextIdx !== effortIdx;
+          effortIdx = nextIdx;
+          renderEffortVisual(effortIdx / 4, effortIdx, changed);
+        };
+      });
+      if (effortTrack) {
+        var effDragging = false;
+        var pctFromClientX = function (clientX) {
+          var r = effortTrack.getBoundingClientRect();
+          return Math.max(0, Math.min(1, (clientX - r.left - 13) / Math.max(1, r.width - 26)));
+        };
+        effortTrack.addEventListener('pointerdown', function (ev) {
+          ev.preventDefault();
+          effDragging = true;
+          effortTrack.setAttribute('data-dragging', '1');
+          try { effortTrack.setPointerCapture(ev.pointerId); } catch (_) {}
+          var p = pctFromClientX(ev.clientX);
+          var nextIdx = Math.round(p * 4);
+          var changed = nextIdx !== effortIdx;
+          effortIdx = nextIdx;
+          renderEffortVisual(p, effortIdx, changed);
+        });
+        effortTrack.addEventListener('pointermove', function (ev) {
+          if (!effDragging) return;
+          var p = pctFromClientX(ev.clientX);
+          var nextIdx = Math.round(p * 4);
+          var changed = nextIdx !== effortIdx;
+          effortIdx = nextIdx;
+          renderEffortVisual(p, effortIdx, changed);
+        });
+        var endEffDrag = function (ev) {
+          if (!effDragging) return;
+          effDragging = false;
+          effortTrack.setAttribute('data-dragging', '0');
+          try { effortTrack.releasePointerCapture(ev.pointerId); } catch (_) {}
+          renderEffortVisual(effortIdx / 4, effortIdx, false);
+        };
+        effortTrack.addEventListener('pointerup', endEffDrag);
+        effortTrack.addEventListener('pointercancel', endEffDrag);
+        effortTrack.addEventListener('keydown', function (ev) {
+          if (ev.key === 'ArrowRight' || ev.key === 'ArrowUp') { ev.preventDefault(); effortIdx = Math.min(4, effortIdx + 1); renderEffortVisual(effortIdx / 4, effortIdx, true); }
+          else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowDown') { ev.preventDefault(); effortIdx = Math.max(0, effortIdx - 1); renderEffortVisual(effortIdx / 4, effortIdx, true); }
+        });
+        renderEffortVisual(effortIdx / 4, effortIdx, false);
+      }
 
       // Global Command Palette (Ctrl+K) + Zen Mode (Ctrl+Shift+Z)
       var cmdBackdrop = document.getElementById('ds-cmd-backdrop');
@@ -3140,7 +3452,8 @@ export function renderPreviewHtml() {
           { title: '切换模式：自由混搭', sub: '壁纸液态玻璃 + 300Hz 棱镜 + 像素双宠', run: function () { state.config.skinMode = 'hybrid'; state.config.modules = presetModulesForMode('hybrid'); state.config.glassSurfaces = true; applyNow(); } },
           { title: '点亮 / 关闭小紫猫彩虹极光羽衣', sub: '原版隐藏彩蛋', run: function () { document.getElementById('btn-home-rainbow').click(); } },
           { title: '召唤四宠同台 (Clawd + 小紫猫 + 银白龙 + Deepy)', sub: '桌宠选角舞台', run: function () { state.config.mascotSpec = 'quad'; state.config.modules = Object.assign({}, state.config.modules, { pixelCompanion: true }); applyNow(); } },
-          { title: '打开 512K 上下文试管与多源配额浮窗', sub: 'DeepSeek / Claude / Gemini / Codex', run: function () { toggleTelPop(true); } },
+          { title: '打开自适应上下文试管与多源配额浮窗', sub: 'DeepSeek / Claude / Gemini / Codex', run: function () { toggleTelPop(true); } },
+          { title: '打开 DSH 星轨思考强度拖动滑块', sub: '关闭 / 低 / 中 / 高 / 极高 Max', run: function () { toggleEffortPop(true); } },
           { title: '切换 Zen 专注模式 (隐藏/显示侧栏)', sub: 'Ctrl+Shift+Z', run: function () { setZen(); } },
           { title: '切换视图：首页光场 / 对话视图', sub: 'Studio Home ⇄ Conversation', run: function () { setView(document.body.getAttribute('data-view') === 'home' ? 'conv' : 'home'); } },
         ].concat(clientCmds);
