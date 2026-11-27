@@ -508,63 +508,48 @@ export function renderPreviewHtml() {
     box-shadow: 0 2px 8px color-mix(in srgb, var(--st-accent) 34%, transparent), 0 0 0 1px rgba(255,255,255,0.16);
   }
 
-  /* ── Redesigned Smoked-Obsidian 4-Pool Sidebar Quota Micro-Dashboard ── */
+  /* ── Ultra-Clean Single-Row Sidebar Quota Trigger (Calm Monochrome-First Minimalism) ── */
   .sb-quota-pill {
-    margin-top: auto; width: 100%; border-radius: 11px; padding: 9px 10px 8px;
-    border: 1px solid rgba(255,255,255,0.075);
-    background: linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.016) 100%);
+    margin-top: auto; width: 100%; height: 36px; border-radius: 9px; padding: 0 10px;
+    border: 1px solid rgba(255,255,255,0.065);
+    background: rgba(255,255,255,0.024);
     color: var(--dsw-alias-label-secondary, #a8aab8);
-    font-size: 11px; font-weight: 500; cursor: pointer; text-align: left;
-    display: flex; flex-direction: column; gap: 7px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.085), 0 6px 18px -10px rgba(0,0,0,0.52);
-    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease;
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.055);
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
   }
   .sb-quota-pill:hover {
-    background: linear-gradient(180deg, rgba(255,255,255,0.068) 0%, rgba(255,255,255,0.026) 100%);
-    border-color: color-mix(in srgb, var(--st-accent, #6EA8FF) 36%, rgba(255,255,255,0.10));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 22px -10px color-mix(in srgb, var(--st-accent, #6EA8FF) 28%, rgba(0,0,0,0.65));
+    background: rgba(255,255,255,0.058);
+    border-color: rgba(255,255,255,0.12);
     color: var(--dsw-alias-label-primary, #f2f2f5);
   }
   html[data-prism-theme="light"] .sb-quota-pill {
-    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(244,247,251,0.72) 100%);
-    border-color: rgba(15,23,42,0.09);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 12px -6px rgba(15,23,42,0.12);
+    background: rgba(15,23,42,0.032);
+    border-color: rgba(15,23,42,0.08);
+    box-shadow: none;
   }
-  .sb-quota-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-  .sb-quota-l { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; color: var(--dsw-alias-label-primary, #e4e6f0); opacity: 0.9; }
-  .sb-quota-r-wrap { display: inline-flex; align-items: center; gap: 4px; }
+  html[data-prism-theme="light"] .sb-quota-pill:hover {
+    background: rgba(15,23,42,0.062);
+    border-color: rgba(15,23,42,0.13);
+    color: #0f172a;
+  }
+  .sb-quota-l { display: inline-flex; align-items: center; gap: 8px; min-width: 0; color: var(--dsw-alias-label-primary, #e2e4ee); }
+  .sb-quota-ring { width: 16px; height: 16px; flex-shrink: 0; transform: rotate(-90deg); overflow: visible; }
+  .sb-quota-ring-bg { fill: none; stroke: rgba(148,163,184,0.22); stroke-width: 2.1; }
+  .sb-quota-ring-fg {
+    fill: none; stroke: var(--st-accent, #6EA8FF); stroke-width: 2.2; stroke-linecap: round;
+    stroke-dasharray: 37.7; stroke-dashoffset: 4.52;
+    transition: stroke-dashoffset 320ms cubic-bezier(.22,1,.36,1), stroke 180ms ease;
+  }
+  .sb-quota-r-wrap { display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; }
   .sb-quota-r {
-    font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.5px; font-weight: 650;
-    color: var(--st-accent, #6EA8FF); font-variant-numeric: tabular-nums;
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.2px; font-weight: 600;
+    color: var(--dsw-alias-label-secondary, #a8aab8); font-variant-numeric: tabular-nums;
   }
-  .sb-quota-chev { opacity: 0.45; transition: transform 140ms ease, opacity 140ms ease; }
-  .sb-quota-pill:hover .sb-quota-chev { opacity: 0.9; transform: translateX(1.5px); }
-  .sb-quota-grid {
-    width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
-  }
-  .sb-q-cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .sb-q-track {
-    position: relative; width: 100%; height: 4px; border-radius: 999px; overflow: hidden;
-    background: rgba(148,163,184,0.14);
-    box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.45);
-  }
-  html[data-prism-theme="light"] .sb-q-track { background: rgba(15,23,42,0.10); box-shadow: none; }
-  .sb-q-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
-    transition: width 320ms cubic-bezier(.22,1,.36,1), filter 150ms ease;
-  }
-  .sb-q-fill::after {
-    content: ""; position: absolute; inset: 0 0 55% 0;
-    background: rgba(255,255,255,0.28); border-radius: 999px;
-  }
-  .sb-quota-pill:hover .sb-q-fill { filter: brightness(1.12); }
-  .sb-q-meta {
-    display: flex; align-items: center; justify-content: space-between;
-    font-family: var(--ag-cs-mono-stack, monospace); font-size: 9.2px; font-variant-numeric: tabular-nums;
-    opacity: 0.62; transition: opacity 140ms ease;
-  }
-  .sb-q-cell[data-active="1"] .sb-q-meta { opacity: 1; color: var(--dsw-alias-label-primary, #f2f2f5); font-weight: 600; }
-  .sb-q-code { letter-spacing: 0.02em; }
+  .sb-quota-pill:hover .sb-quota-r { color: var(--dsw-alias-label-primary, #f2f2f5); }
+  .sb-quota-chev { opacity: 0.42; transition: transform 140ms ease, opacity 140ms ease; }
+  .sb-quota-pill:hover .sb-quota-chev { opacity: 0.85; transform: translateX(1.5px); }
 
   /* ── Composer Inline Telemetry & Circular Context Ring (1:1 Inspired by Obsidian Prism companions.webp) ── */
   .comp-tel-pill {
@@ -598,16 +583,16 @@ export function renderPreviewHtml() {
   }
   .comp-ctx-pct { font-weight: 600; color: var(--dsw-alias-label-primary, #e4e6f0); }
 
-  /* ── Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) ── */
+  /* ── Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp Minimalism) ── */
   #ds-telemetry-pop {
     position: fixed; bottom: 118px; right: max(28px, calc(50vw - 498px)); z-index: 2147483644;
-    width: 472px; max-width: calc(100vw - 24px); padding: 14px; border-radius: 15px;
+    width: 468px; max-width: calc(100vw - 24px); padding: 14px 16px; border-radius: 15px;
     background-color: var(--op-menu-bg); background-image: var(--op-menu-sheen);
     backdrop-filter: blur(22px) saturate(155%); -webkit-backdrop-filter: blur(22px) saturate(155%);
     border: 1px solid var(--op-menu-bd);
     box-shadow: inset 0 1px 0 rgba(235,243,255,0.14), 0 26px 64px -16px rgba(0,0,0,0.78);
     color: var(--dsw-alias-label-primary, #f2f2f5);
-    display: none; gap: 14px; align-items: stretch;
+    display: none; gap: 16px; align-items: stretch;
     animation: opPopIn 170ms cubic-bezier(.16,1,.3,1);
   }
   #ds-telemetry-pop.open { display: flex; }
@@ -615,107 +600,125 @@ export function renderPreviewHtml() {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 24px 56px -14px rgba(15,23,42,0.22);
   }
   .vial-col {
-    width: 78px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
-    padding-right: 12px; border-right: 1px solid var(--op-kb);
+    width: 88px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px;
+    padding-right: 14px; border-right: 1px solid rgba(255,255,255,0.065);
   }
-  .vial-cap { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.5px; color: var(--dsw-alias-label-secondary, #8a8a98); }
-  .vial-pct { font-family: var(--ag-cs-mono-stack, monospace); font-size: 13px; font-weight: 700; color: var(--st-accent-2); }
+  html[data-prism-theme="light"] .vial-col { border-right-color: rgba(15,23,42,0.08); }
+  .vial-head { width: 100%; display: flex; align-items: baseline; justify-content: space-between; font-family: var(--ag-cs-mono-stack, monospace); }
+  .vial-cap { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10px; color: var(--dsw-alias-label-secondary, #7c7f90); letter-spacing: 0.03em; }
+  .vial-pct { font-family: var(--ag-cs-mono-stack, monospace); font-size: 12px; font-weight: 700; color: var(--dsw-alias-label-primary, #eef2ff); }
+  .vial-stage { display: flex; align-items: center; gap: 6px; }
   .vial-glass {
-    position: relative; width: 32px; height: 154px; border-radius: 999px;
-    background: linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(12,16,28,0.65) 45%, rgba(255,255,255,0.05) 100%);
-    border: 1.5px solid color-mix(in srgb, var(--st-accent) 38%, rgba(255,255,255,0.16));
-    box-shadow: inset 0 0 14px rgba(0,0,0,0.55), 0 0 18px -4px color-mix(in srgb, var(--st-accent) 44%, transparent);
+    position: relative; width: 34px; height: 174px; border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.07) 0%, rgba(10,13,22,0.72) 48%, rgba(255,255,255,0.04) 100%);
+    border: 1px solid rgba(196,218,255,0.18);
+    box-shadow: inset 0 0 16px rgba(0,0,0,0.62), inset 2px 0 6px rgba(255,255,255,0.06);
     overflow: hidden;
   }
   html[data-prism-theme="light"] .vial-glass {
-    background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(226,236,250,0.85) 55%, rgba(255,255,255,0.85) 100%);
-    border-color: color-mix(in srgb, var(--st-accent) 34%, transparent);
-    box-shadow: inset 0 0 10px rgba(30,58,138,0.10), 0 0 14px -4px color-mix(in srgb, var(--st-accent) 26%, transparent);
+    background: linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(226,236,250,0.85) 55%, rgba(255,255,255,0.88) 100%);
+    border-color: rgba(37,99,235,0.22);
+    box-shadow: inset 0 0 10px rgba(30,58,138,0.09);
   }
+  @keyframes ag-vial-rise { from { background-position: 0 28px, 8px 18px; } to { background-position: 0 0, 8px -10px; } }
   .vial-fill {
     position: absolute; left: 2px; right: 2px; bottom: 2px; border-radius: 0 0 999px 999px;
     background: var(--st-vial-grad);
-    box-shadow: 0 -2px 12px color-mix(in srgb, var(--st-accent-2) 72%, transparent);
+    box-shadow: 0 -2px 14px color-mix(in srgb, var(--st-accent-2) 64%, transparent);
     transition: height 420ms cubic-bezier(.22,1,.36,1);
+    overflow: hidden;
   }
   .vial-fill::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px;
-    background: radial-gradient(50% 100% at 50% 50%, rgba(255,255,255,0.92), rgba(124,226,255,0.35));
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px;
+    background: radial-gradient(58% 100% at 50% 50%, rgba(235,248,255,0.98) 0%, rgba(125,211,252,0.55) 68%, transparent 100%);
+    box-shadow: 0 0 12px rgba(186,230,253,0.82);
     border-radius: 999px;
   }
-  .vial-ticks { position: absolute; inset: 12px 3px 12px auto; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-  .vial-ticks span { width: 6px; height: 1px; background: rgba(255,255,255,0.36); }
-  .tel-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+  .vial-fill::after {
+    content: ""; position: absolute; inset: 5px 0 0 0; pointer-events: none; opacity: 0.65;
+    background-image:
+      radial-gradient(1.2px 1.2px at 8px 10px, rgba(255,255,255,0.85), transparent),
+      radial-gradient(1px 1px at 20px 20px, rgba(186,230,253,0.75), transparent),
+      radial-gradient(1px 1px at 14px 4px, rgba(255,255,255,0.65), transparent);
+    background-size: 28px 28px;
+    animation: ag-vial-rise 3.2s linear infinite;
+  }
+  .vial-scale {
+    height: 144px; display: flex; flex-direction: column; justify-content: space-between;
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 9px; color: var(--dsw-alias-label-secondary, #6e7285);
+    user-select: none;
+  }
+  .tel-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
   .tel-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .tel-model { font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+  .tel-model { font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; }
   .tel-ver-tag {
     font-family: var(--ag-cs-mono-stack, monospace); font-size: 9.5px; font-weight: 650;
-    padding: 1.5px 6px; border-radius: 999px; color: #34d399;
-    background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.30);
+    padding: 1.5px 7px; border-radius: 999px; color: #34d399;
+    background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.28);
   }
   .tel-slices {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-    padding: 7px 8px; border-radius: 9px; border: 1px solid var(--op-kb); background: rgba(128,136,156,0.045);
+    display: flex; flex-direction: column; gap: 5px;
+    padding: 2px 0 8px; border-bottom: 1px solid rgba(255,255,255,0.065);
   }
-  .tel-sl-k { font-size: 10px; color: var(--dsw-alias-label-secondary, #8a8a98); }
-  .tel-sl-v { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.5px; font-weight: 600; }
-  .tel-sec-h { display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 600; color: var(--dsw-alias-label-secondary, #8a8a98); }
+  html[data-prism-theme="light"] .tel-slices { border-bottom-color: rgba(15,23,42,0.08); }
+  .tel-sl-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; }
+  .tel-sl-k { display: inline-flex; align-items: center; gap: 7px; color: var(--dsw-alias-label-secondary, #9ea3b4); }
+  .tel-sl-dot { width: 5px; height: 5px; border-radius: 2px; background: var(--st-accent, #60a5fa); opacity: 0.85; }
+  .tel-sl-v { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.5px; font-weight: 600; color: var(--dsw-alias-label-primary, #e6e9f2); font-variant-numeric: tabular-nums; }
+  .tel-sec-h { display: flex; align-items: center; justify-content: space-between; font-size: 10.8px; font-weight: 500; color: var(--dsw-alias-label-secondary, #7e8294); }
   .mq-mini-btn {
-    height: 21px; padding: 0 7px; border-radius: 6px; border: 1px solid var(--op-kb);
-    background: rgba(128,136,156,0.07); color: var(--dsw-alias-label-secondary, #8a8a98);
-    font-size: 10.5px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    height: 22px; padding: 0 7px; border-radius: 6px; border: 1px solid transparent;
+    background: transparent; color: var(--dsw-alias-label-secondary, #8a8a98);
+    font-size: 11px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
   }
-  .mq-mini-btn:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #f2f2f5); }
-  .mq-list { display: flex; flex-direction: column; gap: 5px; }
+  .mq-mini-btn:hover { background: rgba(255,255,255,0.065); border-color: rgba(255,255,255,0.08); color: var(--dsw-alias-label-primary, #f2f2f5); }
+  /* Borderless Airy Quota Rows Matching optics.webp */
+  .mq-list { display: flex; flex-direction: column; gap: 4px; }
   .mq-row {
-    width: 100%; border: 1px solid transparent; background: rgba(128,136,156,0.04);
-    border-radius: 8px; padding: 6px 8px; cursor: pointer; color: inherit; text-align: left;
-    display: flex; flex-direction: column; gap: 4px; transition: background-color 120ms ease, border-color 120ms ease;
+    width: 100%; border: 0; background: transparent;
+    border-radius: 8px; padding: 5px 6px; cursor: pointer; color: inherit; text-align: left;
+    display: flex; flex-direction: column; gap: 5px; transition: background-color 120ms ease;
   }
-  .mq-row:hover { background: rgba(128,136,156,0.10); border-color: var(--op-kb); }
-  .mq-row[data-selected="1"] {
-    background: rgba(var(--prism-accent-rgb, 102,157,246), 0.12);
-    border-color: rgba(var(--prism-accent-rgb, 102,157,246), 0.36);
-  }
-  .mq-row-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 11.5px; }
-  .mq-src { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; min-width: 0; }
-  .mq-dot { width: 7px; height: 7px; border-radius: 999px; flex-shrink: 0; box-shadow: 0 0 7px currentColor; }
-  .mq-val { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
-  .mq-eta { font-size: 10px; font-weight: 400; color: var(--dsw-alias-label-secondary, #8a8a98); }
-  /* Upgraded Crystal-Luminous Quota Remaining Bars (Recessed Trough + Quarter Ticks + Specular Beam + Glowing Tip) */
+  .mq-row:hover { background: rgba(255,255,255,0.042); }
+  .mq-row[data-selected="1"] { background: rgba(var(--prism-accent-rgb, 102,157,246), 0.085); }
+  html[data-prism-theme="light"] .mq-row:hover { background: rgba(15,23,42,0.04); }
+  html[data-prism-theme="light"] .mq-row[data-selected="1"] { background: rgba(37,99,235,0.08); }
+  .mq-row-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+  .mq-src { display: inline-flex; align-items: center; gap: 7px; font-weight: 500; min-width: 0; color: var(--dsw-alias-label-primary, #eceef6); }
+  .mq-ico { width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--dsw-alias-label-secondary, #9ea3b4); opacity: 0.82; transition: opacity 140ms ease, color 140ms ease; }
+  .mq-row[data-selected="1"] .mq-ico, .mq-row:hover .mq-ico { color: var(--dsw-alias-label-primary, #eef2ff); opacity: 1; }
+  .mq-val { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+  .mq-eta { font-size: 10.5px; font-weight: 400; color: var(--dsw-alias-label-secondary, #7e8294); }
   .mq-bar {
-    position: relative; height: 7px; border-radius: 999px;
-    background: linear-gradient(180deg, rgba(8,10,16,0.68) 0%, rgba(22,26,38,0.52) 100%);
-    box-shadow: inset 0 1px 2.5px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.06);
+    position: relative; height: 4.5px; border-radius: 999px;
+    background: rgba(255,255,255,0.08);
     overflow: hidden;
   }
-  html[data-prism-theme="light"] .mq-bar {
-    background: linear-gradient(180deg, rgba(15,23,42,0.11) 0%, rgba(15,23,42,0.06) 100%);
-    box-shadow: inset 0 1px 2px rgba(15,23,42,0.12), inset 0 0 0 1px rgba(15,23,42,0.06);
-  }
-  .mq-bar::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
-    background: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(255,255,255,0.14) calc(25% - 1px), rgba(255,255,255,0.14) 25%);
-  }
+  html[data-prism-theme="light"] .mq-bar { background: rgba(15,23,42,0.09); }
   .mq-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 999px; z-index: 2;
-    box-shadow: 0 0 11px -1px var(--q-glow, rgba(92,198,252,0.55)), inset 0 1px 0 rgba(255,255,255,0.42);
-    transition: width 360ms cubic-bezier(.22,1,.36,1), filter 180ms ease;
-    overflow: hidden;
+    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
+    transition: width 360ms cubic-bezier(.22,1,.36,1), filter 160ms ease;
   }
-  .mq-fill::before {
-    content: ""; position: absolute; inset: 0 0 48% 0; border-radius: 999px 999px 0 0;
-    background: linear-gradient(180deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0) 100%);
-    pointer-events: none;
+  .mq-row:hover .mq-fill { filter: brightness(1.1); }
+  .tel-foot {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.065);
+    font-size: 11px; color: var(--dsw-alias-label-secondary, #7e8294);
   }
-  .mq-fill::after {
-    content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 7px; border-radius: 999px;
-    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.92) 100%);
-    box-shadow: 0 0 8px rgba(255,255,255,0.85);
-    pointer-events: none;
+  html[data-prism-theme="light"] .tel-foot { border-top-color: rgba(15,23,42,0.08); }
+  .tel-foot-r { display: inline-flex; align-items: center; gap: 8px; font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.8px; }
+  .tel-clean-btn {
+    height: 24px; padding: 0 9px; border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+    color: var(--dsw-alias-label-primary, #dcdfe8); font-size: 11px; font-weight: 500;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    transition: background-color 140ms ease, border-color 140ms ease;
   }
-  .mq-row:hover .mq-fill { filter: brightness(1.12) saturate(1.12); }
-  .mq-detail { display: flex; justify-content: space-between; font-size: 10px; color: var(--dsw-alias-label-secondary, #8a8a98); font-family: var(--ag-cs-mono-stack, monospace); }
+  .tel-clean-btn:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); }
+  html[data-prism-theme="light"] .tel-clean-btn {
+    border-color: rgba(15,23,42,0.14); background: rgba(15,23,42,0.04); color: #1e293b;
+  }
 
   /* ── Authentic Model Selector Popup with Native AntigravityCodexEffortSlider Inside ── */
   .comp-model-btn { gap: 5px; padding: 0 9px; }
@@ -1148,15 +1151,21 @@ export function renderPreviewHtml() {
   .sm-bar { flex: 1; height: 7px; border-radius: 999px; background: var(--op-k1); box-shadow: var(--op-kw); overflow: hidden; }
   .sm-fill { height: 100%; border-radius: 999px; }
   .sm-pct { width: 42px; text-align: right; font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; font-weight: 600; }
-  .studio-quota-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .studio-quota-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .sq-card {
-    padding: 9px 10px; border-radius: 9px; border: 1px solid var(--op-kb);
-    background: rgba(128,136,156,0.04); display: flex; flex-direction: column; gap: 6px;
+    padding: 11px 13px; border-radius: 11px; border: 1px solid rgba(255,255,255,0.065);
+    background: rgba(255,255,255,0.025); display: flex; flex-direction: column; gap: 8px;
+    transition: background-color 140ms ease, border-color 140ms ease;
   }
-  .sq-head { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 600; }
-  .sq-pace { font-size: 9.5px; padding: 1px 6px; border-radius: 999px; border: 1px solid var(--op-kb); }
-  .sq-win { display: flex; flex-direction: column; gap: 3px; }
-  .sq-win-r { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--dsw-alias-label-secondary, #8a8a98); font-family: var(--ag-cs-mono-stack, monospace); }
+  .sq-card:hover { background: rgba(255,255,255,0.045); border-color: rgba(255,255,255,0.12); }
+  html[data-prism-theme="light"] .sq-card {
+    border-color: rgba(15,23,42,0.08); background: rgba(15,23,42,0.025);
+  }
+  .sq-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 550; }
+  .sq-pace { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10px; padding: 1.5px 7px; border-radius: 999px; background: rgba(255,255,255,0.05); color: var(--dsw-alias-label-secondary, #9ea3b4); }
+  .sq-win { display: flex; flex-direction: column; gap: 4px; }
+  .sq-win-r { display: flex; justify-content: space-between; font-size: 10.8px; color: var(--dsw-alias-label-secondary, #8a8f9e); font-family: var(--ag-cs-mono-stack, monospace); font-variant-numeric: tabular-nums; }
+  .sq-win-r strong { color: var(--dsw-alias-label-primary, #e6e9f2); font-weight: 600; }
 
   .home-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
   .home-chip {
@@ -1526,19 +1535,19 @@ export function renderPreviewHtml() {
         </div>
       </div>
 
-      <!-- Redesigned Smoked-Obsidian 4-Pool Quota Micro-Dashboard (Click to Open Floating Glass Popover!) -->
-      <button class="sb-quota-pill" id="btn-sb-quota-pill" title="查看上下文试管与 4 源配额明细">
-        <span class="sb-quota-top">
-          <span class="sb-quota-l">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.78"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 12 16 8"/><path d="M8.5 16.5h7"/></svg>
-            <span>多源配额</span>
-          </span>
-          <span class="sb-quota-r-wrap">
-            <span class="sb-quota-r" id="sb-quota-pct">DS · 88%</span>
-            <svg class="sb-quota-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-          </span>
+      <!-- Ultra-Clean Single-Row Sidebar Quota Trigger (Click to Open optics.webp Glass Popover) -->
+      <button class="sb-quota-pill" id="btn-sb-quota-pill" title="查看上下文液柱试管与多源模型配额">
+        <span class="sb-quota-l">
+          <svg class="sb-quota-ring" viewBox="0 0 16 16" aria-hidden="true">
+            <circle class="sb-quota-ring-bg" cx="8" cy="8" r="6"></circle>
+            <circle class="sb-quota-ring-fg" id="sb-quota-ring-fg" cx="8" cy="8" r="6"></circle>
+          </svg>
+          <span>配额余量</span>
         </span>
-        <span class="sb-quota-grid" id="sb-quota-grid"></span>
+        <span class="sb-quota-r-wrap">
+          <span class="sb-quota-r" id="sb-quota-pct">88%</span>
+          <svg class="sb-quota-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </span>
       </button>
 
       <button class="sb-foot-btn" id="btn-foot-settings">
@@ -1732,29 +1741,34 @@ export function renderPreviewHtml() {
   <!-- Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) -->
   <div id="ds-telemetry-pop" data-dreamskin-control-panel="1" role="dialog" aria-label="上下文与多源配额详情">
     <div class="vial-col">
-      <span class="vial-cap">AUTO</span>
-      <span class="vial-pct" id="vial-pct">46.5%</span>
-      <div class="vial-glass">
-        <div class="vial-fill" id="vial-fill" style="height:46.5%"></div>
-        <div class="vial-ticks"><span></span><span></span><span></span></div>
+      <div class="vial-head"><span class="vial-cap">AUTO</span><span class="vial-pct" id="vial-pct">46.5%</span></div>
+      <div class="vial-stage">
+        <div class="vial-glass">
+          <div class="vial-fill" id="vial-fill" style="height:46.5%"></div>
+        </div>
+        <div class="vial-scale"><span>384k</span><span>256k</span><span>128k</span></div>
       </div>
       <span class="vial-cap">238.1k</span>
     </div>
     <div class="tel-main">
       <div class="tel-head">
         <span class="tel-model"><span id="pop-model-name">DeepSeek-R1</span><span class="tel-ver-tag">VERIFIED</span></span>
-        <div style="display:inline-flex;gap:5px">
+        <div style="display:inline-flex;gap:3px">
           <button class="mq-mini-btn" id="btn-pop-refresh">刷新</button>
           <button class="mq-mini-btn" id="btn-pop-close">收起</button>
         </div>
       </div>
       <div class="tel-slices">
-        <div><div class="tel-sl-k">系统规则</div><div class="tel-sl-v">38.9k</div></div>
-        <div><div class="tel-sl-k">对话轮次</div><div class="tel-sl-v">136.2k</div></div>
-        <div><div class="tel-sl-k">工具上下文</div><div class="tel-sl-v">63.0k</div></div>
+        <div class="tel-sl-row"><span class="tel-sl-k"><span class="tel-sl-dot"></span>系统规则 System</span><span class="tel-sl-v">38.9k</span></div>
+        <div class="tel-sl-row"><span class="tel-sl-k"><span class="tel-sl-dot" style="opacity:0.65"></span>对话轮次 Conversation</span><span class="tel-sl-v">136.2k</span></div>
+        <div class="tel-sl-row"><span class="tel-sl-k"><span class="tel-sl-dot" style="opacity:0.42"></span>工具上下文 Tools</span><span class="tel-sl-v">63.0k</span></div>
       </div>
-      <div class="tel-sec-h"><span>多来源配额池（点击切换模型）</span><span>5h + 周度</span></div>
+      <div class="tel-sec-h"><span>5h 模型配额池</span><span>2ms Fast-RPC</span></div>
       <div class="mq-list" id="pop-quota-list"></div>
+      <div class="tel-foot">
+        <span>本地轨迹缓存</span>
+        <span class="tel-foot-r"><span id="pop-cache-mb">142 MB</span><button class="tel-clean-btn" id="btn-pop-clean"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg><span>清理</span></button></span>
+      </div>
     </div>
   </div>
 
@@ -1974,10 +1988,10 @@ export function renderPreviewHtml() {
           pctWeek: 92,
           eta: '¥142.80',
           weekEta: '日额充裕',
-          color: '#4D6BFE',
-          grad: 'linear-gradient(90deg, #4D6BFE 0%, #5CC6FC 100%)',
-          pace: '充裕',
-          paceColor: '#5CC6FC',
+          color: '#60A5FA',
+          grad: 'linear-gradient(90deg, #4F7CF8 0%, #7DD3FC 100%)',
+          pace: '直连 API',
+          paceColor: '#93C5FD',
           tokens: '1.64M',
         },
         {
@@ -1989,10 +2003,10 @@ export function renderPreviewHtml() {
           pctWeek: 74,
           eta: '1h 48m',
           weekEta: '周额 74%',
-          color: '#D97757',
-          grad: 'linear-gradient(90deg, #D97757 0%, #F6BD60 100%)',
-          pace: '充裕',
-          paceColor: '#F6BD60',
+          color: '#818CF8',
+          grad: 'linear-gradient(90deg, #6366F1 0%, #A5B4FC 100%)',
+          pace: '5h 窗口',
+          paceColor: '#A5B4FC',
           tokens: '980K',
         },
         {
@@ -2004,10 +2018,10 @@ export function renderPreviewHtml() {
           pctWeek: 91,
           eta: '3h 12m',
           weekEta: '周额 91%',
-          color: '#669DF6',
-          grad: 'linear-gradient(90deg, #669DF6 0%, #A58AF8 100%)',
+          color: '#A78BFA',
+          grad: 'linear-gradient(90deg, #8B5CF6 0%, #C4B5FD 100%)',
           pace: '充裕',
-          paceColor: '#A58AF8',
+          paceColor: '#C4B5FD',
           tokens: '580K',
         },
         {
@@ -2019,13 +2033,20 @@ export function renderPreviewHtml() {
           pctWeek: 79,
           eta: '2d 6h',
           weekEta: '周额 79%',
-          color: '#34A853',
-          grad: 'linear-gradient(90deg, #34A853 0%, #5CC6FC 100%)',
-          pace: '良好',
-          paceColor: '#34D399',
+          color: '#38BDF8',
+          grad: 'linear-gradient(90deg, #0EA5E9 0%, #67E8F9 100%)',
+          pace: 'Team 池',
+          paceColor: '#7DD3FC',
           tokens: '360K',
         },
       ];
+
+      var PROVIDER_GLYPHS = {
+        deepseek: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5C12 8 16 12 21.5 12 16 12 12 16 12 21.5 12 16 8 12 2.5 12 8 12 12 8 12 2.5Z"/></svg>',
+        claude: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M3 12h18M5.8 5.8l12.4 12.4M18.2 5.8 5.8 18.2"/></svg>',
+        gemini: '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5C12 8 16 12 21.5 12 16 12 12 16 12 21.5 12 16 8 12 2.5 12 8 12 12 8 12 2.5Z"/></svg>',
+        codex: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 6.9 4M12 20a8 8 0 0 1-6.9-4"/></svg>',
+      };
 
       var ADAPTED_CLIENTS = [
         { id: 'dsh', name: 'DSH NEXT', ver: '2.0.24-next', ws: 'dsh-workspace', channel: '原生双半体', model: 'DeepSeek-R1', sessions: [['DreamSkin Prism 三模式融合', 'DeepSeek-R1 · 刚刚'], ['DSH NEXT 原生双半体插件', 'dsh-plugin-dreamskin · 8 分钟前'], ['多端适配器自动发现', 'Velopack + MSIX · 1 小时前'], ['WebGL2 地平线与 300Hz 棱镜', 'Obsidian Prism Core · 今天']] },
@@ -2083,40 +2104,43 @@ export function renderPreviewHtml() {
       }
 
       function renderMultiQuota() {
-        var gridEl = document.getElementById('sb-quota-grid');
+        var ringEl = document.getElementById('sb-quota-ring-fg');
         var pctEl = document.getElementById('sb-quota-pct');
         var popListEl = document.getElementById('pop-quota-list');
         var activeSrc = QUOTA_SOURCES.find(function (x) { return x.id === studioState.selectedSource; }) || QUOTA_SOURCES[0];
-        var shortCodes = { deepseek: 'DS', claude: 'CL', gemini: 'GM', codex: 'CX' };
-        if (gridEl) {
-          gridEl.innerHTML = QUOTA_SOURCES.map(function (q) {
-            var code = shortCodes[q.id] || q.id.slice(0, 2).toUpperCase();
-            var isAct = studioState.selectedSource === q.id;
-            return '<span class="sb-q-cell" data-active="' + (isAct ? '1' : '0') + '" title="' + q.name + ' · 剩余 ' + q.pct5h + '%">' +
-              '<span class="sb-q-track"><span class="sb-q-fill" style="width:' + q.pct5h + '%;background:' + q.grad + ';box-shadow:0 0 6px ' + q.color + '88"></span></span>' +
-              '<span class="sb-q-meta"><span class="sb-q-code">' + code + '</span><span>' + q.pct5h + '</span></span>' +
-            '</span>';
-          }).join('');
+        if (ringEl && activeSrc) {
+          var circ = 2 * Math.PI * 6;
+          ringEl.style.strokeDasharray = circ.toFixed(2);
+          ringEl.style.strokeDashoffset = (circ * (1 - activeSrc.pct5h / 100)).toFixed(2);
+          ringEl.style.stroke = activeSrc.color;
         }
         if (pctEl && activeSrc) {
-          var aCode = shortCodes[activeSrc.id] || 'DS';
-          pctEl.textContent = aCode + ' · ' + activeSrc.pct5h + '%';
-          pctEl.style.color = activeSrc.color;
+          pctEl.textContent = activeSrc.pct5h + '%';
         }
         var popModel = document.getElementById('pop-model-name');
         if (popModel && activeSrc) popModel.textContent = activeSrc.model;
         if (!popListEl) return;
         popListEl.innerHTML = QUOTA_SOURCES.map(function (q) {
           var sel = studioState.selectedSource === q.id;
-          return '<button class="mq-row" data-qsrc="' + q.id + '" data-selected="' + (sel ? '1' : '0') + '" style="--q-glow:' + q.color + '">' +
+          var ico = PROVIDER_GLYPHS[q.id] || PROVIDER_GLYPHS.deepseek;
+          return '<button class="mq-row" data-qsrc="' + q.id + '" data-selected="' + (sel ? '1' : '0') + '">' +
             '<div class="mq-row-top">' +
-              '<span class="mq-src"><span class="mq-dot" style="background:' + q.color + ';color:' + q.color + '"></span><span>' + q.name + '</span></span>' +
-              '<span class="mq-val"><span>' + q.pct5h + '%</span><span class="mq-eta">' + q.eta + '</span></span>' +
+              '<span class="mq-src"><span class="mq-ico">' + ico + '</span><span>' + q.name + '</span></span>' +
+              '<span class="mq-val"><span>' + q.pct5h + '%</span><span class="mq-eta">· ' + q.eta + '</span></span>' +
             '</div>' +
             '<div class="mq-bar"><div class="mq-fill" style="width:' + q.pct5h + '%;background:' + q.grad + '"></div></div>' +
-            '<div class="mq-detail"><span>' + q.providerTag + '</span><span>' + q.weekEta + ' · ' + q.tokens + '</span></div>' +
           '</button>';
         }).join('');
+        var cleanBtn = document.getElementById('btn-pop-clean');
+        if (cleanBtn && !cleanBtn._bound) {
+          cleanBtn._bound = true;
+          cleanBtn.onclick = function (ev) {
+            ev.stopPropagation();
+            var mb = document.getElementById('pop-cache-mb');
+            if (mb) mb.textContent = '12 MB';
+            toast('已清理本地轨迹缓存，释放 130 MB 空间');
+          };
+        }
         popListEl.querySelectorAll('.mq-row').forEach(function (btn) {
           btn.onclick = function () {
             var id = btn.getAttribute('data-qsrc');
@@ -2284,17 +2308,18 @@ export function renderPreviewHtml() {
           return;
         }
 
-        // Quotas tab: full 2x2 multi-source dual-window view
+        // Quotas tab: restrained smoked-glass 2x2 multi-source dual-window view matching optics.webp
         body.innerHTML = '<div class="studio-quota-grid">' + QUOTA_SOURCES.map(function (q) {
+          var ico = PROVIDER_GLYPHS[q.id] || PROVIDER_GLYPHS.deepseek;
           return '<div class="sq-card">' +
             '<div class="sq-head">' +
-              '<span class="mq-src"><span class="mq-dot" style="background:' + q.color + ';color:' + q.color + '"></span><span>' + q.name + '</span></span>' +
-              '<span class="sq-pace" style="color:' + q.paceColor + '">' + q.pace + '</span>' +
+              '<span class="mq-src"><span class="mq-ico">' + ico + '</span><span>' + q.name + '</span></span>' +
+              '<span class="sq-pace">' + q.pace + '</span>' +
             '</div>' +
-            '<div class="sq-win"><div class="sq-win-r"><span>5h 窗口</span><span>' + q.pct5h + '% · ' + q.eta + '</span></div>' +
+            '<div class="sq-win"><div class="sq-win-r"><span>5h 窗口</span><span><strong>' + q.pct5h + '%</strong> · ' + q.eta + '</span></div>' +
               '<div class="mq-bar"><div class="mq-fill" style="width:' + q.pct5h + '%;background:' + q.grad + '"></div></div></div>' +
-            '<div class="sq-win"><div class="sq-win-r"><span>周度配额</span><span>' + q.pctWeek + '% · ' + q.tokens + '</span></div>' +
-              '<div class="mq-bar"><div class="mq-fill" style="width:' + q.pctWeek + '%;background:' + q.grad + ';opacity:0.78"></div></div></div>' +
+            '<div class="sq-win"><div class="sq-win-r"><span>周度配额</span><span><strong>' + q.pctWeek + '%</strong> · ' + q.tokens + '</span></div>' +
+              '<div class="mq-bar"><div class="mq-fill" style="width:' + q.pctWeek + '%;background:' + q.grad + ';opacity:0.62"></div></div></div>' +
           '</div>';
         }).join('') + '</div>';
       }
