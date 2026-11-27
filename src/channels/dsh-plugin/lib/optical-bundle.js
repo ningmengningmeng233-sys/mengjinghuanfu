@@ -3913,6 +3913,8 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     'cat:1:#947fd6;s735eb5;o141413;ka89fc4;B6a8fd6;O947fd6;qb6a7e6;Qd9cff6|' +
     'dragon:1:#d7dfef;s95a1c2;o1e1936;Oc6cce6;qbfbde6;Qe2e1f7;Uedf1fc;Ta3a5d6;X818ab2|' +
     'whale:1:#4e6fff;s3450cf;o141413;O4e6fff;q86a2ff;Qc7d6ff;Ue5f0ff;Ta8cbff;X38bdf8|' +
+    'fox:1:#ee7b2f;sc45817;o141413;Oee7b2f;qf7a968;Qffd9b3;Ufff5e6;T3d2118;Xffba66|' +
+    'panda:1:#f4f6fa;sd3dae6;offffff;Of4f6fa;qdfe5f0;Qffffff;Uffffff;T1f232e;X252936|' +
     'cowboy:0:#d97757;sbf684c;o141413;H8b5e3c;Ra6744e;hrgba(20, 20, 19, 0.18)|' +
     'shades:0:#e0896b;sc16f53;o141413;G141413;g6d778a;wffffff;hrgba(20, 20, 19, 0.18)|' +
     'wizard:0:#8a74cf;s6a56aa;o141413;M5c4b9e;ye8b64a;bcfe3ee;hrgba(20, 20, 19, 0.18)'
@@ -3960,10 +3962,19 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     'w.body!stand=2,1:.10#./12#*4/##8U##/#10U#/.#8U#./..8T..;squash=1,3:..10s../.12#./14#*2/##10U##/.#10U#./..10T..;loaf=2,4:.10s./12#*2/##8U##/#10U#/.10T.;stretch=2,0:.s9#./12#*4/##8U##/#10U#/.#8U#./..8T..;flat=2,7:.10s./12#/#10U#;turnL=2,1:.9#s./11#s*4/#8U##s/10U#s/.8U#s./..8T..;turnR=~turnL;leanR=2,1:..10#/.12#*4/.##8U##/#10U#./.#8U#../..8T..;leanL=1,1:.10#../12#.*4/##8U##./.#10U#/..#8U#./..8T..;peek=2,2:.10#./12#*4/##8T##|' +
     'w.paws!none=0,6:.s/ss;flap=0,5:ss/.s;cheer=0,4:ss12.ss/.s12.s.;up=@cheer,0,2;upR=14,4:ss/.s;groom1=0,5:.s11.ss/ss11.ss;groom2=@groom1,0,4;write1=@groom1,0,5;write2=0,6:.s12.ss/ss12.ss;peekGrip=1,7:ss10.ss;tuck=1,7:s|' +
     'w.tail!up=13,1:..#..#/..4#/3.##./..3#./.3#../##s3.;sway=13,2:3.#..#/..4#./..3#../.3#3./##s4.;curl=13,3:..#.#./..3#./.3#../##s3.;loaf=13,5:..#.#./.3#../##s3.;puff=13,0:..#..#/..4#/..3#./.3#../3#3./##s3.|' +
-    'p!dragonFlame0=14,4:.f./YVf/.f.;dragonFlame1=14,3:..fF./.YVfF/VYYfF/.fF..;dragonFlame2=14,3:3.fF./.fYVfF/VYYfF./..fF..;whaleSpout0=5,-3:.B..B./..AA../..BA../..AA..;whaleSpout1=4,-5:.B4.B./B.A..A.B/..AB.BA./3.AA3./3.BA3./3.AA3.;whaleSpout2=3,-5:..B4.B../.A6.A./B3.BB3.B/4.AA4./.B..BA..B./4.AA4.;quill1=15,3:..B/.B./k..;quill2=@quill1,16,4;sheet=12,8:6c/ckk3c/6g;mug=13,4:..4D/3DbwD/D.DbbD/3DbbD/..4D;cloth1=13,2:cw../w3c/.cwc/..c.;cloth2=14,3:..cw/3cw/.cwc/..c.;bowl=12,7:5w/DBwBD/.3D.;bowlEmpty=12,8:D3gD/.3D.;chop1=12,4:3.n/..n./.n../n3.;chop2=12,3:3.n/..n./.n../w3.;fishDish=11,7:.PPsPP./7D/.5D.;fishBone=11,7:.M.M.M./7D/.5D.;envS=12,5:6d/ddwwdd/dwddwd/d4wd/6d;envSOpen=12,4:..dd../.dwwd./6d/d4wd*2/6d;letter=14,1:7d/d5cd/d3gccd/d5cd/d4gcd/d5cd/dggccrd/7d;seed=15,8,g:On/nO;p1=16,7,g:O/l*2;p2=16,6,g:O/l*3;p3=14,5,g:..O../..l../O.l.O/.3l./..l..;p4=14,3,g:..O../O.l.O/.3l./O.l.O/.3l./..l..*2;d1=13,0,g:3.O3./O5.O/.O3.O./7./O5.O/7.*2/3.O3.;d2=13,-2,g:.q3.q./3.q3./q5.q/7./.q3.q./7./3.q3.;wilt1=14,3,g:..q../q.l.q/.3l./q.l.q/.3l./..l..*2;wilt2=14,4,g:q4./.q.q./..ll./.q.l./..ll./..l..;wilt3=15,6,g:Q.Q/.l./Ql./.l.;bfUp=13,-4:B3.B/BB.BB/.BkB./..k..;bfDn=13,-4:5.*2/BBkBB/.BkB.;bfLeftUp=@bfUp,1,-5;bfLeftDn=@bfDn,1,-5;bfRest=7,-3:..B../.BB../..k..;stickUp=14,-9:WW/GG*6;stickLT=9,-9:5.tt/WG3.tt/.GG..tt/..GG.tt/3.GGtt/4.GGt/5.GG;stickRT=~stickLT,14,-9;sirenDim=5,-4:..LL../.4x.*2/6l;sirenL=5,-4:..Lx../.HLxx./.LLxx./6l;sirenF=5,-4:..HH../.LHHL./.4L./6l;sirenR=~sirenL;beamL=-1,-7:J5./.j4./..j3./6./J3j../6./.Jjj..;beamF=4,-7:J..JJ..J/.j.jj.j.;micStand=1,4,g:6.ZZ6./6.Zz6./6.ZZ6./6.Z7.*2/5.4Z5.;micSink1=1,6,g:6.ZZ6./6.Zz6./6.ZZ6./5.4Z5.;micSink2=1,8,g:6.ZZ6./5.4Z5.;smoke=6,-4:.m./mm./.mm/.m.;iceCrystal=5,-6:..av../.aavv./3a3v/.aavv./..av..;iceCrystalHi=@iceCrystal,5,-7;laser0=16,7,g:.p./pRp/.p.;laser1=18,8,g:.R./RpR;laser2=15,8,g:pRp/.R.;blueprint=12,2:7B/B4EBB/BE3BEB/B4EBB/BE3BEB/7B;headband=1,1:.12L.L/..10H..L;goalFlame0=4,-7,g:3.Y3./..fYf../.FfYfF./FfYVYfF;goalFlame1=4,-7,g:..Y4./.fYf..Y/FfYVYf./.FfYfF.;goggles=3,0:gAAg..gAAg/gEAg..gEAg;iceCrystalSpin=6,-7:.av./aavv*2/.av.;flag0=14,-6:l4A./lAAyA./l4A./l5.*4;flag1=14,-6:l..3A/lAAyAA/l3A../l5.*4;shadesProp=3,2:4Z..4Z/ZEZZ..ZEZZ;surfboard=1,8,g:..10A../.A10EA.;waveSplash0=-3,6,g:..E./E.A./.AA.;waveSplash1=-3,6,g:E3./.EA./AA..;cloudBig=12,2:..3w../.w3Ew./5wbw/.5b.;cloudMid=13,3:.3w./wEEbw/.3b.;cubeGlow=13,3:.y.y./A3EA/AEyEA/5A;hourglass0=13,1:5n/.byb./..y../.b.b./5n;hourglass1=13,1:5n/.b.b./..y../.byb./5n;pocketWatch=12,4:..y../.ywy./ywnwy/.3y.;micHand=13,2:.ZZ./ZwZZ/.gg./..g.*2;spotlight=5,-9:..VV../.VyyV./V.yy.V;book0=12,4:5B/B3wB/BwgwB/B3wB/5B;book1=12,4:BB.BB/BwBwB/BwgwB/BwBwB/BB.BB;bulbOff=5,-8:..gg../.g..g.*2/..cc..;bulbOn=5,-9:y.yy.y/.yVVy./y4Vy/..yy../..cc..;hotCup0=12,3:.m..m./m..m../5D./D3nDD/D3nD./.3D..;hotCup1=12,3:m..m../.m..m./5D./D3nDD/D3nD./.3D..;donut0=12,4:.3p./pywpp/pp.pn/5n/.3n.;donut1=12,4:.pp../pyw../pp.pn/5n/.3n.;habCactus=0,0,g:3.P3./..lGl../l.lGl../lGlGl.l/..lGlGl/.5n./..3n..;habLamp=0,0,g:..3l../.l3Vl./.l3Yl./..3l../3.z3.*4/..3z..;habHourglass=0,0,g:.5n./..byb../3.y3./..byb../.5n.|s!heart=5,-7:.r.r./5r/.3r./..r..;spark=5,-8:..y..*2/5y/..y..*2;z1=10,-6:4k/..k./.k../4k;z2=12,-9:3k/.k./3k;vein=5,-7:.r.r./rr.rr/5./rr.rr/.r.r.;bang=6,-8:.r.*3/3./.r.;q=5,-9:.3k./k3.k/3.k./..k../5./..k..;note=5,-8:..kk./..k.k/..k../3k../kk3.;sweat=13,-4:.B./BbB*2/.B.;tilde=5,-7:.k3./k.k.k/3.k.;dozeZ0=@z2,12,-3;dozeZ1=@z1,13,-7;dozeZ2=14,-12:5k/3.k./..k../.k3./5k;fireSpark0=5,-8:..Y../f3.V/..f..;fireSpark1=5,-9:.V..f/..Y../f4.;fireSpark2=5,-8:f..Y./4.V/.f3.;sleepBubble0=12,4:.b./bEb/.b.;sleepBubble1=12,3:.bb./bEwb/bEEb/.bb.|m!cowboy=0,-2:5.6H5./3.10H3./..12R../..12#../..##o6#o##../16#/..12#../3.#.#4.#.#3.;shades=0,0:..12#../..4Gg##g4G../..12G../16#/..12#../3.#.#4.#.#3.;wizard=0,-3:7.MM7./6.MyMM6./5.6M5./..12M../..12#../..##o6#o##../16#/..12#../3.#.#4.#.#3.|ma.cowboy!trick=0,-2:4.6H6./..10H4./.12R3./..12#../..##o6#o##../16#/..12#../..#..#4.#..#..|ma.shades!trick=0,0:..12#../..GwGGw##GwGGw../..12G../16#/..12#../3.#.#4.#.#3.|ma.wizard!trick=0,-3:5.y10./4.yMyMM7./5.6M5./..12M../..12#../..##o6#o##../16#/..12#y./3.#.#4.#.#.y.';
+    'f.ears!stand=2,-2:T10.T/#T8.T#/##U6.U##;nod=@stand,2,-1;loaf=@stand,2,1;airplane=0,-1:TT12.TT/#TU10.UT#/##12.##;peek=@stand,2,0;flat=1,5:T12.T/#T10.T#;twitchL=2,-2:11.T/#T8.T#/##U6.U##;twitchR=~twitchL|' +
+    'f.body!stand=2,1:12#*3/#X8#X#/#U8#U#/##8U##/3#6U3#;squash=1,2:.12s./14#*2/#X10#X#/##10U##/3#8U3#/4#6U4#;loaf=1,4:.12s./14#*2/##10U##/3#8U3#/.12#.;stretch=2,0:s11#/12#*2/.11#*2/..#8U#/##8U##/3#6U3#;flat=2,7:12s/##8U##/12#;turnL=2,1:11#s*3/X8#X#s/U8#U#s/#8U##s/##6U3#s;turnR=~turnL;leanR=2,1:.12#*3/.#X8#X#/.##8U##/3#6U3#./##6U3#..;leanL=~leanR;peek=2,2:12#*4/##8U##*2|' +
+    'f.legs!stand=2,8:.T.T4.T.T.*2;crouch=2,9:.T.T4.T.T.;tuck=2,8:..T.T..T.T..*2;walkA=2,8:.T.s4.T.s./.T6.T3.;walkB=~walkA;dangle=2,8:.T.T4.T.T./.T.T8.*2;dangle2=~dangle;flailA=2,8:T3.T..T3.T/T10.T;flailB=2,8:..T.T..T.T../4.T..T4.;flailC=2,8:T..T4.T..T/3.T4.T..T|' +
+    'f.tail!up=14,1:.UU/.UU#/.3#/3#./##s.;sway=14,2:..UU/.UU#/3#./##s.;curl=14,3:.UU#/3#./##s.;loaf=14,5:.UU#/3#./##s.;puff=14,0:.3U/UU##/4#/3#./##s.|' +
+    'a.ears!stand=2,-1:.XX6.XX./3X6.3X;nod=@stand,2,0;loaf=@stand,2,2;airplane=1,-1:XX10.XX/3X8.3X;peek=@stand,2,1;flat=1,6:.XX8.XX.;twitchL=2,-1:9.XX./3X6.3X;twitchR=~twitchL|' +
+    'a.body!stand=2,1:.10#./#3X4#3X#*3/12#/12X/#X8#X#;squash=1,2:..10s../#3X6#3X#*2/14#/14X/#X10#X#/##10###;loaf=1,4:.12s./#3X6#3X#*2/14X/##10###;stretch=2,0:s11#/#3X4#3X#*2/12#/12X/#X8#X#*2;flat=2,7:12s/#3X4#3X#/12X;turnL=2,1:.9#s./3X4#3X#s*3/11#s/11Xs/X8#X#s;turnR=~turnL;leanR=2,1:..10#/.#3X4#3X#*3/.12#/12X./#X8#X#.;leanL=~leanR;peek=2,2:.10#./#3X4#3X#*3/12#/12X|' +
+    'a.legs!stand=2,8:.XX4.XX.*2;crouch=2,9:.XX4.XX.;tuck=2,8:..XX..XX..*2;walkA=2,8:.XX4.ss./.XX7.;walkB=~walkA;dangle=2,8:.XX4.XX./.XX7.*2;dangle2=~dangle;flailA=2,8:XX6.XX*2;flailB=2,8:..XX..XX../3.XX..XX3.;flailC=2,8:XX..XX4.XX/3.XX4.XX.|' +
+    'a.paws!none=0,0:;groom1=12,4:XX*2;groom2=@groom1,12,3;cheer=0,2:X14.X*2;up=0,-1:XX12.XX*2;peekGrip=1,7:XX10.XX;write1=@groom1,13,5;write2=@groom1,14,6;upR=14,0:XX*2;tuck=1,4:X12.X*2|' +
+    'a.tail!up=14,5:XX/XX;sway=14,6:XX/XX;curl=14,6:X./XX;loaf=14,6:X.;puff=14,4:.X/XX/XX|' +
+    'p!foxWisp0=3,-6:..A../.AEA./..A..;foxWisp1=11,-7:..V../.VYV./..V..;foxWisp2=6,-8:..E../.EAE./..E..;bamboo0=13,1:..G./.lG./..G./.lG./..G./..l.;bamboo1=13,2:..G./.lG./..G./..l./..G.;dragonFlame0=14,4:.f./YVf/.f.;dragonFlame1=14,3:..fF./.YVfF/VYYfF/.fF..;dragonFlame2=14,3:3.fF./.fYVfF/VYYfF./..fF..;whaleSpout0=5,-3:.B..B./..AA../..BA../..AA..;whaleSpout1=4,-5:.B4.B./B.A..A.B/..AB.BA./3.AA3./3.BA3./3.AA3.;whaleSpout2=3,-5:..B4.B../.A6.A./B3.BB3.B/4.AA4./.B..BA..B./4.AA4.;quill1=15,3:..B/.B./k..;quill2=@quill1,16,4;sheet=12,8:6c/ckk3c/6g;mug=13,4:..4D/3DbwD/D.DbbD/3DbbD/..4D;cloth1=13,2:cw../w3c/.cwc/..c.;cloth2=14,3:..cw/3cw/.cwc/..c.;bowl=12,7:5w/DBwBD/.3D.;bowlEmpty=12,8:D3gD/.3D.;chop1=12,4:3.n/..n./.n../n3.;chop2=12,3:3.n/..n./.n../w3.;fishDish=11,7:.PPsPP./7D/.5D.;fishBone=11,7:.M.M.M./7D/.5D.;envS=12,5:6d/ddwwdd/dwddwd/d4wd/6d;envSOpen=12,4:..dd../.dwwd./6d/d4wd*2/6d;letter=14,1:7d/d5cd/d3gccd/d5cd/d4gcd/d5cd/dggccrd/7d;seed=15,8,g:On/nO;p1=16,7,g:O/l*2;p2=16,6,g:O/l*3;p3=14,5,g:..O../..l../O.l.O/.3l./..l..;p4=14,3,g:..O../O.l.O/.3l./O.l.O/.3l./..l..*2;d1=13,0,g:3.O3./O5.O/.O3.O./7./O5.O/7.*2/3.O3.;d2=13,-2,g:.q3.q./3.q3./q5.q/7./.q3.q./7./3.q3.;wilt1=14,3,g:..q../q.l.q/.3l./q.l.q/.3l./..l..*2;wilt2=14,4,g:q4./.q.q./..ll./.q.l./..ll./..l..;wilt3=15,6,g:Q.Q/.l./Ql./.l.;bfUp=13,-4:B3.B/BB.BB/.BkB./..k..;bfDn=13,-4:5.*2/BBkBB/.BkB.;bfLeftUp=@bfUp,1,-5;bfLeftDn=@bfDn,1,-5;bfRest=7,-3:..B../.BB../..k..;stickUp=14,-9:WW/GG*6;stickLT=9,-9:5.tt/WG3.tt/.GG..tt/..GG.tt/3.GGtt/4.GGt/5.GG;stickRT=~stickLT,14,-9;sirenDim=5,-4:..LL../.4x.*2/6l;sirenL=5,-4:..Lx../.HLxx./.LLxx./6l;sirenF=5,-4:..HH../.LHHL./.4L./6l;sirenR=~sirenL;beamL=-1,-7:J5./.j4./..j3./6./J3j../6./.Jjj..;beamF=4,-7:J..JJ..J/.j.jj.j.;micStand=1,4,g:6.ZZ6./6.Zz6./6.ZZ6./6.Z7.*2/5.4Z5.;micSink1=1,6,g:6.ZZ6./6.Zz6./6.ZZ6./5.4Z5.;micSink2=1,8,g:6.ZZ6./5.4Z5.;smoke=6,-4:.m./mm./.mm/.m.;iceCrystal=5,-6:..av../.aavv./3a3v/.aavv./..av..;iceCrystalHi=@iceCrystal,5,-7;laser0=16,7,g:.p./pRp/.p.;laser1=18,8,g:.R./RpR;laser2=15,8,g:pRp/.R.;blueprint=12,2:7B/B4EBB/BE3BEB/B4EBB/BE3BEB/7B;headband=1,1:.12L.L/..10H..L;goalFlame0=4,-7,g:3.Y3./..fYf../.FfYfF./FfYVYfF;goalFlame1=4,-7,g:..Y4./.fYf..Y/FfYVYf./.FfYfF.;goggles=3,0:gAAg..gAAg/gEAg..gEAg;iceCrystalSpin=6,-7:.av./aavv*2/.av.;flag0=14,-6:l4A./lAAyA./l4A./l5.*4;flag1=14,-6:l..3A/lAAyAA/l3A../l5.*4;shadesProp=3,2:4Z..4Z/ZEZZ..ZEZZ;surfboard=1,8,g:..10A../.A10EA.;waveSplash0=-3,6,g:..E./E.A./.AA.;waveSplash1=-3,6,g:E3./.EA./AA..;cloudBig=12,2:..3w../.w3Ew./5wbw/.5b.;cloudMid=13,3:.3w./wEEbw/.3b.;cubeGlow=13,3:.y.y./A3EA/AEyEA/5A;hourglass0=13,1:5n/.byb./..y../.b.b./5n;hourglass1=13,1:5n/.b.b./..y../.byb./5n;pocketWatch=12,4:..y../.ywy./ywnwy/.3y.;micHand=13,2:.ZZ./ZwZZ/.gg./..g.*2;spotlight=5,-9:..VV../.VyyV./V.yy.V;book0=12,4:5B/B3wB/BwgwB/B3wB/5B;book1=12,4:BB.BB/BwBwB/BwgwB/BwBwB/BB.BB;bulbOff=5,-8:..gg../.g..g.*2/..cc..;bulbOn=5,-9:y.yy.y/.yVVy./y4Vy/..yy../..cc..;hotCup0=12,3:.m..m./m..m../5D./D3nDD/D3nD./.3D..;hotCup1=12,3:m..m../.m..m./5D./D3nDD/D3nD./.3D..;donut0=12,4:.3p./pywpp/pp.pn/5n/.3n.;donut1=12,4:.pp../pyw../pp.pn/5n/.3n.;habCactus=0,0,g:3.P3./..lGl../l.lGl../lGlGl.l/..lGlGl/.5n./..3n..;habLamp=0,0,g:..3l../.l3Vl./.l3Yl./..3l../3.z3.*4/..3z..;habHourglass=0,0,g:.5n./..byb../3.y3./..byb../.5n.|s!heart=5,-7:.r.r./5r/.3r./..r..;spark=5,-8:..y..*2/5y/..y..*2;z1=10,-6:4k/..k./.k../4k;z2=12,-9:3k/.k./3k;vein=5,-7:.r.r./rr.rr/5./rr.rr/.r.r.;bang=6,-8:.r.*3/3./.r.;q=5,-9:.3k./k3.k/3.k./..k../5./..k..;note=5,-8:..kk./..k.k/..k../3k../kk3.;sweat=13,-4:.B./BbB*2/.B.;tilde=5,-7:.k3./k.k.k/3.k.;dozeZ0=@z2,12,-3;dozeZ1=@z1,13,-7;dozeZ2=14,-12:5k/3.k./..k../.k3./5k;fireSpark0=5,-8:..Y../f3.V/..f..;fireSpark1=5,-9:.V..f/..Y../f4.;fireSpark2=5,-8:f..Y./4.V/.f3.;sleepBubble0=12,4:.b./bEb/.b.;sleepBubble1=12,3:.bb./bEwb/bEEb/.bb.|m!cowboy=0,-2:5.6H5./3.10H3./..12R../..12#../..##o6#o##../16#/..12#../3.#.#4.#.#3.;shades=0,0:..12#../..4Gg##g4G../..12G../16#/..12#../3.#.#4.#.#3.;wizard=0,-3:7.MM7./6.MyMM6./5.6M5./..12M../..12#../..##o6#o##../16#/..12#../3.#.#4.#.#3.|ma.cowboy!trick=0,-2:4.6H6./..10H4./.12R3./..12#../..##o6#o##../16#/..12#../..#..#4.#..#..|ma.shades!trick=0,0:..12#../..GwGGw##GwGGw../..12G../16#/..12#../3.#.#4.#.#3.|ma.wizard!trick=0,-3:5.y10./4.yMyMM7./5.6M5./..12M../..12#../..##o6#o##../16#/..12#y./3.#.#4.#.#.y.';
 
   function decodeSpriteAtlas(raw) {
-    const out = { c: {}, k: {}, d: {}, w: {}, p: {}, s: {}, m: {}, ma: {} };
+    const out = { c: {}, k: {}, d: {}, w: {}, f: {}, a: {}, p: {}, s: {}, m: {}, ma: {} };
     for (const sec of raw.split('|')) {
       const bi = sec.indexOf('!');
       const pk = sec.slice(0, bi).split('.');
@@ -4026,6 +4037,19 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       loafShut: { ...CAT_PARTS.eyes.loafShut, oy: 5 },
       loafHalf: { ...CAT_PARTS.eyes.loafHalf, oy: 5 },
     },
+    mouth: CLAWD_PARTS.mouth,
+  };
+  const FOX_PARTS = {
+    shadow: CLAWD_PARTS.shadow,
+    ..._A.f,
+    paws: _A.k.paws,
+    eyes: CAT_PARTS.eyes,
+    mouth: CLAWD_PARTS.mouth,
+  };
+  const PANDA_PARTS = {
+    shadow: CLAWD_PARTS.shadow,
+    ..._A.a,
+    eyes: CAT_PARTS.eyes,
     mouth: CLAWD_PARTS.mouth,
   };
   const PROPS = _A.p;
@@ -4475,7 +4499,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
   const SLOW_TAIL_POSES = new Set(['idle', 'lookNod', 'readAlong', 'gaze']);
   // 冰晶让位：头顶已有道具的姿态不挂冰晶；居中符号出现时冰晶暂隐，仅侧边汗滴与打盹 z 可共存
   const CRYSTAL_HIDE_POSES = new Set([
-    'siren', 'onFire', 'cheerSticks', 'peek', 'flat', 'rickroll', 'carry', 'whaleSpout',
+    'siren', 'onFire', 'cheerSticks', 'peek', 'flat', 'rickroll', 'carry', 'whaleSpout', 'foxWisp', 'pandaBamboo',
     'slashGoal', 'slashBoost', 'slashSchedule', 'slashGrill', 'slashLearnBulb',
   ]);
   const CRYSTAL_OK_SYMS = new Set([SYMS.sweat, SYMS.z1, SYMS.z2, SYMS.dozeZ0, SYMS.dozeZ1, SYMS.dozeZ2, SYMS.sleepBubble0, SYMS.sleepBubble1]);
@@ -4517,6 +4541,8 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     'catStretch:S:a=loaf/nod~18-,S:b=loaf/stretch~18-,S:e=loafHalf/shut~18-,S:l=~/~18-,S:t=loaf/up~18-,S:Y=z1/tilde~18-|' +
     'dragonFlame:b=turnR,e=happy/happy/happy/happy/squint/squint~l,m=small,1=dragonFlame0/dragonFlame1/dragonFlame2~l,y=fireSpark0/fireSpark1/fireSpark2~l,K:a=airplane,K:w=up/cheer~c,K:t=puff,C:L=up,C:R=front|' +
     'whaleSpout:b=squash/stand~c,N:l=crouch/stand~c,W:l=~,e=happy,1=whaleSpout0/whaleSpout1/whaleSpout2~l,K:a=nod/stand~c,K:w=cheer/up~c,K:t=puff,C:L=up,C:R=up|' +
+    'foxWisp:b=squash/stand~c,N:l=crouch/stand~c,e=happy,1=foxWisp0/foxWisp1/foxWisp2~l,y=spark,K:a=airplane/stand~c,K:w=cheer/up~c,K:t=puff,C:L=up,C:R=up|' +
+    'pandaBamboo:b=squash/stand~c,N:l=crouch/stand~c,e=happy,m=small/yawn~c,1=bamboo0/bamboo1~c,y=heart,K:a=nod/stand~c,K:w=groom1/groom2~c,K:t=puff,C:L=up,C:R=front|' +
     'letter:b=turnR,e=open,e=half/~10-19,e=happy/~19-,1=envS/letter~0-6,1=envSOpen/~6-11,Y=heart/~19-,K:a=nod|' +
     'rickroll:b=leanR/squash/leanL/stand~4,e=happy/open~c,1=micStand/micSink1~0-31,1=micSink2/~34-,y=note,K:a=stand/nod~c,K:w=cheer,C:L=up/stub~c,C:R=stub/up~c|' +
     'readAlong:e=open/open/half/half~l,e=open/~0-2,e=open/~14-,z=0/0/1/1~l,z=0/~0-2,z=0/~14-,N:l=stand/stand/crouch/crouch~l,N:l=stand/~0-2,N:l=stand/~14-,C:y=note|' +
@@ -4584,19 +4610,19 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       s.shadow = 'w14'; s.body = 'squash'; s.legs = isWhale ? null : 'crouch';
       if (isFelineRig) { s.ears = 'nod'; s.eyes = 'half'; if (isWhale) s.paws = 'tuck'; } else s.eyes = shiftFrame(p.eyes.squint, 0, 1);
     },
-    loaf(s, { isCat, isWhale, poseKey, phase4, tickIdx }) {
-      if (!isCat && !isWhale) return;
+    loaf(s, { isCat, isWhale, isFox, isPanda, poseKey, phase4, tickIdx }) {
+      if (!isCat && !isWhale && !isFox && !isPanda) return;
       s.shadow = 'w14'; s.ears = 'loaf'; s.body = 'loaf'; s.legs = null;
-      if (isWhale) s.paws = 'tuck';
+      if (isWhale || isPanda) s.paws = 'tuck';
       s.eyes = poseKey === 'sleep' || phase4 === 3 ? 'loafShut' : 'loafHalf';
       s.tail = poseKey === 'sleep' || isWhale ? 'loaf' : floor(tickIdx / 4) % 2 ? 'loaf' : 'curl';
     },
     sleep(s, c) {
-      if (c.isCat || c.isWhale) POSE_RECIPES.loaf(s, c);
+      if (c.isCat || c.isWhale || c.isFox || c.isPanda) POSE_RECIPES.loaf(s, c);
       else if (c.isDragon) { s.shadow = 'w14'; s.body = 'squash'; s.ears = 'loaf'; s.eyes = 'shut'; s.legs = 'tuck'; s.paws = 'tuck'; s.tail = 'curl'; }
       else { s.body = 'squash'; s.eyes = 'shut'; s.legs = 'tuck'; }
     },
-    walk(s, { isCat, isDragon, isWhale, tickIdx, opts }) {
+    walk(s, { isCat, isDragon, isWhale, isFox, isPanda, tickIdx, opts }) {
       const b = floor(tickIdx / 2) % 4;
       if (isWhale) {
         s.legs = null;
@@ -4608,7 +4634,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       }
       s.legs = ['walkA', 'stand', 'walkB', 'stand'][b];
       if (b % 2 === 0) s.sink = 1;
-      if (isCat) s.tail = b < 2 ? 'up' : 'sway';
+      if (isCat || isFox || isPanda) s.tail = b < 2 ? 'up' : 'sway';
       else if (isDragon) {
         s.body = opts.dir === 'left' ? 'turnL' : 'turnR';
         s.paws = b % 2 === 0 ? 'cheer' : 'none';
@@ -4652,10 +4678,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       if (nod) { s.sink = 1; s.legs = 'crouch'; }
       s.extraSym = sym || (lt >= at + 2 && lt < at + 8 ? (isFelineRig ? SYMS.heart : SYMS.note) : null);
     },
-    gaze(s, { isCat, isDragon, opts }) {
+    gaze(s, { isCat, isDragon, isFox, isPanda, opts }) {
       const fL = opts.dir === 'left', up = opts.clipParam === 1;
       s.body = fL ? 'turnL' : 'turnR'; s.eyes = up ? (fL ? 'upL' : 'upR') : fL ? 'openL' : 'openR';
-      if ((isCat || isDragon) && (opts.earTwitch === 'L' || opts.earTwitch === 'R')) s.ears = opts.earTwitch === 'L' ? 'twitchL' : 'twitchR';
+      if ((isCat || isDragon || isFox || isPanda) && (opts.earTwitch === 'L' || opts.earTwitch === 'R')) s.ears = opts.earTwitch === 'L' ? 'twitchL' : 'twitchR';
     },
   };
 
@@ -4677,8 +4703,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     const isCat = kind === 'cat';
     const isDragon = kind === 'dragon';
     const isWhale = kind === 'whale';
-    const isFelineRig = isCat || isDragon || isWhale;
-    const p = isCat ? CAT_PARTS : isDragon ? DRAGON_PARTS : isWhale ? WHALE_PARTS : CLAWD_PARTS;
+    const isFox = kind === 'fox';
+    const isPanda = kind === 'panda';
+    const isFelineRig = isCat || isDragon || isWhale || isFox || isPanda;
+    const p = isCat ? CAT_PARTS : isDragon ? DRAGON_PARTS : isWhale ? WHALE_PARTS : isFox ? FOX_PARTS : isPanda ? PANDA_PARTS : CLAWD_PARTS;
     const frameMod = tickIdx % 2;
     const phase4 = tickIdx % 4;
     const sym = opts.sym ? SYMS[opts.sym] : null;
@@ -4704,7 +4732,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       tail: isFelineRig ? ['up', 'sway', 'curl', 'up'][phase4] : null,
     };
 
-    const ctx = { isCat, isDragon, isWhale, isFelineRig, p, poseKey, tickIdx, lt, frameMod, clipMod, phase4, opts, sym };
+    const ctx = { isCat, isDragon, isWhale, isFox, isPanda, isFelineRig, p, poseKey, tickIdx, lt, frameMod, clipMod, phase4, opts, sym };
     if (hasOwn(POSE_RECIPES, poseKey)) {
       if (POSE_RECIPES[poseKey]) POSE_RECIPES[poseKey](s, ctx);
     } else if (POSE_DSL[poseKey]) {
@@ -4712,7 +4740,8 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     }
 
     if (isFelineRig && s.body === 'squash' && s.ears === 'stand') s.ears = 'nod';
-    if (isDragon && (poseKey === 'happy' || poseKey === 'pet')) s.paws = frameMod ? 'up' : 'cheer';
+    if ((isDragon || isPanda) && (poseKey === 'happy' || poseKey === 'pet')) s.paws = frameMod ? 'up' : 'cheer';
+    if (isFox && (poseKey === 'happy' || poseKey === 'pet')) s.tail = frameMod ? 'puff' : 'up';
     if (isDragon && poseKey === 'peek') s.paws = 'tuck';
     if (isWhale && (poseKey === 'happy' || poseKey === 'pet') && !s.prop1) s.prop1 = frameMod ? 'whaleSpout1' : 'whaleSpout0';
     if (isWhale && poseKey === 'flat') s.tail = 'loaf';
@@ -4720,9 +4749,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       s.tail = opts.reduced ? 'up' : floor(tickIdx / 3) % 2 ? 'sway' : 'up';
     }
     if (poseKey === 'idle') {
-      if (isCat) {
+      if (isCat || isFox || isPanda) {
         if (opts.earTwitch === 'L') s.ears = 'twitchL';
         else if (opts.earTwitch === 'R') s.ears = 'twitchR';
+        if (isFox && opts.clawSnap) s.tail = 'puff';
       } else if (isDragon) {
         if (opts.earTwitch === 'L') s.ears = 'twitchL';
         else if (opts.earTwitch === 'R') s.ears = 'twitchR';
@@ -5092,27 +5122,31 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     return 'greetTurn';
   }
 
-  // ── 自由点选桌宠阵容编解码（向后兼容 5 预设 + dual 别名，单物种纯开关 0/1，主宠总数 <= 4，旧多数量自动夹紧）──
-  const MASCOT_SPECIES_ORDER = ['c', 'k', 'd', 'w'];
+  // ── 自由点选桌宠阵容编解码（向后兼容 5 预设 + dual/all/fox/panda 别名，单物种纯开关 0/1，主宠总数 <= 6）──
+  const MASCOT_SPECIES_ORDER = ['c', 'k', 'd', 'w', 'f', 'p'];
   const MASCOT_MAX_PER_SPECIES = 1;
-  const MASCOT_MAX_TOTAL = 4;
+  const MASCOT_MAX_TOTAL = 6;
   const MASCOT_PRESET_MAP = {
-    off: { c: 0, k: 0, d: 0, w: 0, minis: false },
-    crab: { c: 1, k: 1, d: 0, w: 0, minis: false },
-    dual: { c: 1, k: 1, d: 0, w: 0, minis: false },
-    minis: { c: 1, k: 1, d: 0, w: 0, minis: true },
-    quad: { c: 1, k: 1, d: 1, w: 1, minis: false },
-    'quad-minis': { c: 1, k: 1, d: 1, w: 1, minis: true },
+    off: { c: 0, k: 0, d: 0, w: 0, f: 0, p: 0, minis: false },
+    crab: { c: 1, k: 1, d: 0, w: 0, f: 0, p: 0, minis: false },
+    dual: { c: 1, k: 1, d: 0, w: 0, f: 0, p: 0, minis: false },
+    minis: { c: 1, k: 1, d: 0, w: 0, f: 0, p: 0, minis: true },
+    quad: { c: 1, k: 1, d: 1, w: 1, f: 0, p: 0, minis: false },
+    'quad-minis': { c: 1, k: 1, d: 1, w: 1, f: 0, p: 0, minis: true },
+    all: { c: 1, k: 1, d: 1, w: 1, f: 1, p: 1, minis: false },
+    'all-minis': { c: 1, k: 1, d: 1, w: 1, f: 1, p: 1, minis: true },
+    fox: { c: 0, k: 1, d: 0, w: 0, f: 1, p: 0, minis: false },
+    panda: { c: 0, k: 1, d: 0, w: 0, f: 0, p: 1, minis: false },
   };
 
   function parseMascotSpec(raw) {
-    if (raw === false) return { c: 0, k: 0, d: 0, w: 0, minis: false };
+    if (raw === false) return { c: 0, k: 0, d: 0, w: 0, f: 0, p: 0, minis: false };
     if (typeof raw !== 'string') return null;
     if (hasOwn(MASCOT_PRESET_MAP, raw)) return { ...MASCOT_PRESET_MAP[raw] };
     if (!raw.startsWith('r:') || raw.length <= 2) return null;
-    const m = /^r:(?:([ckdw][0-4](?:,[ckdw][0-4])*)?(\+m)?)$/.exec(raw);
+    const m = /^r:(?:([ckdwfp][0-4](?:,[ckdwfp][0-4])*)?(\+m)?)$/.exec(raw);
     if (!m) return null;
-    const out = { c: 0, k: 0, d: 0, w: 0, minis: Boolean(m[2]) };
+    const out = { c: 0, k: 0, d: 0, w: 0, f: 0, p: 0, minis: Boolean(m[2]) };
     const seen = new Set();
     let rawTotal = 0;
     let total = 0;
@@ -5128,13 +5162,13 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         total += clamped;
       }
     }
-    if (rawTotal > 6 || total > MASCOT_MAX_TOTAL) return null;
+    if (rawTotal > 8 || total > MASCOT_MAX_TOTAL) return null;
     return out;
   }
 
   function encodeMascotSpec(spec) {
     const src = spec && typeof spec === 'object' ? spec : {};
-    const counts = { c: 0, k: 0, d: 0, w: 0 };
+    const counts = { c: 0, k: 0, d: 0, w: 0, f: 0, p: 0 };
     let rem = MASCOT_MAX_TOTAL;
     for (const sp of MASCOT_SPECIES_ORDER) {
       const n = clamp(Number(src[sp]) > 0 ? 1 : 0, 0, min(MASCOT_MAX_PER_SPECIES, rem));
@@ -5142,10 +5176,11 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       rem -= n;
     }
     const minis = Boolean(src.minis);
-    const total = counts.c + counts.k + counts.d + counts.w;
+    const total = counts.c + counts.k + counts.d + counts.w + counts.f + counts.p;
     if (total === 0 && !minis) return 'off';
-    if (counts.c === 1 && counts.k === 1 && counts.d === 0 && counts.w === 0) return minis ? 'minis' : 'crab';
-    if (counts.c === 1 && counts.k === 1 && counts.d === 1 && counts.w === 1) return minis ? 'quad-minis' : 'quad';
+    if (counts.c === 1 && counts.k === 1 && counts.d === 0 && counts.w === 0 && counts.f === 0 && counts.p === 0) return minis ? 'minis' : 'crab';
+    if (counts.c === 1 && counts.k === 1 && counts.d === 1 && counts.w === 1 && counts.f === 0 && counts.p === 0) return minis ? 'quad-minis' : 'quad';
+    if (counts.c === 1 && counts.k === 1 && counts.d === 1 && counts.w === 1 && counts.f === 1 && counts.p === 1) return minis ? 'all-minis' : 'all';
     const parts = [];
     for (const sp of MASCOT_SPECIES_ORDER) {
       if (counts[sp] > 0) parts.push(sp + counts[sp]);
@@ -5266,13 +5301,16 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       return a;
     };
 
-    // 物种挂载顺序保持 k(cat) -> c(clawd) -> d(dragon) -> w(whale)，100% 兼容原有 ['cat','clawd'] / ['cat','clawd','dragon','whale'] 断言
+    // 物种挂载顺序保持 k(cat) -> c(clawd) -> d(dragon) -> w(whale) -> f(fox) -> p(panda)
     const SPECIES_DEF = [
-      { key: 'k', kind: 'cat', label: 'Gemini Cat', basePhase: 14 },
-      { key: 'c', kind: 'clawd', label: 'Claude Clawd', basePhase: 0 },
-      { key: 'd', kind: 'dragon', label: 'GPT Dragon', basePhase: 23 },
-      { key: 'w', kind: 'whale', label: 'DeepSeek Whale', basePhase: 31 },
+      { key: 'k', kind: 'cat', label: 'Gemini 小紫猫', tip: '小紫猫 · 拖拽/抛掷/双击伸懒腰/右键喂甜甜圈', basePhase: 14 },
+      { key: 'c', kind: 'clawd', label: 'Claude Clawd', tip: 'Clawd · 拖拽/抛掷/双击欢呼/右键喂甜甜圈', basePhase: 0 },
+      { key: 'd', kind: 'dragon', label: 'GPT 银白龙', tip: '银白龙 · 拖拽/抛掷/双击吐火球/右键喂甜甜圈', basePhase: 23 },
+      { key: 'w', kind: 'whale', label: 'DeepSeek Deepy', tip: 'Deepy · 拖拽/抛掷/双击喷水花/右键喂甜甜圈', basePhase: 31 },
+      { key: 'f', kind: 'fox', label: 'Kimi 小赤狐', tip: '小赤狐 · 拖拽/抛掷/双击灵狐星火/右键喂甜甜圈', basePhase: 19 },
+      { key: 'p', kind: 'panda', label: '团子小熊猫', tip: '小熊猫 · 拖拽/抛掷/双击啃竹子/右键喂甜甜圈', basePhase: 27 },
     ];
+    const SPECIES_TIP_MAP = Object.fromEntries(SPECIES_DEF.map((sd) => [sd.kind, sd.tip]));
     const buildRosterSpecs = (r) => {
       const specs = [];
       for (const sd of SPECIES_DEF) {
@@ -5282,7 +5320,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
           kind: sd.kind,
           label: sd.label,
           phaseTicks: sd.basePhase,
-          phaseOff: specs.length * 4 + (sd.key === 'k' ? 4 : sd.key === 'd' ? 7 : sd.key === 'w' ? 10 : 0),
+          phaseOff: specs.length * 4 + (sd.key === 'k' ? 4 : sd.key === 'd' ? 7 : sd.key === 'w' ? 10 : sd.key === 'f' ? 13 : sd.key === 'p' ? 16 : 0),
         });
       }
       return specs;
@@ -5355,12 +5393,15 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       }
     };
 
-    const normalizeCamp = (c) => (c === 'claude' || c === 'gemini' || c === 'gpt' || c === 'deepseek' ? c : 'gemini');
+    const normalizeCamp = (c) =>
+      c === 'claude' || c === 'gemini' || c === 'gpt' || c === 'deepseek' || c === 'kimi' || c === 'qwen' || c === 'panda' || c === 'glm'
+        ? c
+        : 'gemini';
     let camp = normalizeCamp(options.camp);
-    let quadEnabled = roster.d > 0 || roster.w > 0;
+    let quadEnabled = roster.d > 0 || roster.w > 0 || roster.f > 0 || roster.p > 0;
     const activeMainIds = () => activeIds;
     const activeMainActors = () => activeIds.map((id) => actors[id]).filter(Boolean);
-    const CAMP_TO_KIND = { claude: 'clawd', gemini: 'cat', gpt: 'dragon', deepseek: 'whale' };
+    const CAMP_TO_KIND = { claude: 'clawd', gemini: 'cat', gpt: 'dragon', deepseek: 'whale', kimi: 'fox', qwen: 'fox', panda: 'panda', glm: 'panda' };
     const campActors = (targetCamp = camp) => {
       const k = CAMP_TO_KIND[targetCamp] || 'cat';
       return activeMainActors().filter((a) => a.kind === k);
@@ -5399,6 +5440,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     const chromaTapTimes = [];
     let chromaPhase = 0;
     const chromaSparks = [];
+    let toyBall = null;
     let fxCanvasCleared = true;
 
     // 打盹生态：45s（深夜 30s）无用户操作 → 哈欠 → 打盹；任何操作唤醒
@@ -5470,7 +5512,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       if (actor.el) return;
       const btn = markNoTrOwned(doc.createElement('div'));
       btn.className = 'ag-v2-mascot-actor';
-      for (const [k, v] of [['data-mascot-id', actor.id], ['data-no-press-spring', '1'], ['role', 'button'], ['tabindex', '-1'], ['aria-label', actor.label]]) btn.setAttribute(k, v);
+      for (const [k, v] of [['data-mascot-id', actor.id], ['data-no-press-spring', '1'], ['role', 'button'], ['tabindex', '-1'], ['aria-label', actor.label], ['title', SPECIES_TIP_MAP[actor.kind] || actor.label]]) btn.setAttribute(k, v);
       const cv = markNoTrOwned(doc.createElement('canvas'));
       cv.className = 'ag-v2-mascot-canvas';
       cv.width = round(CANVAS_W * dpr);
@@ -6081,12 +6123,12 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       const safeRight = popoverRightWidth > 0 ? max(185, w - popoverRightWidth - 18) : w - 12;
       const leaderX = clampActorX(safeRight - 82);
       if (n === 1) return { [mains[0].id]: leaderX };
-      if (n === 2 && roster.c === 1 && roster.k === 1 && !roster.d && !roster.w) {
+      if (n === 2 && roster.c === 1 && roster.k === 1 && !roster.d && !roster.w && !roster.f && !roster.p) {
         const partnerX = clampActorX(leaderX - 66);
         return camp === 'claude' ? { clawd: leaderX, cat: partnerX } : { cat: leaderX, clawd: partnerX };
       }
       const lead = leaderActor() || mains[0];
-      const step = min(62, max(34, floor((leaderX - 16) / max(1, n - 1))));
+      const step = min(62, max(28, floor((leaderX - 16) / max(1, n - 1))));
       const restOrder = mains.filter((a) => a !== lead);
       const pos = { [lead.id]: leaderX };
       restOrder.forEach((a, idx) => {
@@ -6170,10 +6212,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       const isWorker = isWorkingActor(actor);
       if (hasError && isWorker) return 'angry';
       if (streaming) {
-        return isWorker ? 'write' : actor.kind === 'cat' || actor.kind === 'whale' ? 'loaf' : 'sleep';
+        return isWorker ? 'write' : actor.kind === 'cat' || actor.kind === 'whale' || actor.kind === 'fox' || actor.kind === 'panda' ? 'loaf' : 'sleep';
       }
       if (dozing) return 'sleep';
-      if (!isWorker && (actor.kind === 'cat' || actor.kind === 'whale') && floor(now / 9000) % 2 === 1) return 'loaf';
+      if (!isWorker && (actor.kind === 'cat' || actor.kind === 'whale' || actor.kind === 'fox' || actor.kind === 'panda') && floor(now / 9000) % 2 === 1) return 'loaf';
       return actor.pose || 'idle';
     };
 
@@ -6320,8 +6362,8 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       }
       const brk = tickIdx - a.breathTick;
       fx.breath = brk >= 0 && brk < 2;
-      if (a.kind === 'cat' || a.kind === 'dragon' || a.kind === 'whale') {
-        // 耳尖抖动 / 龙角闪光 / 鲸尾拍浪：6~10s 一次，1~2 拍
+      if (a.kind === 'cat' || a.kind === 'dragon' || a.kind === 'whale' || a.kind === 'fox' || a.kind === 'panda') {
+        // 耳尖抖动 / 龙角闪光 / 鲸尾拍浪 / 狐耳微动 / 熊猫抖耳：6~10s 一次，1~2 拍
         if (tickIdx >= a.nextTwitchTick) {
           a.twitchTick = tickIdx;
           a.twitchLen = random() < 0.5 ? 1 : 2;
@@ -6331,7 +6373,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         const tk = tickIdx - a.twitchTick;
         if (tk >= 0 && tk < a.twitchLen) fx.earTwitch = a.twitchSide;
       }
-      if (a.kind === 'clawd' || a.kind === 'dragon' || a.kind === 'whale') {
+      if (a.kind === 'clawd' || a.kind === 'dragon' || a.kind === 'whale' || a.kind === 'fox') {
         // 单钳开合 / 龙翼微振 / 鲸鳍轻摆：8~12s 一次，开-合-开-合 共 4 拍
         if (tickIdx >= a.nextSnapTick) {
           a.snapTick = tickIdx;
@@ -6591,9 +6633,9 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       return true;
     };
 
-    // 舞台棱镜像素星屑渲染器（无粒子时自动缩回 0×0 释放 GPU 显存纹理，0 常驻开销）
+    // 舞台棱镜像素星屑 + 互动抛球渲染器（无粒子且无球时自动缩回 0×0 释放 GPU 显存纹理，0 常驻开销）
     const stepAndPaintChromaFx = () => {
-      if (!chromaSparks.length) {
+      if (!chromaSparks.length && !toyBall) {
         if (!fxCanvasCleared || fxCanvas.width || fxCanvas.height) releaseFxCanvas();
         return;
       }
@@ -6609,10 +6651,66 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         if (fxCanvas.style) { fxCanvas.style.width = `${wCss}px`; fxCanvas.style.height = `${hCss}px`; }
       }
       const ctx = fxCanvas._ctx || (fxCanvas._ctx = fxCanvas.getContext('2d'));
-      if (!ctx) { chromaSparks.length = 0; releaseFxCanvas(); return; }
+      if (!ctx) { chromaSparks.length = 0; toyBall = null; releaseFxCanvas(); return; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, wCss, hCss);
       ctx.imageSmoothingEnabled = false;
+      if (toyBall) {
+        toyBall.ticks += 1;
+        toyBall.x += toyBall.vx;
+        toyBall.y += toyBall.vy;
+        toyBall.vy += 1.05;
+        if (toyBall.y >= 0) {
+          toyBall.y = 0;
+          if (abs(toyBall.vy) > 2.2) {
+            toyBall.vy = -toyBall.vy * 0.62;
+            toyBall.vx *= 0.88;
+            toyBall.bounces += 1;
+          } else {
+            toyBall.vy = 0;
+            toyBall.vx *= 0.82;
+          }
+        }
+        if (toyBall.x < 14) { toyBall.x = 14; toyBall.vx = abs(toyBall.vx) * 0.78; }
+        if (toyBall.x > wCss - 14) { toyBall.x = wCss - 14; toyBall.vx = -abs(toyBall.vx) * 0.78; }
+        if (toyBall.ticks % 2 === 0 && chromaSparks.length < 44) {
+          chromaSparks.push({ x: toyBall.x, y: toyBall.y - 4, vx: -toyBall.vx * 0.12, vy: -0.6, color: toyBall.ticks % 4 === 0 ? '#64D2FF' : '#A78BFA', size: PX, life: 0, maxLife: 8 });
+        }
+        const chaser = actors[toyBall.chaserId] || activeMainActors()[0];
+        if (chaser && !chaser.dragging && !chaser.stackedOn) {
+          const cx = chaser.x + 48;
+          const dx = toyBall.x - cx;
+          if (abs(dx) > 18) {
+            const step = clamp(dx, -11, 11);
+            chaser.x = clampActorX(chaser.x + step);
+            chaser.overridePose = 'walk';
+            chaser.overrideUntil = nowMs() + 260;
+            chaser.faceDir = dx < 0 ? 'left' : 'right';
+          }
+          if (abs(toyBall.x - (chaser.x + 48)) < 26 && toyBall.y > -26 && toyBall.ticks >= 4) {
+            const catchX = toyBall.x;
+            const catchColors = ['#64D2FF', '#A78BFA', '#FBBC04', '#34D399', '#F472B6'];
+            for (let k = 0; k < 12; k++) {
+              const ang = (Math.PI * 2 * k) / 12;
+              chromaSparks.push({ x: catchX, y: -12, vx: Math.cos(ang) * 2.6, vy: Math.sin(ang) * 2.4 - 1.5, color: catchColors[k % catchColors.length], size: PX, life: 0, maxLife: 14 });
+            }
+            const trick = chaser.kind === 'fox' ? 'foxWisp' : chaser.kind === 'panda' ? 'pandaBamboo' : chaser.kind === 'dragon' ? 'dragonFlame' : chaser.kind === 'whale' ? 'whaleSpout' : 'happy';
+            startClip(chaser, trick, 1500, { sym: 'heart' });
+            if (!reducedMotion) hop(chaser, 'happy');
+            recordInteraction('ball-catch', chaser.id);
+            toyBall = null;
+          }
+        }
+        if (toyBall && toyBall.ticks > 52) toyBall = null;
+        if (toyBall) {
+          const bx = round(toyBall.x / PX) * PX;
+          const by = round((hCss - 12 + toyBall.y) / PX) * PX;
+          ctx.fillStyle = toyBall.ticks % 2 === 0 ? '#64D2FF' : '#A78BFA';
+          ctx.fillRect(bx - PX, by - PX, PX * 3, PX * 3);
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(bx, by, PX, PX);
+        }
+      }
       for (let i = chromaSparks.length - 1; i >= 0; i--) {
         const sp = chromaSparks[i];
         sp.life += 1;
@@ -6623,7 +6721,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         ctx.fillStyle = sp.life % 3 === 1 ? '#FFFFFF' : sp.color;
         ctx.fillRect(round(sp.x / PX) * PX, round((hCss - 8 + sp.y) / PX) * PX, sp.size, sp.size);
       }
-      if (!chromaSparks.length) releaseFxCanvas();
+      if (!chromaSparks.length && !toyBall) releaseFxCanvas();
     };
 
     let lastChromaStepTick = -1;
@@ -7188,8 +7286,13 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
               ? 'dragonFlame'
               : actor.kind === 'whale' && random() < 0.55
                 ? 'whaleSpout'
-                : 'happy';
-        startClip(actor, firstPose, firstPose === 'dragonFlame' || firstPose === 'whaleSpout' ? 1400 : 750, { sym: 'spark' });
+                : actor.kind === 'fox' && random() < 0.6
+                  ? 'foxWisp'
+                  : actor.kind === 'panda' && random() < 0.6
+                    ? 'pandaBamboo'
+                    : 'happy';
+        const isSig = firstPose === 'dragonFlame' || firstPose === 'whaleSpout' || firstPose === 'foxWisp' || firstPose === 'pandaBamboo';
+        startClip(actor, firstPose, isSig ? 1500 : 750, { sym: 'spark' });
         if (fromPointer && !inTower) startBallistic(actor, 0, -4.4, { anticipate: true });
       } else if (actor.pokeCount === 2) {
         // 作废第 1 击可能挂起的 200ms 延迟弹射，防止 jiggle 被滞后弹飞打断
@@ -7217,10 +7320,12 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       cat: [...'groom,eatFish,chaseDot,catStretch,yawnStretch'.split(','), ...DAILY_BASE],
       dragon: [...'dragonFlame,polish,eat,stretch,spinHop,wave,yawn'.split(','), ...DAILY_BASE],
       whale: [...'whaleSpout,eatFish,spinHop,wave,yawn'.split(','), ...DAILY_BASE],
+      fox: [...'foxWisp,chaseDot,catStretch,spinHop,wave,yawnStretch'.split(','), ...DAILY_BASE],
+      panda: [...'pandaBamboo,eat,yawnStretch,spinHop,wave,yawn'.split(','), ...DAILY_BASE],
     };
-    const DAILY_WEIGHTS = { wave: 1.3, yawn: 0.6, yawnStretch: 1.1, dragonFlame: 2.2, whaleSpout: 2.2 };
+    const DAILY_WEIGHTS = { wave: 1.3, yawn: 0.6, yawnStretch: 1.1, dragonFlame: 2.2, whaleSpout: 2.2, foxWisp: 2.4, pandaBamboo: 2.4 };
     const NIGHT_BOOST = new Set(['yawn', 'yawnStretch', 'stretch', 'catStretch']);
-    const CLIP_MS = { wave: 1500, yawn: 1300, yawnStretch: 2200, dragonFlame: 2400, whaleSpout: 2400 };
+    const CLIP_MS = { wave: 1500, yawn: 1300, yawnStretch: 2200, dragonFlame: 2400, whaleSpout: 2400, foxWisp: 2400, pandaBamboo: 2400 };
     const isLateNight = () => {
       const h = new Date().getHours();
       return h >= 23 || h < 5;
@@ -7280,9 +7385,13 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
               ? [0, a.id, 'dragonFlame', 2200, { sym: 'spark' }]
               : a.kind === 'whale'
                 ? [0, a.id, 'whaleSpout', 2200, { sym: 'heart' }]
-                : a.kind === 'cat'
-                  ? [0, a.id, 'chatGreet', 2400, { mirror: true, sym: 'note' }]
-                  : [0, a.id, 'chatGreet', 2400, { sym: 'heart' }]
+                : a.kind === 'fox'
+                  ? [0, a.id, 'foxWisp', 2200, { sym: 'spark' }]
+                  : a.kind === 'panda'
+                    ? [0, a.id, 'pandaBamboo', 2200, { sym: 'heart' }]
+                    : a.kind === 'cat'
+                      ? [0, a.id, 'chatGreet', 2400, { mirror: true, sym: 'note' }]
+                      : [0, a.id, 'chatGreet', 2400, { sym: 'heart' }]
           ),
           [0, 'crabsWave'],
         ],
@@ -8115,11 +8224,25 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         feedActor(ent, 'donut');
       };
 
+      const onDblClick = (evt) => {
+        if (mini || yieldMode === 'peek') return;
+        evt.stopPropagation();
+        markActivity();
+        const sig = ent.kind === 'fox' ? 'foxWisp' : ent.kind === 'panda' ? 'pandaBamboo' : ent.kind === 'dragon' ? 'dragonFlame' : ent.kind === 'whale' ? 'whaleSpout' : ent.kind === 'cat' ? 'catStretch' : 'cheer';
+        startClip(ent, sig, 2000, { sym: ent.kind === 'panda' ? 'heart' : 'spark' });
+        if (!reducedMotion && !ent.stackedOn) hop(ent, 'happy');
+        recordInteraction('signature-trick', ent.id);
+        renderAllFrames();
+      };
+
       ent.el.addEventListener('pointerdown', onDown);
       ent.el.addEventListener('pointermove', onMove);
       ent.el.addEventListener('pointerup', onUp);
       ent.el.addEventListener('pointercancel', onUp);
-      if (!mini) ent.el.addEventListener('contextmenu', onContextMenu);
+      if (!mini) {
+        ent.el.addEventListener('contextmenu', onContextMenu);
+        ent.el.addEventListener('dblclick', onDblClick);
+      }
       const unbind = () => {
         clearTimeout(petTimer);
         const idx = dragReleaseHooks.indexOf(cancelDragOnBlur);
@@ -8129,7 +8252,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
           ent.el.removeEventListener('pointermove', onMove);
           ent.el.removeEventListener('pointerup', onUp);
           ent.el.removeEventListener('pointercancel', onUp);
-          if (!mini) ent.el.removeEventListener('contextmenu', onContextMenu);
+          if (!mini) {
+            ent.el.removeEventListener('contextmenu', onContextMenu);
+            ent.el.removeEventListener('dblclick', onDblClick);
+          }
         }
       };
       ent._pointerCleanup = unbind;
@@ -8186,7 +8312,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         }
       }
       activeIds = nextIds;
-      quadEnabled = roster.d > 0 || roster.w > 0;
+      quadEnabled = roster.d > 0 || roster.w > 0 || roster.f > 0 || roster.p > 0;
       miniPileEnabled = !!roster.minis;
       mascotSpec = encodeMascotSpec(roster);
       syncMascotDragRootAttr();
@@ -8201,7 +8327,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     const inTrans = () =>
       [...activeMainActors(), ...miniCrabs].some(
         (e) => e.dragging || e.ballisticActive || e.leap || e.y < -0.4 || abs(e.vy) > 0.01
-      ) || !!reboundTm;
+      ) || !!reboundTm || !!toyBall;
     const syncPwr = () => {
       if (disposed) return;
       if (isHostDetached() || parked) {
@@ -9069,6 +9195,26 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         const target = actors[id] || activeMainActors()[0] || null;
         return target ? feedActor(target, item) : false;
       },
+      throwBall() {
+        const mains = activeMainActors();
+        if (!mains.length || disposed) return false;
+        markActivity();
+        const w = max(240, readStageWidth());
+        const chaser = mains[floor(random() * mains.length)];
+        const fromLeft = chaser.x + 48 > w * 0.5;
+        toyBall = {
+          x: fromLeft ? 28 : w - 28,
+          y: -44,
+          vx: fromLeft ? rand(8, 12) : -rand(8, 12),
+          vy: -rand(5, 8),
+          bounces: 0,
+          ticks: 0,
+          chaserId: chaser.id,
+        };
+        syncHeartbeat();
+        renderAllFrames();
+        return true;
+      },
       setHabitatPreview(mode = 'auto') {
         habitatPreview = ['auto', 'cactus', 'lamp', 'hourglass'].includes(mode) ? mode : 'auto';
         renderHabitatProp(true);
@@ -9292,6 +9438,8 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     CAT_PARTS,
     DRAGON_PARTS,
     WHALE_PARTS,
+    FOX_PARTS,
+    PANDA_PARTS,
     MINI_SPRITES,
     MINI_ANIM_FRAMES,
     PROPS,
@@ -9863,8 +10011,15 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       case 'quad':
         return { mascot: 'quad', camp: 'gemini', miniPileEnabled: false };
       case 'quad-minis':
-      case 'all':
         return { mascot: 'quad-minis', camp: 'gemini', miniPileEnabled: true };
+      case 'all':
+        return { mascot: 'all', camp: 'gemini', miniPileEnabled: false };
+      case 'all-minis':
+        return { mascot: 'all-minis', camp: 'gemini', miniPileEnabled: true };
+      case 'fox':
+        return { mascot: 'r:f1,k1', camp: 'kimi', miniPileEnabled: false };
+      case 'panda':
+        return { mascot: 'r:p1,k1', camp: 'panda', miniPileEnabled: false };
       case 'whale':
       case 'deepy':
         return { mascot: 'r:w1,k1', camp: 'deepseek', miniPileEnabled: false };
@@ -10365,8 +10520,56 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       }
       if (prev && !next && !o.hasError && !o.silent) {
         notifyMascotSafe('complete', {});
+        var soundOn = !(lastPayload && lastPayload.config && lastPayload.config.completionSound === false);
+        if (soundOn) playPrismChime('complete');
       }
       return isStreaming;
+    }
+
+    function playPrismChime(kind) {
+      try {
+        var Ctx = G.AudioContext || G.webkitAudioContext;
+        if (!Ctx) return;
+        var ctx = G.__dreamSkinAudioCtx || (G.__dreamSkinAudioCtx = new Ctx());
+        if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(function () {});
+        var now = ctx.currentTime;
+        var notes = kind === 'error' ? [440, 349.23] : [1046.5, 1567.98];
+        notes.forEach(function (freq, idx) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = idx === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.085);
+          gain.gain.setValueAtTime(0.0001, now + idx * 0.085);
+          gain.gain.exponentialRampToValueAtTime(0.048, now + idx * 0.085 + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.085 + 0.24);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + idx * 0.085);
+          osc.stop(now + idx * 0.085 + 0.26);
+        });
+      } catch (_) {}
+    }
+
+    function resolveCampFromModel(name) {
+      var s = String(name || '').toLowerCase();
+      if (!s) return null;
+      if (s.indexOf('claude') >= 0 || s.indexOf('sonnet') >= 0 || s.indexOf('opus') >= 0 || s.indexOf('haiku') >= 0) return 'claude';
+      if (s.indexOf('deepseek') >= 0) return 'deepseek';
+      if (s.indexOf('kimi') >= 0 || s.indexOf('qwen') >= 0 || s.indexOf('moonshot') >= 0) return 'kimi';
+      if (s.indexOf('glm') >= 0 || s.indexOf('minimax') >= 0 || s.indexOf('doubao') >= 0 || s.indexOf('panda') >= 0) return 'panda';
+      if (s.indexOf('gpt') >= 0 || s.indexOf('codex') >= 0 || s.indexOf('o1') >= 0 || s.indexOf('o3') >= 0) return 'gpt';
+      if (s.indexOf('gemini') >= 0) return 'gemini';
+      return null;
+    }
+
+    function setCamp(modelOrCamp) {
+      var c = resolveCampFromModel(modelOrCamp) || String(modelOrCamp || '').toLowerCase();
+      if (!c || !mascotRig || typeof mascotRig.setState !== 'function') return false;
+      try {
+        mascotRig.setState({ camp: c });
+        notifyMascotSafe('campSwitch', { camp: c });
+        return true;
+      } catch (_) { return false; }
     }
 
     function pollStreamingState() {
@@ -11261,6 +11464,15 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       return false;
     }
 
+    function throwMascotBall() {
+      if (!mascotRig) return false;
+      notifyMascotSafe('activity', {});
+      try {
+        if (typeof mascotRig.throwBall === 'function') return Boolean(mascotRig.throwBall());
+      } catch (_) {}
+      return false;
+    }
+
     function setHabitatMode(mode) {
       if (!mascotRig || typeof mascotRig.setHabitatPreview !== 'function') return 'auto';
       try {
@@ -11282,6 +11494,9 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       playMascotDemo: playMascotDemo,
       feedMascot: feedMascot,
       pokeMascot: pokeMascot,
+      throwMascotBall: throwMascotBall,
+      setCamp: setCamp,
+      playPrismChime: playPrismChime,
       setHabitatMode: setHabitatMode,
       setStreaming: setStreamingState,
       getMascotSnapshot: getMascotSnapshot,

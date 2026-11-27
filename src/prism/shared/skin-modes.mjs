@@ -32,7 +32,7 @@ export const SKIN_MODE_DEFS = Object.freeze({
 
 export const COMPANION_STYLES = Object.freeze(['clawd', 'neko', 'crabs', 'orb']);
 export const COMPANION_POSITIONS = Object.freeze(['bottom-right', 'bottom-left', 'top-right']);
-export const MASCOT_PRESETS = Object.freeze(['crab', 'dual', 'minis', 'quad', 'quad-minis', 'whale', 'clawd', 'dragon', 'neko', 'crabs', 'off']);
+export const MASCOT_PRESETS = Object.freeze(['crab', 'dual', 'minis', 'quad', 'quad-minis', 'all', 'all-minis', 'whale', 'clawd', 'dragon', 'fox', 'panda', 'neko', 'crabs', 'off']);
 export const RIM_TONES = Object.freeze(['follow', 'cobalt', 'iris', 'amber', 'mono']);
 export const MOTION_TIERS = Object.freeze(['off', 'subtle', 'standard', 'ultra']);
 export const CODE_FONTS = Object.freeze(['default', 'jetbrains', 'cascadia', 'sfmono']);
