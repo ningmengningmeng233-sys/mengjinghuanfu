@@ -141,7 +141,9 @@ test('DSH flagship preview HTML parses with zero JS syntax errors, zero missing 
   assert.match(html, /id="dr-text-style-seg"/, 'user-selectable stylized text color switcher must exist');
   assert.match(html, /id="dr-mascot-theater"/, 'mascot live theater trigger controls must exist');
   assert.match(html, /id="dr-hab-seg"/, 'corner pixel habitat prop selector must exist');
-  assert.match(html, /id="btn-pomo-pill"/, '25m focus Pomodoro micro-pill must exist');
+  assert.match(html, /id="ds-model-pop"/, 'model selector popup with real effort slider must exist');
+  assert.match(html, /id="ds-real-effort-mount"/, 'native AntigravityCodexEffortSlider mount container must exist');
+  assert.doesNotMatch(html, /id="btn-pomo-pill"/, 'removed Pomodoro bloat button must not reappear');
   assert.match(html, /id="btn-client-switch"/, 'multi-client live switcher button must exist');
   assert.match(html, /id="btn-sync-all"/, 'one-click sync-all-clients button must exist');
   assert.match(html, /id="sb-active-pill"/, 'silky GPU-composited sliding active sidebar pill must exist');
