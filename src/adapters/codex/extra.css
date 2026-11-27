@@ -7,3 +7,10 @@ html[data-agy-prism-skin] {
 html[data-agy-prism-skin] ::-webkit-scrollbar { width: 7px; height: 7px; }
 html[data-agy-prism-skin] ::-webkit-scrollbar-track { background: transparent; }
 html[data-agy-prism-skin] ::-webkit-scrollbar-thumb { background: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.28); border-radius: 999px; }
+
+/* Codex 原生模型选择、推理档位与 Approval Mode 浮层黑曜美化 */
+html[data-agy-prism-skin][data-ag-cs-style="1"] [data-radix-popper-content-wrapper] :is([role="menu"], [role="listbox"]) {
+  border-radius: 12px !important;
+  border: 1px solid rgba(218, 228, 255, 0.10) !important;
+  box-shadow: inset 0 1px 0 rgba(235, 243, 255, 0.10), 0 22px 52px -14px rgba(0, 0, 0, 0.72) !important;
+}
