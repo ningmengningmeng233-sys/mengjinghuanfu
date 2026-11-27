@@ -1,0 +1,4 @@
+/* ===== Qoder DreamSkin Prism {{version}} · 额外层 ===== */
+html[data-agy-prism-skin] .monaco-workbench {
+  --vscode-focusBorder: var(--prism-accent, #669df6);
+}

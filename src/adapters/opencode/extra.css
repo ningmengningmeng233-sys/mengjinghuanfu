@@ -1,0 +1,4 @@
+/* ===== OpenCode Desktop DreamSkin Prism {{version}} · 额外层 ===== */
+html[data-agy-prism-skin] ::-webkit-scrollbar { width: 7px; height: 7px; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-track { background: transparent; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-thumb { background: rgba(var(--prism-accent-rgb, 56, 189, 248), 0.30); border-radius: 999px; }

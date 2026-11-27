@@ -1,20 +1,20 @@
 {
   "app.root": {
-    "scope": "html:has([data-slot=\"sidebar\"])",
-    "scopeBody": "body:has([data-slot=\"sidebar\"])",
-    "selector": "body:has([data-slot=\"sidebar\"]) #root",
+    "scope": "html",
+    "scopeBody": "body",
+    "selector": "body #root",
     "required": true
   },
   "app.sidebar": {
-    "selector": "[data-slot=\"sidebar\"]",
-    "pane": "[data-slot=\"sidebar\"]",
+    "selector": "[data-slot=\"sidebar\"], [data-sidebar-right-panel]",
+    "pane": "[data-slot=\"sidebar\"], [data-sidebar-right-panel]",
     "required": true
   },
   "app.sidebar.item": {
     "selector": "[data-row-key^=\"session:\"]"
   },
   "app.sidebar.item.active": {
-    "selector": "[data-row-key^=\"session:\"].qZBEgG_selected"
+    "selector": "[data-row-key^=\"session:\"][aria-selected=\"true\"], [data-row-key^=\"session:\"][data-selected=\"true\"], [data-row-key^=\"session:\"][data-active=\"true\"]"
   },
   "app.topbar": {
     "selector": "[data-slot=\"conversation.header\"]"
@@ -29,7 +29,7 @@
     "shell": "[data-slot=\"conversation.view\"]"
   },
   "chat.bubble.user": {
-    "selector": "[data-chat-flow-kind=\"user\"] .fDq-QG_bubble"
+    "selector": "[data-chat-flow-kind=\"user\"] > div, [data-chat-flow-kind=\"user\"] [data-message-bubble]"
   },
   "chat.bubble.assistant": {
     "selector": "[data-chat-group-part=\"response\"]"
@@ -44,6 +44,9 @@
     "selector": "[data-composer-input]"
   },
   "code.block": {
-    "selector": ".md-code-block"
+    "selector": ".md-code-block, pre"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], [role=\"menu\"], [data-radix-popper-content-wrapper] > *, [data-sidebar-drawer], [data-conversation-composer-overlay], [data-plugin-detail]"
   }
 }

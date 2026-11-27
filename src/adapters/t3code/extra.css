@@ -1,0 +1,4 @@
+/* ===== T3 Code DreamSkin Prism {{version}} · 额外层 ===== */
+html[data-agy-prism-skin] ::-webkit-scrollbar { width: 7px; height: 7px; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-track { background: transparent; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-thumb { background: rgba(var(--prism-accent-rgb, 167, 139, 250), 0.30); border-radius: 999px; }

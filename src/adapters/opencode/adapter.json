@@ -1,0 +1,40 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "opencode",
+  "name": "OpenCode Desktop",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\OpenCode\\OpenCode.exe",
+      "%LOCALAPPDATA%\\Programs\\opencode-desktop\\OpenCode.exe"
+    ],
+    "envExe": "DREAMSKIN_OPENCODE_EXE",
+    "exeNames": [
+      "OpenCode.exe"
+    ],
+    "uninstallDisplayName": "OpenCode",
+    "mac": {
+      "bundle": "OpenCode",
+      "source": "按 OpenCode Desktop 命名推断，尚未在真 Mac 核实",
+      "status": "unverified"
+    }
+  },
+  "prism": {
+    "defaultDebugPort": 9350,
+    "browserHoleSupport": false
+  },
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "target": {
+    "urlPattern": "^(?:https?://(?:127[.]0[.]0[.]1|localhost):[0-9]+/|file://.*/index\\.html)"
+  },
+  "readySelector": "#root, #app",
+  "testedVersions": [
+    "2.4.2",
+    "1.19.6",
+    "1.18.33"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}

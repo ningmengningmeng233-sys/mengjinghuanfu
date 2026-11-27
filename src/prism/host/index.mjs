@@ -9,22 +9,39 @@ import {
   PRISM_DOM,
   resolveEffectiveConfig,
   resolveSchemeTokens,
+  resolveSkinComposition,
   sanitizeConfig,
 } from '../shared/schema.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SKIN_SCRIPT_PATH = join(__dirname, 'wallpaper-inject.js');
 const PANEL_SCRIPT_PATH = join(__dirname, 'panel-inject.js');
+const OPTICAL_BUNDLE_PATH = join(__dirname, '..', 'optical', 'optical-bundle.js');
 
 let cachedSkinScript = null;
 let cachedPanelScript = null;
+let cachedOpticalScript = null;
 
-/** Return the raw ES2020 IIFE source of `wallpaper-inject.js` (`window.__agyPrism`). */
-export function getHostSkinScript({ reload = false } = {}) {
+/** Return the raw ES2020 IIFE source of the cross-platform Obsidian Prism optical & pixel-mascot bundle. */
+export function getHostOpticalScript({ reload = false } = {}) {
+  if (!cachedOpticalScript || reload) {
+    try {
+      cachedOpticalScript = readFileSync(OPTICAL_BUNDLE_PATH, 'utf8');
+    } catch {
+      cachedOpticalScript = '';
+    }
+  }
+  return cachedOpticalScript;
+}
+
+/** Return the raw ES2020 IIFE source of `wallpaper-inject.js` (`window.__agyPrism`) bundled with Obsidian Optical Suite. */
+export function getHostSkinScript({ reload = false, includeOptical = true } = {}) {
   if (!cachedSkinScript || reload) {
     cachedSkinScript = readFileSync(SKIN_SCRIPT_PATH, 'utf8');
   }
-  return cachedSkinScript;
+  if (!includeOptical) return cachedSkinScript;
+  const opt = getHostOpticalScript({ reload });
+  return opt ? `${opt}\n;\n${cachedSkinScript}` : cachedSkinScript;
 }
 
 /** Return the raw ES2020 IIFE source of `panel-inject.js` (`window.__agyPrismPanel`). */
@@ -105,10 +122,22 @@ export function buildClientSkinPayload(config = DEFAULT_CONFIG, activeItem = nul
       }
     : undefined;
 
+  const composition =
+    extra?.composition && typeof extra.composition === 'object'
+      ? extra.composition
+      : resolveSkinComposition(effective, {
+          appId: adapterProfile?.appId || '',
+          adapterMode: adapterProfile?.mode || 'full',
+          hasWallpaper: Boolean(normalizedItem && (normalizedItem.mediaUrl || normalizedItem.thumbUrl || normalizedItem.webUrl)),
+          hasPluginConflict: Boolean(extra?.hasPluginConflict),
+          forceTakeover: Boolean(extra?.forceTakeover),
+        });
+
   return {
     version: PRISM_DOM.skinVersion,
     skinEnabled,
     config: effective,
+    composition,
     activeItem: normalizedItem,
     mediaOrigin: String(mediaOrigin || ''),
     ...(slides ? { slides } : {}),
@@ -187,14 +216,55 @@ function buildPolarityTokenVarsCss(cfg, tok, isLight) {
  */
 export function buildStaticCssSheet(payload = {}) {
   if (payload && payload.skinEnabled === false) {
-    return '/* agy-wallpaper-prism v2.0.0 static-css: skin disabled */\n';
+    return '/* dreamskin-prism v4.1.0 static-css: skin disabled */\n';
   }
   const rawCfg = payload?.config && typeof payload.config === 'object' ? payload.config : payload || DEFAULT_CONFIG;
   const activeItem = payload?.activeItem && typeof payload.activeItem === 'object' ? payload.activeItem : null;
   const wid = String(activeItem?.id || rawCfg.activeWallpaperId || rawCfg.wallpaperId || '');
   const cfg = resolveEffectiveConfig(sanitizeConfig(rawCfg), wid);
-  const darkTok = payload?.tokensPreview?.dark || resolveSchemeTokens(cfg, 'dark');
-  const lightTok = payload?.tokensPreview?.light || resolveSchemeTokens(cfg, 'light');
+  const comp =
+    payload?.composition && typeof payload.composition === 'object'
+      ? payload.composition
+      : resolveSkinComposition(cfg, { hasWallpaper: Boolean(activeItem) });
+  const effMods = comp.effectiveModules || {};
+  const useWallpaper = Boolean(effMods.wallpaperLayer);
+  const useGlass = Boolean(effMods.glassLayer) && useWallpaper;
+  const effectiveCfgForTokens = useGlass
+    ? cfg
+    : { ...cfg, glassSurfaces: false, glassOpacity: 0.96, glassBlur: 0 };
+
+  const darkTok = payload?.tokensPreview?.dark || resolveSchemeTokens(effectiveCfgForTokens, 'dark');
+  const lightTok = payload?.tokensPreview?.light || resolveSchemeTokens(effectiveCfgForTokens, 'light');
+
+  if (!useWallpaper) {
+    const radiusCard = cfg.cornerStyle === 'sharp' ? 6 : cfg.cornerStyle === 'soft' ? 14 : 10;
+    return `/* dreamskin-prism v4.1.0 static-css (mode=${comp.skinMode}) */
+:root, body.dark, html.dark body {
+${buildPolarityTokenVarsCss(effectiveCfgForTokens, darkTok, false)}
+}
+body.light, html.light body {
+${buildPolarityTokenVarsCss(effectiveCfgForTokens, lightTok, true)}
+}
+html, body {
+  background-color: var(--prism-native-floor, #0e0e11) !important;
+  color: var(--prism-fg) !important;
+}
+:is([data-testid="sidebar-split"] > div:first-child, .agy-sidebar, [data-slot="sidebar"], .part.sidebar) {
+  background-color: var(--prism-surface-sidebar) !important;
+  border-color: var(--prism-border-island) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), var(--prism-shadow-island) !important;
+}
+:is([data-testid="agent-input-box"], .surface-composer-card, .agy-composer, [data-composer-card]) {
+  background-color: var(--prism-surface-composer) !important;
+  border: 1px solid rgba(var(--prism-accent-rgb, 102, 157, 246), 0.24) !important;
+  border-radius: ${radiusCard}px !important;
+}
+pre, .code-block, .md-code-block {
+  background-color: var(--prism-surface-code-block) !important;
+  border: 1px solid var(--prism-border-card) !important;
+}
+`;
+  }
 
   const rawImg =
     (activeItem &&

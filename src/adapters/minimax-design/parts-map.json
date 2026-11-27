@@ -1,0 +1,32 @@
+{
+  "app.root": {
+    "scope": "html:has(#root)",
+    "scopeBody": "body:has(#root)",
+    "selector": "#root",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-sidebar-density], aside, [class*=\"sidebar\"]"
+  },
+  "app.sidebar.item": {
+    "selector": "aside a, aside [role=\"button\"], [class*=\"sidebar\"] [role=\"button\"]"
+  },
+  "app.topbar": {
+    "selector": "header, [class*=\"topbar\"]"
+  },
+  "app.content": {
+    "selector": "[data-workspace-pane=\"chat\"], [data-workspace-pane=\"canvas\"], main, [class*=\"workspace\"]"
+  },
+  "chat.messages": {
+    "selector": "[data-workspace-pane=\"chat\"] [role=\"log\"], main [role=\"log\"], main [class*=\"message\"]"
+  },
+  "chat.composer": {
+    "selector": "[data-message-input-root=\"true\"], [data-message-input-composer-body=\"true\"], form:has(textarea), [class*=\"composer\"]"
+  },
+  "code.block": {
+    "selector": "pre:has(> code)"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], [role=\"menu\"]"
+  }
+}

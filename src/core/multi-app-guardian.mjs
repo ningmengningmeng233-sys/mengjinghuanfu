@@ -9,7 +9,8 @@ import { conflictToolsOf, detectForeignStyles, detectInstalledPluginConflicts, p
 import { evaluateHealth, partChecksOf, partsProbeExpr } from './health.mjs';
 import { writeCompatRecord } from '../store/compat.mjs';
 import { compileAdapterPrismCss } from '../theme/prism-bridge.mjs';
-import { buildClientSkinPayload, getHostPanelScript, getHostSkinScript } from '../prism/host/index.mjs';
+import { buildClientSkinPayload, buildStaticCssSheet, getHostPanelScript, getHostSkinScript } from '../prism/host/index.mjs';
+import { createDshPluginChannel, dshPluginChannel } from '../channels/dsh-plugin.mjs';
 import {
   defaultPortForApp,
   evaluateTargetEphemeral,
@@ -19,17 +20,29 @@ import {
   selectHubTargets,
 } from '../prism/cdp/gentle-cdp.mjs';
 import { createMultiAppCanary } from '../prism/cdp/canary.mjs';
-import { resolveAppEffectiveConfig } from '../prism/shared/schema.mjs';
+import { resolveAppEffectiveConfig, resolveSkinComposition } from '../prism/shared/schema.mjs';
 
 export function createMultiAppGuardian({
   dataDir,
   legacyRootDir = '',
+  dshPlugin = null,
   getV4Store,
   getActiveItemForApp,
   getMediaOrigin,
   focusArbiter,
   skipInitialScan = false,
 } = {}) {
+  const dshChannel =
+    dshPlugin ||
+    (legacyRootDir
+      ? createDshPluginChannel({
+          dataDir: (id) => {
+            const dir = join(legacyRootDir, id);
+            mkdirSync(dir, { recursive: true });
+            return dir;
+          },
+        })
+      : dshPluginChannel);
   const cacheFile = join(dataDir, 'apps-status-cache.json');
   const canary = createMultiAppCanary({ dataDir });
   const profiles = listRuntimeProfiles();
@@ -83,13 +96,24 @@ export function createMultiAppGuardian({
     return appsCache.map((row) => {
       const appCfg = store.apps?.[row.id];
       const eff = resolveAppEffectiveConfig(store, row.id);
+      const skinEnabled = appCfg ? appCfg.skinEnabled !== false : true;
+      const composition = resolveSkinComposition(eff, {
+        appId: row.id,
+        adapterMode: row.mode || 'full',
+        hasWallpaper: Boolean(eff.activeWallpaperId),
+        hasPluginConflict: Boolean(row.pluginConflicts && row.pluginConflicts.length > 0),
+        forceTakeover: false,
+      });
       return {
         ...row,
-        skinEnabled: appCfg ? appCfg.skinEnabled !== false : true,
+        skinEnabled,
         inheritGlobal: appCfg ? appCfg.inheritGlobal !== false : true,
         activeWallpaperId: eff.activeWallpaperId || '',
         colorScheme: eff.colorScheme,
         preset: eff.preset,
+        skinMode: eff.skinMode || 'wallpaper',
+        modules: eff.modules,
+        composition,
         canary: canary.status(row.id),
         attached: attachedTargets.has(row.id),
       };
@@ -164,9 +188,69 @@ export function createMultiAppGuardian({
       return { ok: false, appId, reason: 'plugin-conflict', conflicts: pluginConflicts, message: pluginConflicts[0].message };
     }
 
+    const effCfgPre = resolveAppEffectiveConfig(store, appId);
+    const activeItemPre = getActiveItemForApp(appId, effCfgPre);
+    const mediaOriginPre = getMediaOrigin();
+
+    // DSH NEXT native dual-half plugin channel: hot-apply without requiring CDP debug port
+    let dshPluginApplied = false;
+    let dshPluginComposition = null;
+    if (appId === 'dsh') {
+      try {
+        const pst = await dshChannel.status(profile);
+        if (pst.installed && pst.enabled) {
+          dshPluginComposition = resolveSkinComposition(effCfgPre, {
+            appId: 'dsh',
+            adapterMode: 'full',
+            hasWallpaper: Boolean(activeItemPre),
+          });
+          const compiledForPlugin = compileAdapterPrismCss({
+            appId: 'dsh',
+            partsMap: profile.partsMap,
+            extraCss: profile.extraCss,
+            mode: 'full',
+            composition: dshPluginComposition,
+          });
+          const pluginPayload = buildClientSkinPayload(effCfgPre, activeItemPre, mediaOriginPre, {
+            skinEnabled: true,
+            composition: dshPluginComposition,
+            adapterProfile: {
+              appId: 'dsh',
+              mode: compiledForPlugin.mode,
+              adapterCss: compiledForPlugin.adapterCss,
+              browserHoleSupport: false,
+            },
+          });
+          const varsCss = buildStaticCssSheet(pluginPayload);
+          await dshChannel.launch(profile, {
+            layers: {
+              vars: varsCss,
+              parts: compiledForPlugin.adapterCss,
+              extra: profile.extraCss || '',
+            },
+            payload: pluginPayload,
+          });
+          dshPluginApplied = true;
+        }
+      } catch {
+        dshPluginApplied = false;
+      }
+    }
+
     const probe = await resolveDebugPortForApp(profile);
     if (!probe) {
       attachedTargets.delete(appId);
+      if (dshPluginApplied) {
+        return {
+          ok: true,
+          appId,
+          via: 'dsh-plugin',
+          mode: 'full',
+          skinMode: dshPluginComposition?.skinMode || effCfgPre.skinMode || 'wallpaper',
+          composition: dshPluginComposition,
+          port: 0,
+        };
+      }
       return { ok: false, appId, reason: 'not-debuggable', message: '未检测到可连接窗口，请开启原图标自动生效后重新打开该软件' };
     }
 
@@ -228,14 +312,23 @@ export function createMultiAppGuardian({
     const effCfg = resolveAppEffectiveConfig(store, appId);
     const activeItem = getActiveItemForApp(appId, effCfg);
     const mediaOrigin = getMediaOrigin();
+    const composition = resolveSkinComposition(effCfg, {
+      appId,
+      adapterMode: mode,
+      hasWallpaper: Boolean(activeItem),
+      hasPluginConflict: pluginConflicts.length > 0,
+      forceTakeover: force,
+    });
     const compiled = compileAdapterPrismCss({
       appId,
       partsMap: profile.partsMap,
       extraCss: profile.extraCss,
       mode,
+      composition,
     });
     const payload = buildClientSkinPayload(effCfg, activeItem, mediaOrigin, {
       skinEnabled: true,
+      composition,
       adapterProfile: {
         appId,
         mode: compiled.mode,
@@ -283,8 +376,15 @@ export function createMultiAppGuardian({
     } catch {
       return { ok: true, appId, detached: false };
     }
+    let pluginStopped = false;
+    if (appId === 'dsh') {
+      try {
+        const res = await dshChannel.stop(profile);
+        pluginStopped = Boolean(res?.stopped);
+      } catch {}
+    }
     const probe = await resolveDebugPortForApp(profile);
-    if (!probe) return { ok: true, appId, detached: false };
+    if (!probe) return { ok: true, appId, detached: pluginStopped, pluginStopped };
     const targets = await findMainTargets(profile, probe.port, probe.host);
     for (const t of targets) {
       try {

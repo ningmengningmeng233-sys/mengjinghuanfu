@@ -11,20 +11,29 @@
     "required": true
   },
   "app.sidebar.item": {
-    "selector": "[data-app-action-sidebar-thread-row]"
+    "selector": "[data-app-action-sidebar-thread-row], [data-app-action-sidebar-project-row]"
   },
   "app.topbar": {
-    "selector": "header:has([data-test-id=\"header-shell-slot\"])"
+    "selector": "header:has([data-test-id=\"header-shell-slot\"]), [data-app-shell-tab-row], header"
   },
   "app.content": {
-    "selector": "main[class*=\"_MainContentSurface_\"]",
+    "selector": "[data-app-shell-focus-area=\"main\"], main[class*=\"_MainContentSurface_\"], main",
     "required": true
   },
+  "chat.messages": {
+    "selector": "[data-app-shell-focus-area=\"main\"] [role=\"log\"], main[class*=\"_MainContentSurface_\"] [role=\"log\"], main [data-scroll-container], [data-conversation-id]"
+  },
   "chat.composer": {
-    "selector": "[class*=\"_ComposerLayoutRoot_\"]",
+    "selector": "[data-composer-surface-variant], [data-composer-layout], [class*=\"_ComposerLayoutRoot_\"]",
     "required": true
   },
   "chat.composer.input": {
     "selector": "[data-composer-input]"
+  },
+  "code.block": {
+    "selector": "[data-composer-code-block], pre:has(> code)"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], [role=\"menu\"], [data-radix-popper-content-wrapper] > *"
   }
 }

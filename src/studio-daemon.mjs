@@ -22,13 +22,20 @@ import { appRuntimeById, listRuntimeProfiles } from './core/app-runtime.mjs';
 import {
   COLOR_SCHEMES,
   COLOR_SCHEME_IDS,
+  COMPANION_POSITIONS,
+  COMPANION_STYLES,
   DEFAULT_V4_STORE,
+  EXCLUDED_HOST_FEATURES,
+  SKIN_MODES,
+  SKIN_MODE_DEFS,
   resolveAppEffectiveConfig,
+  resolveSkinComposition,
   sanitizeConfig,
   sanitizeV4Store,
   SCENE_PRESETS,
   SCENE_PRESET_IDS,
 } from './prism/shared/schema.mjs';
+import { createDshPluginChannel } from './channels/dsh-plugin.mjs';
 import { createWallpaperPrismEngine, resolveDefaultPrismDataDir } from './prism/engine/index.mjs';
 import {
   disableAppShortcutAutoLoad,
@@ -220,9 +227,18 @@ export async function startStudioDaemon(opts = {}) {
     return cachedLibItems.find((i) => i.id === wid) || engine.getActiveItem() || cachedLibItems[0] || null;
   };
 
+  const dshChannel = createDshPluginChannel({
+    dataDir: (id) => {
+      const d = join(legacyRoot, id);
+      mkdirSync(d, { recursive: true });
+      return d;
+    },
+  });
+
   const guardian = createMultiAppGuardian({
     dataDir,
     legacyRootDir: legacyRoot,
+    dshPlugin: dshChannel,
     getV4Store: () => v4Store,
     getActiveItemForApp,
     getMediaOrigin: () => engine.getMediaOrigin(),
@@ -250,6 +266,11 @@ export async function startStudioDaemon(opts = {}) {
       scenePresetIds: SCENE_PRESET_IDS,
       colorSchemes: COLOR_SCHEMES,
       colorSchemeIds: COLOR_SCHEME_IDS,
+      skinModes: SKIN_MODE_DEFS,
+      skinModeIds: SKIN_MODES,
+      companionStyles: COMPANION_STYLES,
+      companionPositions: COMPANION_POSITIONS,
+      excludedHostFeatures: EXCLUDED_HOST_FEATURES,
       focus: focusArbiter.snapshot(),
     };
   }
@@ -455,6 +476,51 @@ export async function startStudioDaemon(opts = {}) {
         return;
       }
 
+      // DSH NEXT native dual-half plugin management routes
+      const dshPluginMatch = /^\/api\/apps\/dsh\/plugin\/(status|install|uninstall|toggle)$/.exec(pathname);
+      if (dshPluginMatch) {
+        const action = dshPluginMatch[1];
+        const profile = appRuntimeById('dsh');
+        if (action === 'status' && method === 'GET') {
+          const st = await dshChannel.status(profile);
+          sendJson(res, 200, { ok: true, ...st });
+          return;
+        }
+        if (action === 'install' && method === 'POST') {
+          const body = await readJsonBody(req);
+          if (body.consent !== true) {
+            sendJson(res, 400, { ok: false, error: '安装 DSH 原生插件必须提供明确的 consent: true 同意标志' });
+            return;
+          }
+          try {
+            const ins = await dshChannel.install(profile, { consent: true });
+            if (body.enable !== false) {
+              await dshChannel.setEnabled(profile, true);
+            }
+            const st = await dshChannel.status(profile);
+            sendJson(res, 200, { ok: true, ...ins, ...st });
+          } catch (err) {
+            sendJson(res, 400, { ok: false, error: err?.message || String(err) });
+          }
+          return;
+        }
+        if (action === 'uninstall' && method === 'POST') {
+          const un = await dshChannel.uninstall(profile);
+          const st = await dshChannel.status(profile);
+          sendJson(res, 200, { ok: true, ...un, ...st });
+          return;
+        }
+        if (action === 'toggle' && method === 'POST') {
+          const body = await readJsonBody(req);
+          const cur = await dshChannel.isEnabled(profile);
+          const nextOn = typeof body.enabled === 'boolean' ? body.enabled : !cur;
+          await dshChannel.setEnabled(profile, nextOn);
+          const st = await dshChannel.status(profile);
+          sendJson(res, 200, { ok: true, ...st });
+          return;
+        }
+      }
+
       // Per-app routes: /api/apps/:appId/<action>
       const appMatch = /^\/api\/apps\/([a-z0-9-]+)\/(icon|config|apply|restore|wake|shortcuts|shortcuts\/enable|shortcuts\/disable|canary\/reset)$/.exec(pathname);
       if (appMatch) {
@@ -473,8 +539,14 @@ export async function startStudioDaemon(opts = {}) {
         if (action === 'config' && method === 'POST') {
           const patch = await readJsonBody(req);
           const prevEntry = v4Store.apps[appId] || { skinEnabled: true, inheritGlobal: false, overrides: {} };
+          const prevEff = resolveAppEffectiveConfig(v4Store, appId);
+          const sanitizedNext = sanitizeConfig(patch || {}, prevEff);
           const nextOverrides = { ...(prevEntry.overrides || {}), ...(patch || {}) };
           delete nextOverrides.inheritGlobal;
+          if ('skinMode' in (patch || {}) || 'modules' in (patch || {})) {
+            nextOverrides.skinMode = sanitizedNext.skinMode;
+            nextOverrides.modules = sanitizedNext.modules;
+          }
           const nextSkinEnabled = typeof patch.skinEnabled === 'boolean' ? patch.skinEnabled : prevEntry.skinEnabled;
           const inheritGlobal = typeof patch.inheritGlobal === 'boolean' ? patch.inheritGlobal : false;
           v4Store.apps[appId] = {
@@ -484,7 +556,14 @@ export async function startStudioDaemon(opts = {}) {
           };
           saveV4Store();
           const effective = resolveAppEffectiveConfig(v4Store, appId);
-          sendJson(res, 200, { ok: true, appId, entry: v4Store.apps[appId], effective });
+          const appRow = guardian.listAppsFast().find((a) => a.id === appId);
+          const composition = resolveSkinComposition(effective, {
+            appId,
+            adapterMode: appRow?.mode || 'full',
+            hasWallpaper: Boolean(effective.activeWallpaperId),
+            hasPluginConflict: Boolean(appRow?.pluginConflicts?.length),
+          });
+          sendJson(res, 200, { ok: true, appId, entry: v4Store.apps[appId], effective, composition });
           return;
         }
         if (action === 'apply' && method === 'POST') {
@@ -547,6 +626,9 @@ export async function startStudioDaemon(opts = {}) {
           ? body.targets.filter((id) => allIds.includes(id) && id !== fromId)
           : allIds.filter((id) => id !== fromId);
         const syncFields = [
+          'skinMode', 'modules', 'companionStyle', 'companionPosition',
+          'mascotSpec', 'prismaticCoat', 'rimTone', 'motionTier', 'ambientIntensity',
+          'vividness', 'fontStyle', 'textStyle', 'habitatMode', 'codeFont', 'codeLigatures', 'sidebarCompact',
           'preset', 'activeWallpaperId', 'layoutMode', 'themeMode', 'colorScheme',
           'accentMode', 'customAccent', 'glassOpacity', 'glassBlur', 'scrimOpacity',
           'cornerStyle', 'borders', 'shadows', 'codeReadabilityMode', 'vignette',

@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <defs>
+    <linearGradient id="bgTile" x1="24" y1="18" x2="232" y2="238" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22273A" />
+      <stop offset="45%" stop-color="#111524" />
+      <stop offset="100%" stop-color="#070912" />
+    </linearGradient>
+    <linearGradient id="tileRim" x1="36" y1="16" x2="220" y2="240" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D8E6FF" stop-opacity="0.78" />
+      <stop offset="35%" stop-color="#8B9EC9" stop-opacity="0.32" />
+      <stop offset="100%" stop-color="#4A557A" stop-opacity="0.22" />
+    </linearGradient>
+    <radialGradient id="causticGlow" cx="50%" cy="56%" r="44%">
+      <stop offset="0%" stop-color="#60EFFF" stop-opacity="0.42" />
+      <stop offset="52%" stop-color="#9B8CFF" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#0A0D18" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="facetUL" x1="56" y1="128" x2="128" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7EE8FA" stop-opacity="0.88" />
+      <stop offset="60%" stop-color="#B9D7FF" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#EBF3FF" stop-opacity="0.96" />
+    </linearGradient>
+    <linearGradient id="facetUC" x1="94" y1="126" x2="164" y2="74" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5CE1E6" stop-opacity="0.92" />
+      <stop offset="48%" stop-color="#A78BFA" stop-opacity="0.86" />
+      <stop offset="82%" stop-color="#F7B7D2" stop-opacity="0.92" />
+      <stop offset="100%" stop-color="#FFF2F8" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="facetUR" x1="128" y1="48" x2="202" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFE4F2" stop-opacity="0.92" />
+      <stop offset="55%" stop-color="#C4B5FD" stop-opacity="0.82" />
+      <stop offset="100%" stop-color="#7C98E8" stop-opacity="0.72" />
+    </linearGradient>
+    <linearGradient id="facetDL" x1="56" y1="128" x2="128" y2="208" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#72F2EB" stop-opacity="0.9" />
+      <stop offset="65%" stop-color="#5B8CFF" stop-opacity="0.82" />
+      <stop offset="100%" stop-color="#7E8EE0" stop-opacity="0.88" />
+    </linearGradient>
+    <linearGradient id="facetDC" x1="94" y1="130" x2="162" y2="198" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60EFFF" stop-opacity="0.85" />
+      <stop offset="46%" stop-color="#7C7BFF" stop-opacity="0.88" />
+      <stop offset="100%" stop-color="#C084FC" stop-opacity="0.86" />
+    </linearGradient>
+    <linearGradient id="facetDR" x1="202" y1="128" x2="128" y2="208" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D8C2FF" stop-opacity="0.84" />
+      <stop offset="55%" stop-color="#9A8CF8" stop-opacity="0.78" />
+      <stop offset="100%" stop-color="#6A78C9" stop-opacity="0.84" />
+    </linearGradient>
+  </defs>
+  <rect x="14" y="14" width="228" height="228" rx="54" fill="url(#bgTile)" stroke="url(#tileRim)" stroke-width="3.5" />
+  <ellipse cx="128" cy="144" rx="84" ry="74" fill="url(#causticGlow)" />
+  <polygon points="128,46 54,128 96,128" fill="url(#facetUL)" />
+  <polygon points="128,46 96,128 160,128" fill="url(#facetUC)" />
+  <polygon points="128,46 160,128 202,128" fill="url(#facetUR)" />
+  <polygon points="54,128 96,128 128,210" fill="url(#facetDL)" />
+  <polygon points="96,128 160,128 128,210" fill="url(#facetDC)" />
+  <polygon points="160,128 202,128 128,210" fill="url(#facetDR)" />
+  <path d="M54,128 L202,128 M128,46 L96,128 L128,210 M128,46 L160,128 L128,210" stroke="#FFFFFF" stroke-opacity="0.52" stroke-width="2.2" stroke-linejoin="round" />
+  <polygon points="128,46 54,128 128,210 202,128" stroke="#E2EEFF" stroke-opacity="0.88" stroke-width="3" stroke-linejoin="round" />
+</svg>

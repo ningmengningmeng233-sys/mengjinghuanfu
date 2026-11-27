@@ -3,5 +3,5 @@
 // - 规则段版本与 status 输出（adapters/*/extra.css 的 {{version}} 占位由 core/app-runtime.mjs 组装时替换、dreamskin.mjs）
 // - 总控台标题与 .exe 文件版本：总控台是 .NET 程序，构建时由 tools/check-version.mjs 校验其 AssemblyVersion 与这里一致（不一致就构建失败）。
 // 发布 3.0 时只改这一处（Q-4 改成 3.0.0；3.0.1 补丁批续改为 3.0.1；3.0.2 补丁批续改为 3.0.2；3.0.3 补丁批续改为 3.0.3；3.0.4 补丁批续改为 3.0.4；3.0.5 补丁批续改为 3.0.5）。
-export const VERSION = '4.0.0';
+export const VERSION = '4.1.0';
 export const USER_AGENT = `DreamSkin/${VERSION} (theme gallery)`;

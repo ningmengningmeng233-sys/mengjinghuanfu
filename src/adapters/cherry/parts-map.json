@@ -12,17 +12,20 @@
     "required": true,
     "requiredWhen": "[data-ui=\"chat.view\"]"
   },
+  "app.sidebar.item": {
+    "selector": "[data-testid=\"agent-session-row\"], [data-testid=\"resource-list-session\"], #app-sidebar [role=\"listitem\"], [data-ui=\"app.sidebar\"] [role=\"listitem\"], .topic-list-item, [class*=\"TopicListItem\"]"
+  },
   "app.topbar": {
     "selector": "[data-ui=\"app.tab-bar\"]"
   },
   "app.content": {
-    "selector": "[data-ui=\"chat.view\"]",
+    "selector": "[data-ui=\"chat.view\"], [data-ui=\"agents.agent-chat-main\"], [data-ui=\"agents.agent-chat-session-center\"]",
     "wrap": "[data-ui=\"app.shell\"]:has(> [data-ui=\"app.content\"])",
-    "card": "main[data-ui=\"app.content\"]",
+    "card": "main[data-ui=\"app.content\"], [data-ui=\"chat.artifact-pane-view\"]",
     "required": true
   },
   "chat.messages": {
-    "selector": "[data-ui~=\"part:conversation-main\"]",
+    "selector": "[data-ui~=\"part:conversation-main\"], [data-ui=\"agents.agent-chat-main\"]",
     "list": "[data-ui=\"chat.message-list\"]",
     "shell": "[data-ui=\"chat.message-list\"], #messages"
   },
@@ -30,12 +33,15 @@
     "selector": ".message-user .message-content-container"
   },
   "chat.composer": {
-    "selector": "#inputbar, [data-ui=\"chat.composer\"]",
+    "selector": "#inputbar, [data-ui=\"chat.composer\"], [data-ui=\"chat.composer-floating-capsule\"]",
     "dock": "[data-ui=\"chat.composer-dock-transition-frame\"]",
     "required": true,
     "requiredWhen": "[data-ui=\"chat.view\"]"
   },
   "code.block": {
     "selector": "[data-ui=\"part:code-block\"]"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], .ant-modal-content, .ant-popover-inner, .ant-dropdown-menu"
   }
 }

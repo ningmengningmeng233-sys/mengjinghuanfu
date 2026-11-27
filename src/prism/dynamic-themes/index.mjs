@@ -77,10 +77,10 @@ export const BUILTIN_DYNAMIC_THEMES = [
     html: wrapCanvasTheme('极光流云 · Aurora Drift', '#060a16', `
       var t = 0;
       var ribbons = [
-        { y: 0.34, amp: 58, freq: 0.0022, speed: 0.009, hue: 186, alpha: 0.34, width: 150 },
-        { y: 0.48, amp: 74, freq: 0.0017, speed: -0.007, hue: 222, alpha: 0.32, width: 190 },
-        { y: 0.62, amp: 52, freq: 0.0026, speed: 0.011, hue: 274, alpha: 0.28, width: 165 },
-        { y: 0.42, amp: 44, freq: 0.0031, speed: 0.006, hue: 162, alpha: 0.22, width: 120 }
+        { y: 0.32, amp: 64, freq: 0.0022, speed: 0.011, hue: 188, alpha: 0.52, width: 165 },
+        { y: 0.48, amp: 78, freq: 0.0017, speed: -0.0085, hue: 224, alpha: 0.50, width: 205 },
+        { y: 0.64, amp: 58, freq: 0.0025, speed: 0.013, hue: 282, alpha: 0.46, width: 180 },
+        { y: 0.42, amp: 48, freq: 0.0030, speed: 0.008, hue: 160, alpha: 0.38, width: 135 }
       ];
       var stars = Array.from({ length: 75 }, function() {
         return { x: Math.random(), y: Math.random() * 0.72, r: 0.6 + Math.random() * 1.4, p: Math.random() * 6.28 };
@@ -139,10 +139,10 @@ export const BUILTIN_DYNAMIC_THEMES = [
     html: wrapCanvasTheme('液态棱镜 · Liquid Prism', '#070a15', `
       var t = 0;
       var orbs = [
-        { bx: 0.28, by: 0.36, r: 0.34, sx: 0.007, sy: 0.005, c1: 'rgba(92,225,230,0.48)', c2: 'rgba(59,130,246,0)' },
-        { bx: 0.72, by: 0.56, r: 0.38, sx: -0.006, sy: 0.008, c1: 'rgba(167,139,250,0.46)', c2: 'rgba(139,92,246,0)' },
-        { bx: 0.52, by: 0.25, r: 0.28, sx: 0.005, sy: -0.007, c1: 'rgba(244,114,182,0.36)', c2: 'rgba(236,72,153,0)' },
-        { bx: 0.35, by: 0.75, r: 0.32, sx: -0.008, sy: -0.004, c1: 'rgba(96,165,250,0.42)', c2: 'rgba(37,99,235,0)' }
+        { bx: 0.26, by: 0.34, r: 0.38, sx: 0.0085, sy: 0.006, c1: 'rgba(56,232,255,0.66)', c2: 'rgba(59,130,246,0)' },
+        { bx: 0.74, by: 0.54, r: 0.42, sx: -0.007, sy: 0.009, c1: 'rgba(168,120,255,0.64)', c2: 'rgba(139,92,246,0)' },
+        { bx: 0.52, by: 0.24, r: 0.32, sx: 0.006, sy: -0.008, c1: 'rgba(255,96,184,0.54)', c2: 'rgba(236,72,153,0)' },
+        { bx: 0.34, by: 0.76, r: 0.36, sx: -0.009, sy: -0.005, c1: 'rgba(72,158,255,0.60)', c2: 'rgba(37,99,235,0)' }
       ];
       function frame() {
         if (!paused) {

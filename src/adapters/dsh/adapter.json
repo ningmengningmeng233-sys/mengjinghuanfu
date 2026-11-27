@@ -1,55 +1,71 @@
 {
+  "schema": "dreamskin-adapter/1",
+  "id": "dsh",
+  "name": "DeepSeek Harness (DSH NEXT)",
   "channel": "exe",
   "discover": {
     "candidates": [
+      "%LOCALAPPDATA%\\Programs\\DSH NEXT\\DSH NEXT.exe",
+      "%LOCALAPPDATA%\\Programs\\DSH Desktop\\DSH NEXT.exe",
       "%LOCALAPPDATA%\\Programs\\DSH Desktop\\DSH Desktop.exe"
     ],
     "envExe": "DREAMSKIN_DSH_EXE",
     "exeNames": [
+      "DSH NEXT.exe",
       "DSH Desktop.exe"
     ],
+    "uninstallDisplayName": "DSH NEXT",
+    "uninstallDisplayNames": [
+      "DSH NEXT",
+      "DSH Desktop"
+    ],
     "mac": {
-      "bundle": "DSH Desktop",
-      "source": "包名按产品名推断：社区 DSH Desktop 自述有 Windows 与 macOS 双平台发行，但本机所装 anywhere-labs 发行线（2.0.18）的 mac 安装资产、包名与外壳形态（Electron 或 Tauri）均未核实",
+      "bundle": "DSH NEXT",
+      "source": "按 DSH NEXT 桌面版命名推断；macOS 打包结构与可执行名尚未在真 Mac 核实",
       "status": "unverified"
-    },
-    "uninstallDisplayName": "DSH Desktop"
+    }
   },
   "extraCss": "extra.css",
-  "id": "dsh",
-  "name": "DeepSeek Harness",
   "partsMap": "parts-map.json",
   "process": {
     "gracefulCloseMs": 8000
   },
-  "readySelector": "[data-slot=\"sidebar\"]",
-  "schema": "dreamskin-adapter/1",
+  "prism": {
+    "defaultDebugPort": 9343,
+    "browserHoleSupport": false
+  },
+  "readySelector": "[data-slot=\"sidebar\"], #root",
+  "restartNote": "开启 DSH 原生插件通道后免重启热生效；若使用 CDP 通道重开则不会丢失历史会话",
   "shells": [
+    {
+      "channel": "dsh-plugin",
+      "id": "native-plugin",
+      "name": "DSH NEXT 原生插件通道（免重启热生效）"
+    },
     {
       "channel": "exe",
       "exeNames": [
+        "DSH NEXT.exe",
         "DSH Desktop.exe"
       ],
       "id": "desktop",
-      "name": "DSH Desktop（Electron 社区外壳）"
+      "name": "DSH NEXT / Desktop（Electron 桌面壳）"
     },
     {
       "channel": "webview2",
       "id": "tauri",
-      "name": "Tauri 社区外壳（本机未装）"
-    },
-    {
-      "channel": "dsh-plugin",
-      "id": "web",
-      "name": "浏览器模式（dsh web）",
-      "url": "http://127.0.0.1:3080"
+      "name": "Tauri 社区外壳（未安装）"
     }
   ],
   "target": {
-    "uaToken": "DSHDesktop",
-    "urlPattern": "^http://127[.]0[.]0[.]1:[0-9]+/"
+    "uaToken": "DSH",
+    "urlPattern": "^https?://(?:127[.]0[.]0[.]1|localhost):[0-9]+/"
   },
   "testedVersions": [
+    "2.0.28",
+    "2.0.26-next",
+    "2.0.25-next",
+    "2.0.24-next",
     "2.0.18"
   ]
 }

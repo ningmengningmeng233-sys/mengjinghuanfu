@@ -114,6 +114,10 @@ export function validateAdapter(data, opts = {}) {
     for (const k of ['uninstallDisplayName', 'macBundle', 'msixPackageFamily']) {
       if (d[k] !== undefined && typeof d[k] !== 'string') errors.push('discover.' + k + ' must be a string');
     }
+    if (d.uninstallDisplayNames !== undefined
+      && !(Array.isArray(d.uninstallDisplayNames) && d.uninstallDisplayNames.length > 0 && d.uninstallDisplayNames.every((s) => typeof s === 'string' && s.length > 0))) {
+      errors.push('discover.uninstallDisplayNames must be a non-empty array of strings');
+    }
     // mac 段（mac 适配批）：{ bundle, source, status } 均为字符串；status 目前只许
     // unverified——mac 数据一律未实测，等真机验证批转正时再放开新取值。
     if (d.mac !== undefined) {

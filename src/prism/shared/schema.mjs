@@ -1,19 +1,62 @@
 // Canonical shared schema, presets, color schemes, and sanitizers for agy-wallpaper-prism.
 // Shared across src/engine, src/host, src/studio-ui, sidecars/prism_studio, and test/verify-all.
 
+import {
+  CODE_FONTS,
+  COMPANION_POSITIONS,
+  COMPANION_STYLES,
+  DEFAULT_SKIN_MODULES,
+  EXCLUDED_HOST_FEATURES,
+  MASCOT_PRESETS,
+  MODE_PRESET_MODULES,
+  MODULE_KEYS,
+  MOTION_TIERS,
+  RIM_TONES,
+  SKIN_MODES,
+  SKIN_MODE_DEFS,
+  applySkinModePreset,
+  normalizeSkinMode,
+  resolveSkinComposition,
+  sanitizeSkinModules,
+} from './skin-modes.mjs';
+
+export {
+  CODE_FONTS,
+  COMPANION_POSITIONS,
+  COMPANION_STYLES,
+  DEFAULT_SKIN_MODULES,
+  EXCLUDED_HOST_FEATURES,
+  MASCOT_PRESETS,
+  MODE_PRESET_MODULES,
+  MODULE_KEYS,
+  MOTION_TIERS,
+  RIM_TONES,
+  SKIN_MODES,
+  SKIN_MODE_DEFS,
+  applySkinModePreset,
+  normalizeSkinMode,
+  resolveSkinComposition,
+  sanitizeSkinModules,
+};
+
 export const PLUGIN_ID = 'dreamskin-prism';
 export const PLUGIN_DISPLAY_NAME = '梦境换肤 Prism';
-export const PLUGIN_VERSION = '4.0.0';
+export const PLUGIN_VERSION = '4.1.0';
 export const SIDECAR_ID = 'prism_studio';
 export const SIDECAR_URI = 'sidecar://dreamskin-prism/prism_studio/';
 export const CUSTOMIZATION_URI = 'customization://dreamskin-prism';
 export const DEFAULT_DEBUG_PORT = 9339;
 
 export const PRISM_DOM = Object.freeze({
-  skinVersion: '4.0.0',
+  skinVersion: '4.1.0',
   skinAttr: 'data-agy-prism-skin',
   glassAttr: 'data-agy-prism-glass',
   wallpaperAttr: 'data-agy-prism-wallpaper',
+  skinModeAttr: 'data-prism-skin-mode',
+  opticalFacetAttr: 'data-prism-optical-facet',
+  motionAttr: 'data-prism-motion',
+  companionAttr: 'data-prism-companion',
+  companionId: 'agy-prism-companion',
   staticStyleId: 'agy-prism-static-css',
   adapterStyleId: 'agy-prism-adapter-css',
   themeAttr: 'data-prism-theme',
@@ -690,6 +733,22 @@ export const FACTORY_PRESETS = Object.freeze([
 export const DEFAULT_CONFIG = Object.freeze({
   // Master state & active wallpaper
   skinEnabled: true,
+  skinMode: 'wallpaper',
+  modules: DEFAULT_SKIN_MODULES,
+  companionStyle: 'clawd',
+  companionPosition: 'bottom-right',
+  mascotSpec: 'crab',
+  prismaticCoat: false,
+  rimTone: 'follow',
+  motionTier: 'ultra',
+  ambientIntensity: 1,
+  vividness: 'balanced',
+  fontStyle: 'modern',
+  textStyle: 'stylized',
+  habitatMode: 'auto',
+  codeFont: 'default',
+  codeLigatures: false,
+  sidebarCompact: false,
   startupMode: 'gentle-auto',
   activeWallpaperId: '',
   wallpaperId: '',
@@ -804,6 +863,10 @@ export const DEFAULT_CONFIG = Object.freeze({
 /** Keys reset by each non-destructive 3-tier reset scope (preserves library/uploads/userProps/favorites/hiddenIds). */
 export const RESET_SCOPES = Object.freeze({
   skin: Object.freeze([
+    'skinMode',
+    'modules',
+    'companionStyle',
+    'companionPosition',
     'preset',
     'layoutMode',
     'islandGap',
@@ -1107,8 +1170,46 @@ export function sanitizeConfig(input = {}, base = DEFAULT_CONFIG) {
     ? DEFAULT_CONFIG.liveBootDelay
     : merged.liveBootDelay;
 
+  const prevSkinMode = normalizeSkinMode(b.skinMode, DEFAULT_CONFIG.skinMode);
+  const skinMode = normalizeSkinMode(
+    'skinMode' in src ? src.skinMode : b.skinMode,
+    DEFAULT_CONFIG.skinMode,
+  );
+  const modeChanged = 'skinMode' in src && skinMode !== prevSkinMode;
+  const modeFallback = MODE_PRESET_MODULES[skinMode] || DEFAULT_SKIN_MODULES;
+  const baseModules =
+    !modeChanged && b.modules && typeof b.modules === 'object'
+      ? sanitizeSkinModules(b.modules, modeFallback)
+      : { ...modeFallback };
+  const incomingModules =
+    src.modules && typeof src.modules === 'object' ? { ...src.modules } : {};
+  for (const mk of MODULE_KEYS) {
+    if (!(mk in incomingModules) && mk in src && typeof src[mk] === 'boolean') {
+      incomingModules[mk] = src[mk];
+    }
+  }
+  const modules = sanitizeSkinModules(incomingModules, baseModules);
+
   return {
     skinEnabled: bool(merged.skinEnabled, DEFAULT_CONFIG.skinEnabled),
+    skinMode,
+    modules,
+    companionStyle: oneOf(merged.companionStyle, COMPANION_STYLES, DEFAULT_CONFIG.companionStyle),
+    companionPosition: oneOf(merged.companionPosition, COMPANION_POSITIONS, DEFAULT_CONFIG.companionPosition),
+    mascotSpec: (typeof merged.mascotSpec === 'string' && /^r:(?:[ckdw][01](?:,[ckdw][01])*)?(?:\+m)?$/.test(merged.mascotSpec))
+      ? merged.mascotSpec
+      : oneOf(merged.mascotSpec, MASCOT_PRESETS, DEFAULT_CONFIG.mascotSpec),
+    prismaticCoat: bool(merged.prismaticCoat, DEFAULT_CONFIG.prismaticCoat),
+    rimTone: oneOf(merged.rimTone, RIM_TONES, DEFAULT_CONFIG.rimTone),
+    motionTier: oneOf(merged.motionTier, MOTION_TIERS, DEFAULT_CONFIG.motionTier),
+    ambientIntensity: num(merged.ambientIntensity, DEFAULT_CONFIG.ambientIntensity, 0, 1, 2),
+    vividness: oneOf(merged.vividness, ['soft', 'balanced', 'vivid'], DEFAULT_CONFIG.vividness),
+    fontStyle: oneOf(merged.fontStyle, ['modern', 'editorial', 'mono'], DEFAULT_CONFIG.fontStyle),
+    textStyle: oneOf(merged.textStyle, ['stylized', 'crisp', 'minimal'], DEFAULT_CONFIG.textStyle),
+    habitatMode: oneOf(merged.habitatMode, ['auto', 'cactus', 'lamp', 'hourglass'], DEFAULT_CONFIG.habitatMode),
+    codeFont: oneOf(merged.codeFont, CODE_FONTS, DEFAULT_CONFIG.codeFont),
+    codeLigatures: bool(merged.codeLigatures, DEFAULT_CONFIG.codeLigatures),
+    sidebarCompact: bool(merged.sidebarCompact, DEFAULT_CONFIG.sidebarCompact),
     startupMode: oneOf(merged.startupMode, STARTUP_MODES, DEFAULT_CONFIG.startupMode),
     activeWallpaperId: activeId,
     wallpaperId: activeId,

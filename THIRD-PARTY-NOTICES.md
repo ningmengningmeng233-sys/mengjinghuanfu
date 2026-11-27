@@ -1,6 +1,20 @@
 # Third-Party Notices
 
-本项目复用了以下开源项目的代码、数据或设计，协议见各条目（MIT / Apache-2.0）。
+本项目（DreamSkin Prism v4.1+）复用了以下开源项目的代码、数据或设计。由于合并并跨平台适配了 **Obsidian Prism**（`GPL-3.0-only`）的光学渲染与像素桌宠引擎，本项目整体及派生分发遵循 **GNU General Public License v3.0 (`GPL-3.0-only`)**（见根目录 [`LICENSE`](./LICENSE)），并完整保留以下全部上游版权与许可声明。
+
+## RMvdesi/obsidian-prism（GPL-3.0-only, Copyright (C) 2026 RMvdesi）
+https://github.com/RMvdesi/obsidian-prism
+- 跨平台光学与像素桌宠套件（`src/prism/optical/` 及随 DSH 插件分发的 `optical-bundle.js`）直接复用并跨平台适配了 Obsidian Prism 的核心前端引擎：
+  - `motion-engine.js`：统一 4 档弹簧物理微交互编排引擎（`off / subtle / standard / ultra`）
+  - `prism-rim-canvas.js`：零回流 300Hz GPU Canvas 虹彩棱镜随光标流光边框引擎
+  - `ripple-core.js`：WebGL2 / 2D 地平线氛围光晕（Brand Horizon Glow）与交互字符矩阵波纹场
+  - `dual-mascot-rig.js`：Clawd、小紫猫、GPT 银白龙、DeepSeek 蓝鲸（Deepy）与三只迷你蟹叠叠乐物理像素桌宠引擎（适配跨平台输入卡锚点，并去除 `localStorage` 读写以遵循零存储访问隐私边界）
+  - `smooth-caret.js`：FastDOM 丝滑流光光标引擎（扩展兼容 `<textarea>` 与 `[contenteditable]`）
+  - 4 套黑曜光学深浅配色体系（深空黑曜 / 暖炭玄岩 / 白昼冷晶 / 暖白画册）与 Smoked Obsidian 层次语言。
+- 同步保留 Obsidian Prism 吸收的上游 MIT 项目署名：
+  - `0DNANCY/agy-claude-style`（MIT, Copyright (c) 2026 0DNANCY）：光学主题基础、4 档弹簧基础、WebGL2 地平线光场与像素桌宠基础
+  - `wp3171216237/dsh-TUI`（MIT, Copyright (c) 2026 chimney / @wp3171216237）：Deepy 蓝鲸桌宠配色与喷水形态灵感
+  - `Nwflower/dsh-claude-style`：极简排版与输入卡美学参考
 
 ## azwosile/agy-wallpaper-prism（MIT，已获原作者授权直接使用）
 https://github.com/azwosile/agy-wallpaper-prism

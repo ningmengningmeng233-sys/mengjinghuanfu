@@ -24,8 +24,12 @@ const defaultDeps = {
 export function profileToChannelAdapter(profile, opts = {}) {
   if (!profile || typeof profile !== 'object') throw new Error('profileToChannelAdapter: profile 不能为空');
   return {
-    id: profile.id, name: profile.name, channel: profile.channel, exeName: profile.exeName, envExe: profile.envExe,
-    uninstallName: profile.uninstallName, macBundle: profile.macBundle,
+    id: profile.id, name: profile.name, channel: profile.channel, exeName: profile.exeName,
+    exeNames: profile.exeNames || (profile.exeName ? [profile.exeName] : []),
+    envExe: profile.envExe,
+    uninstallName: profile.uninstallName,
+    uninstallNames: profile.uninstallNames || (profile.uninstallName ? [profile.uninstallName] : []),
+    macBundle: profile.macBundle,
     candidates: profile.candidates, isMainTarget: profile.isMainTarget, isHelperCmd: profile.isHelperCmd,
     restartNote: profile.restartNote, uaToken: profile.uaToken,
     msixPackageFamily: profile.msixPackageFamily || '', conflicts: profile.conflicts || [],

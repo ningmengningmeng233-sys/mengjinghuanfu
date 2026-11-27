@@ -36,12 +36,63 @@
     zcode: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#131126" stroke="#A78BFA" stroke-width="2"/><path d="M19 20H45L20 44H45" stroke="#A78BFA" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'),
     kiro: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#18122B" stroke="#C084FC" stroke-width="2"/><path d="M20 46V29C20 21 25.5 16 32 16C38.5 16 44 21 44 29V46L38 41.5L32 46L26 41.5L20 46Z" fill="#C084FC"/></svg>'),
     windsurf: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0D1E22" stroke="#2DD4BF" stroke-width="2"/><path d="M17 42C22 28 31 20 46 18C41 28 37 35 39 44C32 41 25 40 17 42Z" fill="#2DD4BF"/></svg>'),
+    'minimax-design': 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#1A1224" stroke="#F472B6" stroke-width="2"/><circle cx="28" cy="30" r="10" fill="#F472B6"/><circle cx="38" cy="36" r="9" fill="#60A5FA" fill-opacity=".8"/></svg>'),
+    qoder: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#101828" stroke="#38BDF8" stroke-width="2"/><circle cx="31" cy="31" r="12" stroke="#38BDF8" stroke-width="4"/><path d="M39 39L47 47" stroke="#818CF8" stroke-width="4.5" stroke-linecap="round"/></svg>'),
+    opencode: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0F172A" stroke="#22D3EE" stroke-width="2"/><path d="M24 22L15 32L24 42M40 22L49 32L40 42M35 18L29 46" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round"/></svg>'),
+    workbuddy: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0E1D1A" stroke="#34D399" stroke-width="2"/><path d="M16 22L23 42L32 26L41 42L48 22" stroke="#34D399" stroke-width="4" stroke-linecap="round"/></svg>'),
+    t3code: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#171226" stroke="#A78BFA" stroke-width="2"/><path d="M16 22H34M25 22V44M37 22H48L41 32H47" stroke="#A78BFA" stroke-width="3.8" stroke-linecap="round"/></svg>'),
+    vscode: 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><rect x="4" y="4" width="56" height="56" rx="15" fill="#0C192C" stroke="#3B82F6" stroke-width="2"/><path d="M44 16L22 36L16 32L44 48V16Z" fill="#3B82F6"/></svg>'),
   };
+
+  var SKIN_MODE_CARDS = [
+    { id: 'optical', badge: '◆', name: '纯黑曜光学', desc: '深浅光学配色 + 切面边框 + 弹簧动效 + 像素伙伴（无壁纸/玻璃冲突）' },
+    { id: 'wallpaper', badge: '✦', name: '纯梦境壁纸', desc: '动静态壁纸 + 液态玻璃 + 浮岛透光（无光学边框与伙伴遮挡）' },
+    { id: 'hybrid', badge: '❖', name: '自由混搭', desc: '按下方模块开关任意拼装，冲突项自动安全禁配' },
+  ];
+
+  var MODULE_LABELS = [
+    { key: 'wallpaperLayer', name: '动态/静态壁纸' },
+    { key: 'glassLayer', name: '液态玻璃透光' },
+    { key: 'opticalPalette', name: '黑曜光学配色' },
+    { key: 'opticalFacet', name: '300Hz 棱镜光带' },
+    { key: 'rippleField', name: '地平线波纹光场' },
+    { key: 'microMotion', name: '4档弹簧与光标' },
+    { key: 'pixelCompanion', name: '像素桌宠叠叠乐' },
+  ];
+
+  var COMPANION_OPTIONS = [
+    { id: 'crab', name: '双宠经典 (Clawd + 小紫猫)' },
+    { id: 'quad', name: '四宠同台 (+银白龙 / Deepy)' },
+    { id: 'quad-minis', name: '全员叠叠乐 (+3迷你蟹)' },
+    { id: 'whale', name: 'Deepy 蓝鲸 + 小紫猫' },
+    { id: 'neko', name: '单宠小紫猫' },
+  ];
+
+  var RIM_TONE_OPTIONS = [
+    { id: 'follow', name: '随配色光谱' },
+    { id: 'cobalt', name: '极光钴蓝' },
+    { id: 'iris', name: '鸢尾紫光' },
+    { id: 'amber', name: '琥珀暖金' },
+    { id: 'mono', name: '极简银辉' },
+  ];
+
+  var VIVID_OPTIONS = [
+    { id: 'soft', name: '柔和' },
+    { id: 'balanced', name: '平衡' },
+    { id: 'vivid', name: '鲜艳' },
+  ];
+
+  var HABITAT_OPTIONS = [
+    { id: 'auto', name: '自动' },
+    { id: 'cactus', name: '仙人掌' },
+    { id: 'lamp', name: '深夜台灯' },
+    { id: 'hourglass', name: '专注沙漏' },
+  ];
 
   var BUILTIN_DYN = Array.isArray(window.__PRISM_DYNAMIC_THEMES__) ? window.__PRISM_DYNAMIC_THEMES__ : [];
 
   var state = {
-    version: '4.0.0',
+    version: '4.1.0',
     activeTab: 'home', // 'home' | 'apps'
     studioMode: 'prism', // 'prism' | 'dynamic' | 'classic'
     selectedAppId: 'antigravity',
@@ -53,6 +104,8 @@
     v4Store: { version: 4, global: {}, apps: {} },
     items: [],
     dynamicThemes: BUILTIN_DYN,
+    excludedHostFeatures: [],
+    dshPluginStatus: null,
     galleryItems: [],
     galleryLoading: false,
     galleryError: '',
@@ -247,10 +300,11 @@
 
   function loadState() {
     return apiJson('/api/state').then(function (data) {
-      state.version = data.version || '4.0.0';
+      state.version = data.version || '4.1.0';
       state.apps = Array.isArray(data.apps) ? data.apps : [];
       state.v4Store = data.v4Store || state.v4Store;
       state.items = Array.isArray(data.items) ? data.items : [];
+      if (Array.isArray(data.excludedHostFeatures)) state.excludedHostFeatures = data.excludedHostFeatures;
       if (Array.isArray(data.dynamicThemes) && data.dynamicThemes.length && !BUILTIN_DYN.length) {
         state.dynamicThemes = data.dynamicThemes;
       }
@@ -261,12 +315,136 @@
       if (app) app.setAttribute('data-prism-ready', 'true');
       render();
       loadShortcutStatus();
+      loadDshPluginStatus();
     }).catch(function (err) {
       var app = document.getElementById('app');
       if (app) app.setAttribute('data-prism-ready', 'true');
       showToast('连接管家失败：' + (err && err.message ? err.message : err));
       render();
     });
+  }
+
+  function loadDshPluginStatus() {
+    if (state.selectedAppId !== 'dsh') return;
+    apiJson('/api/apps/dsh/plugin/status').then(function (st) {
+      state.dshPluginStatus = st;
+      if (state.selectedAppId === 'dsh') renderMainOnly({ preserveScroll: true });
+    }).catch(function () {});
+  }
+
+  function resolveUiComposition(cfg) {
+    var mode = (cfg && (cfg.skinMode === 'optical' || cfg.skinMode === 'hybrid')) ? cfg.skinMode : 'wallpaper';
+    var raw = (cfg && cfg.modules) || {};
+    var def = mode === 'optical'
+      ? { wallpaperLayer: false, glassLayer: false, opticalPalette: true, opticalFacet: true, rippleField: true, microMotion: true, pixelCompanion: true }
+      : mode === 'hybrid'
+        ? { wallpaperLayer: true, glassLayer: true, opticalPalette: true, opticalFacet: true, rippleField: false, microMotion: true, pixelCompanion: true }
+        : { wallpaperLayer: true, glassLayer: true, opticalPalette: true, opticalFacet: false, rippleField: false, microMotion: false, pixelCompanion: false };
+    var eff = {
+      wallpaperLayer: raw.wallpaperLayer != null ? Boolean(raw.wallpaperLayer) : def.wallpaperLayer,
+      glassLayer: raw.glassLayer != null ? Boolean(raw.glassLayer) : def.glassLayer,
+      opticalPalette: raw.opticalPalette != null ? Boolean(raw.opticalPalette) : def.opticalPalette,
+      opticalFacet: raw.opticalFacet != null ? Boolean(raw.opticalFacet) : def.opticalFacet,
+      rippleField: raw.rippleField != null ? Boolean(raw.rippleField) : def.rippleField,
+      microMotion: raw.microMotion != null ? Boolean(raw.microMotion) : def.microMotion,
+      pixelCompanion: raw.pixelCompanion != null ? Boolean(raw.pixelCompanion) : def.pixelCompanion,
+    };
+    var locked = {};
+    var notes = [];
+    if (mode === 'optical') {
+      eff.wallpaperLayer = false; locked.wallpaperLayer = true;
+      eff.glassLayer = false; locked.glassLayer = true;
+      notes.push('纯黑曜光学模式自动关闭壁纸与液态玻璃，完整释放地平线光场与 300Hz 棱镜光带。');
+    } else if (mode === 'wallpaper') {
+      eff.opticalFacet = false; locked.opticalFacet = true;
+      eff.rippleField = false; locked.rippleField = true;
+      eff.microMotion = false; locked.microMotion = true;
+      eff.pixelCompanion = false; locked.pixelCompanion = true;
+      notes.push('纯梦境壁纸模式自动屏蔽棱镜光带、波纹光场与桌宠，保持纯净通透壁纸画面。');
+    } else if (!eff.wallpaperLayer && eff.glassLayer) {
+      eff.glassLayer = false; locked.glassLayer = true;
+      notes.push('自由混搭中关闭背景壁纸时，液态玻璃无底图可透已自动关闭。');
+    }
+    return { skinMode: mode, effective: eff, locked: locked, notes: notes };
+  }
+
+  function renderThreeModePanel(app, cfg) {
+    var comp = resolveUiComposition(cfg);
+    var cardsHtml = SKIN_MODE_CARDS.map(function (m) {
+      var act = comp.skinMode === m.id ? ' active' : '';
+      return '<button class="ds-mode-card' + act + '" data-skin-mode="' + m.id + '">' +
+        '<div class="ds-mode-card-head"><span>' + m.badge + ' ' + esc(m.name) + '</span>' + (act ? '<span class="ds-muted">使用中</span>' : '') + '</div>' +
+        '<div class="ds-mode-card-desc">' + esc(m.desc) + '</div>' +
+      '</button>';
+    }).join('');
+
+    var modsHtml = MODULE_LABELS.map(function (ml) {
+      var isLocked = Boolean(comp.locked[ml.key]);
+      var checked = Boolean(comp.effective[ml.key]);
+      return '<div class="ds-mod-pill' + (isLocked ? ' locked' : '') + '">' +
+        '<span>' + esc(ml.name) + (isLocked ? ' 🔒' : '') + '</span>' +
+        '<label class="ds-switch"><input type="checkbox" data-module-toggle="' + ml.key + '"' + (checked ? ' checked' : '') + (isLocked ? ' disabled' : '') + ' /><span class="ds-switch-track"></span></label>' +
+      '</div>';
+    }).join('');
+
+    var petBarHtml = '';
+    if (comp.effective.pixelCompanion || comp.effective.opticalFacet || comp.effective.rippleField) {
+      var curMascot = cfg.mascotSpec || 'crab';
+      var curRim = cfg.rimTone || 'follow';
+      var curVivid = cfg.vividness || 'balanced';
+      var curHab = cfg.habitatMode || 'auto';
+      var parts = [];
+      if (comp.effective.pixelCompanion) {
+        parts.push('<span class="ds-muted">桌宠阵容：</span>' + COMPANION_OPTIONS.map(function (o) {
+          return '<button class="ds-chip' + (curMascot === o.id ? ' active' : '') + '" data-mascot-spec="' + o.id + '">' + esc(o.name) + '</button>';
+        }).join(''));
+        parts.push('<span class="ds-muted" style="margin-left:6px">角隅摆件：</span>' + HABITAT_OPTIONS.map(function (h) {
+          return '<button class="ds-chip' + (curHab === h.id ? ' active' : '') + '" data-habitat-mode="' + h.id + '">' + esc(h.name) + '</button>';
+        }).join(''));
+      }
+      if (comp.effective.opticalFacet) {
+        parts.push('<span class="ds-muted" style="margin-left:6px">棱镜光带：</span>' + RIM_TONE_OPTIONS.map(function (r) {
+          return '<button class="ds-chip' + (curRim === r.id ? ' active' : '') + '" data-rim-tone="' + r.id + '">' + esc(r.name) + '</button>';
+        }).join(''));
+      }
+      if (comp.effective.rippleField) {
+        parts.push('<span class="ds-muted" style="margin-left:6px">光场饱和：</span>' + VIVID_OPTIONS.map(function (v) {
+          return '<button class="ds-chip' + (curVivid === v.id ? ' active' : '') + '" data-vividness="' + v.id + '">' + esc(v.name) + '</button>';
+        }).join(''));
+      }
+      petBarHtml = '<div class="ds-toolbar" style="flex-wrap:wrap;gap:6px">' + parts.join('') + '</div>';
+    }
+
+    var notesHtml = comp.notes.length
+      ? '<div class="ds-conflict-note">⚡ 冲突自动裁决：' + esc(comp.notes.join(' ')) + '</div>'
+      : '';
+
+    var dshBar = '';
+    if (app && app.id === 'dsh') {
+      var st = state.dshPluginStatus;
+      var installed = Boolean(st && st.installed);
+      var enabled = Boolean(st && st.enabled);
+      dshBar = '<div class="ds-dsh-plugin-bar">' +
+        '<div><b>🧩 DSH NEXT 原生双半体插件通道：</b>' +
+          (installed ? (enabled ? '已安装并开启（免重启热生效，不改 app.asar）' : '已安装但已暂停') : '未安装（安装后可免 CDP 免重启热切换三模式）') +
+        '</div>' +
+        '<div class="ds-toolbar" style="gap:6px">' +
+          (!installed
+            ? '<button class="ds-btn sm primary" data-dsh-plugin-action="install">授权安装原生插件</button>'
+            : '<button class="ds-btn sm ' + (enabled ? '' : 'primary') + '" data-dsh-plugin-action="toggle">' + (enabled ? '暂停插件通道' : '开启插件通道') + '</button>' +
+              '<button class="ds-btn sm danger" data-dsh-plugin-action="uninstall">卸载插件</button>') +
+        '</div>' +
+      '</div>';
+    }
+
+    return dshBar +
+      '<div class="ds-mode-panel">' +
+        '<div class="ds-sec-title" style="margin-bottom:0"><span>三种皮肤模式（自由搭配 · 冲突项自动不做）</span><span class="ds-muted">v' + esc(state.version) + '</span></div>' +
+        '<div class="ds-mode-grid">' + cardsHtml + '</div>' +
+        '<div class="ds-modules-grid">' + modsHtml + '</div>' +
+        petBarHtml +
+        notesHtml +
+      '</div>';
   }
 
   function loadShortcutStatus() {
@@ -717,11 +895,17 @@
     var blurSliderPct = Math.round((blurPx / 24) * 100);
     var scrimSliderPct = Math.round((scrimPct / 80) * 100);
 
+    var compPreview = resolveUiComposition(cfg);
+    var opticalOnlyCls = !compPreview.effective.wallpaperLayer ? ' optical-only' : '';
+    var petEmoji = cfg.companionStyle === 'neko' ? '🐱' : cfg.companionStyle === 'crabs' ? '🦞' : cfg.companionStyle === 'orb' ? '🔮' : '🦀';
+    var petPreviewHtml = compPreview.effective.pixelCompanion ? '<div class="ds-preview-pet" title="像素伙伴预览">' + petEmoji + '</div>' : '';
+
     return '<div class="ds-hero-grid">' +
-      '<div class="ds-stage-wrap" id="ds-stage-wrap">' +
+      '<div class="ds-stage-wrap' + opticalOnlyCls + '" id="ds-stage-wrap">' +
         bgMediaHtml +
         '<div class="ds-stage-scrim" id="ds-preview-scrim" style="background:' + scrimBg + '"></div>' +
         '<div class="ds-prism-sweep" id="ds-prism-sweep"></div>' +
+        petPreviewHtml +
         '<div class="ds-mock-window' + (isFlush ? ' flush' : '') + (isLight ? ' light-preview' : '') + '">' +
           '<div class="ds-mock-bar" id="ds-preview-bar" style="' + barStyle + '">' +
             '<div class="ds-mock-dots"><i></i><i></i><i></i></div>' +
@@ -902,6 +1086,7 @@
     var parallaxOn = Boolean(cfg.parallaxEnabled);
 
     return topStrips +
+      renderThreeModePanel(app, cfg) +
       renderPreviewAndControls(app, cfg) +
       renderUnifiedLibraryPanel(cfg) +
       '<details class="prism-adv-drawer"' + (state.advOpen ? ' open' : '') + '>' +
@@ -1214,6 +1399,7 @@
           positionSidebarIndicator(true);
           renderMainOnly({ direction: dir, mediaSweep: true });
           loadShortcutStatus();
+          loadDshPluginStatus();
         });
       });
     }
@@ -1253,6 +1439,74 @@
         }
       });
     }
+
+    root.querySelectorAll('[data-skin-mode]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var mode = btn.getAttribute('data-skin-mode');
+        patchCurrentAppConfig({ skinMode: mode, skinEnabled: true }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-module-toggle]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var key = cb.getAttribute('data-module-toggle');
+        var cur = currentConfig();
+        var nextMods = Object.assign({}, resolveUiComposition(cur).effective);
+        nextMods[key] = cb.checked;
+        var nextPatch = { modules: nextMods, skinEnabled: true };
+        if (key === 'glassLayer') nextPatch.glassSurfaces = cb.checked;
+        patchCurrentAppConfig(nextPatch, true);
+      });
+    });
+
+    root.querySelectorAll('[data-mascot-spec]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        patchCurrentAppConfig({ mascotSpec: btn.getAttribute('data-mascot-spec') }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-rim-tone]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        patchCurrentAppConfig({ rimTone: btn.getAttribute('data-rim-tone') }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-vividness]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        patchCurrentAppConfig({ vividness: btn.getAttribute('data-vividness') }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-habitat-mode]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        patchCurrentAppConfig({ habitatMode: btn.getAttribute('data-habitat-mode') }, true);
+      });
+    });
+
+    root.querySelectorAll('[data-dsh-plugin-action]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var act = btn.getAttribute('data-dsh-plugin-action');
+        if (act === 'install') {
+          apiJson('/api/apps/dsh/plugin/install', { method: 'POST', body: { consent: true, enable: true } }).then(function (r) {
+            state.dshPluginStatus = r;
+            showToast('DSH 原生双半体插件安装成功，正在应用皮肤…');
+            return applyAppNow('dsh', { force: false });
+          }).catch(function (err) { showToast(err.message || '安装失败'); });
+        } else if (act === 'toggle') {
+          apiJson('/api/apps/dsh/plugin/toggle', { method: 'POST', body: {} }).then(function (r) {
+            state.dshPluginStatus = r;
+            showToast(r.enabled ? '已开启 DSH 原生插件通道' : '已暂停 DSH 原生插件通道并还原');
+            renderMainOnly({ preserveScroll: true });
+          }).catch(function (err) { showToast(err.message || '切换失败'); });
+        } else if (act === 'uninstall') {
+          apiJson('/api/apps/dsh/plugin/uninstall', { method: 'POST', body: {} }).then(function (r) {
+            state.dshPluginStatus = r;
+            showToast('已干净卸载 DSH 原生插件');
+            renderMainOnly({ preserveScroll: true });
+          }).catch(function (err) { showToast(err.message || '卸载失败'); });
+        }
+      });
+    });
 
     root.querySelectorAll('[data-scene-preset]').forEach(function (btn) {
       btn.addEventListener('click', function () {

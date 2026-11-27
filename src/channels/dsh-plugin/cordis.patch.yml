@@ -1,8 +1,6 @@
-# dsh-plugin-dreamskin bundle patch: mounts this package as a host plugin row.
-# The row name is the package name itself; the host resolves it from the
-# profile node_modules, loads the package entry (lib/main.js) and calls its
-# apply(ctx). Form follows the first-party bundle patches: a single insert
-# row whose name is the plugin module being mounted.
+# dsh-plugin-dreamskin bundle patch: 注册梦境换肤原生双半体插件到 DSH NEXT 配置树
 - insert:
     - id: dsh-plugin-dreamskin
       name: "dsh-plugin-dreamskin"
+      config:
+        enabled: true
