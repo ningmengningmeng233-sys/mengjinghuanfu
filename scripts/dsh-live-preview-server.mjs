@@ -694,11 +694,11 @@ export function renderPreviewHtml() {
 
   /* ── DSH NEXT Draggable Starfield Reasoning Effort Slider (Inspired by dsh-codex-effort-slider) ── */
   .comp-effort-pill {
-    height: 28px; padding: 0 10px; border-radius: 999px;
+    height: 28px; padding: 0 9px; border-radius: 999px;
     border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
     color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 11.8px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 11.8px; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
     transition: all 140ms ease;
   }
   .comp-effort-pill:hover, .comp-effort-pill[aria-expanded="true"] {
