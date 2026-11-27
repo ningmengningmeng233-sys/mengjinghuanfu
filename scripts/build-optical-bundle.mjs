@@ -24,6 +24,8 @@ const UPSTREAM_FILES = [
   'ripple-core.js',
   'dual-mascot-rig.js',
   'smooth-caret.js',
+  'effort-slider.js',
+  'slider-coexist.js',
 ];
 
 function sanitizeForPrivacy(name, source) {
@@ -63,6 +65,14 @@ function sanitizeForPrivacy(name, source) {
       "if (!entry.mirrorMode && !entry.reflectBottomMode && (entry.box?.classList?.contains?.('surface-composer-card') || entry.box?.hasAttribute?.('data-composer-card'))) {",
     );
   }
+  // Sanitize effort-slider.js for zero-storage privacy contract & disable standalone auto-boot
+  // (lifecycle is strictly controlled by optical-suite.js + slider-coexist.js with auto-yield)
+  if (name === 'effort-slider.js') {
+    out = out.replace(/w\s*&&\s*w\.localStorage\s*\|\|\s*null/g, 'null');
+    out = out.replace(/\blocalStorage\b/g, '__agMemStorageDisabled');
+    out = out.replace(/\bsessionStorage\b/g, '__agMemSessionDisabled');
+    out = 'try { (typeof globalThis !== "undefined" ? globalThis : window).__agCodexEffortSliderDisableAutoBoot = true; } catch (_) {}\n' + out;
+  }
   // Strip any stray http(s):// comment links so privacy guardrail tests stay 100% green
   out = out.replace(/https?:\/\/(?!127\.0\.0\.1|localhost)[^\s"'`)]+/gi, '[upstream-ref]');
   return out;
@@ -99,8 +109,9 @@ export function buildOpticalBundle({ syncUpstream = false } = {}) {
     ' * DreamSkin Prism — Cross-Platform Optical & Pixel Mascot Suite Bundle',
     ' * License: GPL-3.0-only (see LICENSE & THIRD-PARTY-NOTICES.md)',
     ' * Upstream Credits:',
-    ' *   - RMvdesi / Obsidian Prism (motion-engine, prism-rim-canvas, ripple-core, dual-mascot-rig, smooth-caret)',
+    ' *   - RMvdesi / Obsidian Prism (motion-engine, prism-rim-canvas, ripple-core, dual-mascot-rig, smooth-caret, slider-coexist)',
     ' *   - 0DNANCY / agy-claude-style (MIT, optical foundation & mascot base)',
+    ' *   - LLYSH-HANNARI / antigravity-Codex-Claude-effort-slider (MIT, Antigravity reasoning effort slider)',
     ' *   - wp3171216237 / dsh-TUI (MIT, Deepy whale pixel mascot reference)',
     ' * Privacy Contract: zero external URLs, zero cookies, zero host storage access.',
     ' */',

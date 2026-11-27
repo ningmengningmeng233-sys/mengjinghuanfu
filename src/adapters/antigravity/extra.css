@@ -1,4 +1,4 @@
-/* Dream Skin {{version}} · Antigravity (2.34.0 Hub + IDE Workbench) Prism Guardrails */
+/* Dream Skin {{version}} · Antigravity (2.34+/2.35+ Hub + IDE Workbench) Prism & Restrained Optical Guardrails */
 html[data-agy-prism-skin][data-has-browser-hole="true"],
 html[data-agy-prism-skin][data-has-browser-hole="true"] body {
   background: transparent !important;
@@ -7,4 +7,21 @@ html[data-agy-prism-skin] [data-browser-hole]:not([data-browser-hole="false"]) {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+}
+/* Restrained Antigravity sidebar row & model-selector harmony */
+html[data-agy-prism-skin][data-ag-cs-style="1"] [data-testid="conversation-row-sidebar"] {
+  border-radius: 7px !important;
+  transition: background-color 140ms ease, color 140ms ease !important;
+}
+html[data-agy-prism-skin][data-ag-cs-style="1"] [data-testid="conversation-row-sidebar"]:hover {
+  background-color: rgba(255, 255, 255, 0.045) !important;
+}
+html[data-agy-prism-skin][data-ag-cs-style="1"] [data-testid="conversation-row-sidebar"]:is([data-selected="true"], [aria-selected="true"], [data-active="true"]) {
+  background-color: rgba(255, 255, 255, 0.072) !important;
+}
+html[data-agy-prism-skin][data-prism-theme="light"][data-ag-cs-style="1"] [data-testid="conversation-row-sidebar"]:hover {
+  background-color: rgba(15, 23, 42, 0.052) !important;
+}
+html[data-agy-prism-skin][data-prism-theme="light"][data-ag-cs-style="1"] [data-testid="conversation-row-sidebar"]:is([data-selected="true"], [aria-selected="true"], [data-active="true"]) {
+  background-color: rgba(15, 23, 42, 0.085) !important;
 }
