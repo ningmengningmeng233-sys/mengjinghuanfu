@@ -481,7 +481,10 @@ export function renderPreviewHtml() {
     transform-origin: center left;
   }
   [data-row-key^="session:"][data-ag-cs-row-running="1"] { padding-right: 34px; }
+  [data-row-key^="session:"][aria-selected="true"][data-ag-cs-row-running="1"]::before { display: none !important; }
   [data-row-key^="session:"]::after { display: none !important; }
+  [data-icon-slot] { display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+  [data-icon-slot] > svg { display: block; }
   [data-row-key^="session:"]:hover { color: var(--dsw-alias-label-primary, #f2f2f5); }
   [data-row-key^="session:"]:active { transform: scale(0.982); }
   [data-row-key^="session:"][aria-selected="true"] {
@@ -2853,8 +2856,8 @@ export function renderPreviewHtml() {
       var SIM_CHUNKS = [
         '正在扫描本机 DSH NEXT 2.0.24-next 与其余 13 款客户端适配器… ',
         '已检测到多插件共存环境，自动启用流式防卡顿降频保护（背景画布让出 65% GPU 像素开销）。\\n\\n',
-        '1. 像素双宠（Clawd + 小紫猫）已切换为原版专注干活/盯进度动画；\\n',
-        '2. 输入框顶部棱镜边沿亮起柔和思考流光，左侧运行中对话亮起呼吸指示点；\\n',
+        '1. 像素双宠（Clawd + 小紫猫）已切换为原版阵营工作态（主模型干活、伙伴休整，完成同步欢呼）；\\n',
+        '2. 左侧运行中对话亮起原版彩虹流光竖条与旋转棱镜星轨，输入框顶部浮现思考流光与旋转棱镜停止键；\\n',
         '3. 所有 DSH 官方 --dsw-* 插件变量保持实时同步，绝不遮挡审批卡与右侧抽屉。\\n\\n',
         '✓ 全部 14 端状态检查通过，任务执行完成！'
       ];
@@ -2886,6 +2889,16 @@ export function renderPreviewHtml() {
           hydrateIcons();
         }
         if (simState.thoughtWrap) simState.thoughtWrap.removeAttribute('data-ag-cs-thought-streaming');
+        if (simState.respEl) simState.respEl.removeAttribute('data-chat-streaming');
+        if (simState.thoughtSpin && simState.thoughtSpin.parentNode) {
+          var doneBadge = document.createElement('span');
+          doneBadge.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;flex-shrink:0;';
+          doneBadge.innerHTML = aborted
+            ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4" stroke="#94a3b8" stroke-width="1.4"/><rect x="4.5" y="4.5" width="3" height="3" rx="0.6" fill="#94a3b8"/></svg>'
+            : '<svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="rgba(52,211,153,0.16)" stroke="#34d399" stroke-width="1.2"/><path d="M4.3 7.2 6.1 9 9.7 5.2" stroke="#34d399" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          simState.thoughtSpin.parentNode.replaceChild(doneBadge, simState.thoughtSpin);
+          simState.thoughtSpin = null;
+        }
         if (simState.thoughtEl) {
           simState.thoughtEl.textContent = aborted
             ? '已手动中止任务 · 双宠返回待机'
@@ -2932,7 +2945,9 @@ export function renderPreviewHtml() {
         flow.appendChild(resp);
         simState.msgEl = bodyP;
         simState.thoughtEl = th.querySelector('.sim-th-txt');
+        simState.thoughtSpin = th.querySelector('.ag-cs-orbit-spinner');
         simState.thoughtWrap = thoughtWrap;
+        simState.respEl = resp;
         var sc = document.querySelector('[data-conversation-scroll]');
         if (sc) sc.scrollTop = sc.scrollHeight;
         if (window.__dreamSkinOptical && window.__dreamSkinOptical.setStreaming) {
