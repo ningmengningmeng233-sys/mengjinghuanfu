@@ -1055,19 +1055,6 @@ export function renderPreviewHtml() {
   .cl-item-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cl-item-sub { font-size: 10px; opacity: 0.62; font-family: var(--ag-cs-mono-stack, monospace); }
   .cl-badge { font-size: 9.5px; padding: 1.5px 6px; border-radius: 999px; border: 1px solid var(--op-kb); opacity: 0.85; white-space: nowrap; }
-  .comp-pomo-pill {
-    height: 26px; padding: 0 9px; border-radius: 999px;
-    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.06);
-    color: var(--dsw-alias-label-secondary, #a8aab8);
-    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; font-variant-numeric: tabular-nums;
-    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
-    transition: all 140ms ease;
-  }
-  .comp-pomo-pill:hover, .comp-pomo-pill[data-running="1"] {
-    border-color: color-mix(in srgb, var(--st-accent) 48%, transparent);
-    background: color-mix(in srgb, var(--st-accent) 14%, transparent);
-    color: var(--dsw-alias-label-primary, #fff);
-  }
 
   /* Studio Models & Quotas Panes */
   .studio-models-list { display: flex; flex-direction: column; gap: 7px; }
@@ -1580,9 +1567,6 @@ export function renderPreviewHtml() {
                   <span data-icon-slot="layers-stack"></span>
                   <span>桌宠选角</span>
                 </button>
-                <button class="comp-pomo-pill" id="btn-pomo-pill" data-running="0" title="点击开启 25 分钟心流番茄钟（自动切换像素沙漏，结束时双宠欢呼）">
-                  <span>⏳</span><span id="pomo-time">25:00</span>
-                </button>
               </div>
               <div class="comp-right">
                 <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开自适应上下文液柱与 4 源配额浮窗">
@@ -1957,9 +1941,6 @@ export function renderPreviewHtml() {
         fontStyle: 'modern',
         textStyle: 'stylized',
         funIdx: 0,
-        pomoLeft: 25 * 60,
-        pomoRunning: false,
-        pomoTimer: 0,
       };
 
       function applyUnifiedPaletteTokens() {
@@ -2955,51 +2936,6 @@ export function renderPreviewHtml() {
 
       bindSessionRows();
 
-      // 25-minute Flow Pomodoro Micro-Pill (auto-activates pixel hourglass + dual-mascot cheer on finish!)
-      var pomoBtn = document.getElementById('btn-pomo-pill');
-      var pomoTimeEl = document.getElementById('pomo-time');
-      function renderPomo() {
-        var mm = String(Math.floor(studioState.pomoLeft / 60)).padStart(2, '0');
-        var ss = String(studioState.pomoLeft % 60).padStart(2, '0');
-        if (pomoTimeEl) pomoTimeEl.textContent = mm + ':' + ss;
-        if (pomoBtn) pomoBtn.setAttribute('data-running', studioState.pomoRunning ? '1' : '0');
-      }
-      pomoBtn.onclick = function () {
-        if (studioState.pomoRunning) {
-          clearInterval(studioState.pomoTimer);
-          studioState.pomoRunning = false;
-          studioState.pomoLeft = 25 * 60;
-          renderPomo();
-          toast('心流专注计时已重置');
-          return;
-        }
-        studioState.pomoRunning = true;
-        state.config.habitatMode = 'hourglass';
-        if (window.__dreamSkinOptical) {
-          if (window.__dreamSkinOptical.setHabitatMode) window.__dreamSkinOptical.setHabitatMode('hourglass');
-          if (window.__dreamSkinOptical.notifyMascot) window.__dreamSkinOptical.notifyMascot('slash-cmd', { cmd: '/schedule' });
-        }
-        renderPomo();
-        renderStudioHomePanel();
-        toast('⏳ 已开启 25 分钟心流专注 · 角隅自动点亮像素沙漏');
-        clearInterval(studioState.pomoTimer);
-        studioState.pomoTimer = setInterval(function () {
-          if (!studioState.pomoRunning) return;
-          studioState.pomoLeft = Math.max(0, studioState.pomoLeft - 1);
-          renderPomo();
-          if (studioState.pomoLeft === 0) {
-            clearInterval(studioState.pomoTimer);
-            studioState.pomoRunning = false;
-            studioState.pomoLeft = 25 * 60;
-            renderPomo();
-            if (window.__dreamSkinOptical && window.__dreamSkinOptical.playMascotDemo) {
-              window.__dreamSkinOptical.playMascotDemo('cheer');
-            }
-            toast('🎉 25 分钟心流达成！Clawd 和小紫猫为你放烟花欢呼！');
-          }
-        }, 1000);
-      };
-
       // Code copy with animated-icons check morph + real mascot code-copied hook
       document.getElementById('btn-copy-code').onclick = function () {
         var lbl = document.getElementById('copy-code-lbl');
@@ -3464,7 +3400,6 @@ export function renderPreviewHtml() {
         });
         return [
           { title: '一键同步当前风格到全部已装软件', sub: '覆盖 DSH / Cherry / Codex / ZCode / OpenCode / MiniMax / Qoder / VS Code 等', run: function () { document.getElementById('btn-sync-all').click(); } },
-          { title: '开启 / 重置 25 分钟心流番茄钟', sub: '自动点亮角隅像素沙漏，结束时双宠欢呼', run: function () { document.getElementById('btn-pomo-pill').click(); } },
           { title: '触发随机桌宠惊喜彩蛋', sub: '甜甜圈 / 热咖啡 / 双宠欢呼 / 戳耳朵 / 规划蓝图', run: function () { triggerRandomMascotEgg(); } },
           { title: '切换风格配色：深空黑曜 (Obsidian)', sub: '统一冷蓝紫主色 · 经典深空', run: function () { state.config.colorScheme = 'prism-default'; state.config.themeMode = 'dark'; applyNow(); } },
           { title: '切换风格配色：暖炭玄岩 (Amber Ink)', sub: '琥珀暖铜主色 · 舒适阅读', run: function () { state.config.colorScheme = 'warm-carbon'; state.config.themeMode = 'dark'; applyNow(); } },
