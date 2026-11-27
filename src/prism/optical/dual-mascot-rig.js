@@ -3393,6 +3393,24 @@
         actor.flying += 1;
         actor.pokeCount = 0;
         startClip(actor, 'sulk', 3200, { mirror: true, sym: 'vein' });
+        // 戳生气暖心彩蛋：1 秒后最近的伙伴发现你生气了，主动凑过来贴贴把你哄开心！
+        const sulker = actor;
+        later(950, () => {
+          if (disposed || actors[sulker.id] !== sulker || sulker.overridePose !== 'sulk' || sulker.dragging) return;
+          const helpers = activeMainActors().filter((o) => o !== sulker && !o.dragging && !o.stackedOn && o.y === 0);
+          if (!helpers.length) return;
+          const buddy = helpers.reduce((best, cur) => (abs(cur.x - sulker.x) < abs(best.x - sulker.x) ? cur : best), helpers[0]);
+          const comfortPose = buddy.kind === 'panda' ? 'pandaBamboo' : buddy.kind === 'fox' ? 'foxWisp' : 'pet';
+          startClip(buddy, comfortPose, 1500, { face: faceToward(buddy, sulker), sym: 'heart' });
+          later(750, () => {
+            if (disposed || actors[sulker.id] !== sulker || sulker.dragging) return;
+            startClip(sulker, 'happy', 1100, { face: faceToward(sulker, buddy), sym: 'heart' });
+            if (!reducedMotion && !sulker.stackedOn) hop(sulker, 'happy');
+            recordInteraction('comfort-sulk', `${buddy.id}->${sulker.id}`);
+            renderAllFrames();
+          });
+          renderAllFrames();
+        });
       }
       renderAllFrames(now);
     };
@@ -3426,25 +3444,30 @@
     };
     const EGGS = ['onFire', 'cheerSticks', 'rickroll', 'siren'];
     const DUETS = [
-      ['chatGreet', 0.22],
-      ['lookNod', 0.14],
-      ['catRub', 0.14],
-      ['readAlong', 0.10],
-      ['foxTease', 0.12],
-      ['pandaShare', 0.12],
-      ['elementClash', 0.08],
+      ['chatGreet', 0.16],
+      ['lookNod', 0.10],
+      ['catRub', 0.11],
+      ['readAlong', 0.08],
+      ['foxTease', 0.10],
+      ['pandaShare', 0.10],
+      ['elementClash', 0.07],
       ['highFive', 0.08],
+      ['waveRelay', 0.08],
+      ['yawnChain', 0.06],
+      ['congaLine', 0.06],
     ];
     const pickDuet = () => {
       const mains = activeMainActors();
       const hasKind = (k) => mains.some((a) => a.kind === k);
+      const night = isLateNight();
       const eligible = DUETS.filter(([k]) => {
         if (k === 'foxTease') return mains.length >= 2 && hasKind('fox');
         if (k === 'pandaShare') return mains.length >= 2 && hasKind('panda');
         if (k === 'elementClash') return hasKind('whale') && (hasKind('dragon') || hasKind('fox'));
-        if (k === 'highFive') return mains.length >= 2;
+        if (k === 'highFive' || k === 'yawnChain' || k === 'congaLine') return mains.length >= 2;
+        if (k === 'waveRelay') return mains.length >= 3;
         return true;
-      });
+      }).map(([k, w]) => [k, night && k === 'yawnChain' ? w * 2.5 : w]);
       const totalW = eligible.reduce((s, [, w]) => s + w, 0) || 1;
       let r = random() * totalW;
       for (const [k, w] of eligible) if ((r -= w) < 0) return k;
@@ -3598,6 +3621,62 @@
             [1720, b.id, 'happy', 650, { sym: 'heart' }],
           ],
         };
+      },
+      // 🌊 多宠波浪人浪：从左到右接力起跳欢呼，再折返一轮！
+      waveRelay: (ctx) => {
+        const sorted = [...ctx.mains].sort((u, v) => u.x - v.x);
+        if (sorted.length < 2) return THEATER_SCRIPTS.chatGreet(ctx);
+        const steps = [];
+        sorted.forEach((a, idx) => {
+          const t = idx * 180;
+          steps.push([t, a.id, 'cheer', 780, { sym: 'spark' }]);
+          steps.push([t + 40, () => { if (!reducedMotion && !a.stackedOn) hop(a, 'happy'); }]);
+        });
+        const backBase = sorted.length * 180 + 360;
+        [...sorted].reverse().forEach((a, idx) => {
+          const t = backBase + idx * 180;
+          steps.push([t, a.id, 'happy', 720, { sym: 'heart' }]);
+          steps.push([t + 40, () => { if (!reducedMotion && !a.stackedOn) hop(a, 'happy'); }]);
+        });
+        steps.push([backBase + sorted.length * 180 + 100, () => {
+          const mid = sorted[floor(sorted.length / 2)];
+          if (!reducedMotion && mid) spawnChromaBurst(getEntWorldCx(mid), -26, 10, false);
+        }]);
+        return { dur: backBase + sorted.length * 180 + 500, steps };
+      },
+      // 😴 传染式连环打哈欠：一只先打哈欠，旁边看了一眼也被传染，最后集体伸懒腰清醒
+      yawnChain: (ctx) => {
+        const sorted = [...ctx.mains].sort((u, v) => u.x - v.x);
+        if (sorted.length < 2) return THEATER_SCRIPTS.lookNod(ctx);
+        const steps = [];
+        sorted.forEach((a, idx) => {
+          const t = idx * 620;
+          steps.push([t, a.id, 'yawn', 1150, { sym: isLateNight() ? 'sleepBubble0' : 'z1' }]);
+        });
+        const stretchAt = sorted.length * 620 + 550;
+        sorted.forEach((a) => {
+          const sp = a.kind === 'cat' || a.kind === 'fox' ? 'catStretch' : 'stretch';
+          steps.push([stretchAt, a.id, sp, 1000, { sym: 'note' }]);
+        });
+        return { dur: stretchAt + 1150, steps };
+      },
+      // 🚂 像素小火车：领队带头遛弯，其余小伙伴排成一列跟着逛完再回位
+      congaLine: (ctx) => {
+        const sorted = [...ctx.mains].sort((u, v) => u.x - v.x);
+        if (sorted.length < 2) return THEATER_SCRIPTS.chatGreet(ctx);
+        const w = readStageWidth();
+        const avgX = sorted.reduce((s, a) => s + a.x, 0) / sorted.length;
+        const dir = avgX > w * 0.45 ? -1 : 1;
+        const steps = [];
+        sorted.forEach((a, idx) => {
+          steps.push([idx * 160, a.id, 'walk', 1450, { patrolDir: dir, sym: idx === 0 ? 'note' : null }]);
+        });
+        steps.push([1750, ...[sorted[0].id, 'lookNod', 600, { face: dir > 0 ? 'left' : 'right', param: 2, sym: 'spark' }]]);
+        sorted.forEach((a, idx) => {
+          steps.push([2150 + idx * 140, a.id, 'walk', 1350, { patrolDir: -dir }]);
+        });
+        steps.push([3800, 'resetHome']);
+        return { dur: 4000, steps };
       },
     };
 
@@ -4293,6 +4372,15 @@
             if (!moved && !disposed) {
               petTriggered = true;
               startClip(ent, 'pet', 1100, { sym: 'heart' });
+              // 长按摸头连锁：旁边最近的伙伴探头凑热闹求摸摸！
+              const neighbors = activeMainActors().filter((o) => o !== ent && !o.dragging && !o.stackedOn && o.y === 0);
+              if (neighbors.length) {
+                const nb = neighbors.reduce((best, cur) => (abs(cur.x - ent.x) < abs(best.x - ent.x) ? cur : best), neighbors[0]);
+                if (nb && (!nb.overridePose || nowMs() >= nb.overrideUntil)) {
+                  startClip(nb, 'lookNod', 1200, { face: faceToward(nb, ent), param: 3, sym: 'note' });
+                  if (!reducedMotion) hop(nb, 'wave');
+                }
+              }
               renderAllFrames();
             }
           }, 360);
@@ -4404,7 +4492,16 @@
             ent.lastThrowAt = wallNow;
           }
           const mul = mini ? 0.78 : 0.85;
+          const throwSpd = Math.hypot(ent.vx, ent.vy);
           startEntityBallistic(ent, ent.vx * mul, ent.vy * mul);
+          // 抛高高围观彩蛋：用力甩飞一只时，地面伙伴们齐刷刷吓一跳仰头围观！
+          if (!mini && throwSpd > 8.5 && !reducedMotion) {
+            const watchers = activeMainActors().filter((o) => o !== ent && !o.dragging && !o.stackedOn && o.y === 0);
+            for (const w of watchers) {
+              startClip(w, 'wow', 950, { face: faceToward(w, ent), sym: 'bang' });
+            }
+            if (watchers.length) recordInteraction('throw-spectate', ent.id);
+          }
           moved = false;
           return;
         }
@@ -4950,10 +5047,39 @@
         else if (mains.some((a) => a.kind === 'fox') && mains.length >= 2) runDuet('foxTease');
         else runDuet('catRub');
       },
+      wave() { runDuet('waveRelay'); },
+      train() { runDuet('congaLine'); },
+      yawn() { runDuet('yawnChain'); },
+      clash() { runDuet('elementClash'); },
+      // 🗼 秘密斜杠彩蛋：/tower 全员自己叠成像素叠叠乐高塔，保持 6 秒后开心散开！
+      tower() {
+        const mains = activeMainActors().filter((a) => !a.dragging);
+        if (mains.length < 2) { runDuet('chatGreet'); return; }
+        const maxD = maxTowerDepthAllowed();
+        const stackList = mains.slice(0, min(mains.length, maxD));
+        const base = stackList[0];
+        base.stackedOn = null;
+        base.y = 0;
+        base.perchUntil = 0;
+        for (let i = 1; i < stackList.length; i++) {
+          const m = stackList[i];
+          m.stackedOn = stackList[i - 1].id;
+          m.y = 0;
+          m.perchUntil = nowMs() + 6200;
+          m.sym = 'heart';
+          m.symUntil = nowMs() + 2000;
+        }
+        syncAllStackedFollowers();
+        if (!reducedMotion) {
+          const top = stackList[stackList.length - 1];
+          spawnChromaBurst(getEntWorldCx(top), computeWorldFootY(top) - 24, 14, false);
+        }
+        renderAllFrames();
+      },
     };
     const runSlashTheater = (rawCmd) => {
       const cmd = String(rawCmd || '').replace(/^\/+/, '').trim().toLowerCase();
-      const norm = cmd === 'swarm' ? 'teamwork' : cmd === 'dance' ? 'party' : cmd === 'pet' ? 'hug' : cmd;
+      const norm = cmd === 'swarm' ? 'teamwork' : cmd === 'dance' ? 'party' : cmd === 'pet' ? 'hug' : cmd === 'walk' ? 'train' : cmd === 'stack' ? 'tower' : cmd;
       const fn = cmd && !disposed && hasOwn(SLASH_HANDLERS, norm) ? SLASH_HANDLERS[norm] : null;
       if (!fn) return false;
       const now = nowMs();
@@ -5458,6 +5584,26 @@
           }
           if (!reducedMotion && mains.length) spawnChromaBurst(getEntWorldCx(mains[0]), -24, 14, false);
           recordInteraction('egg:lemon', mains[0]?.id || 'cat', now);
+        } else if (kwOk && /(大肥鱼|肥鱼)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) {
+            startClip(a, a.kind === 'whale' ? 'whaleSpout' : 'cheerSticks', 2200, { sym: 'heart' });
+            if (!reducedMotion && !a.stackedOn) hop(a, 'happy');
+          }
+          if (!reducedMotion && mains.length) spawnChromaBurst(getEntWorldCx(mains[0]), -26, 16, false);
+          recordInteraction('egg:dafeiyu', mains[0]?.id || 'cat', now);
+        } else if (kwOk && /(咖啡|续命|coffee)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) startClip(a, 'feedCoffee', 2100, { sym: 'heart' });
+          recordInteraction('egg:coffee', mains[0]?.id || 'cat', now);
+        } else if (kwOk && /(下班|放假|通过|ac)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) {
+            startClip(a, 'cheerSticks', 2000, { sym: 'spark' });
+            if (!reducedMotion && !a.stackedOn) hop(a, 'happy');
+          }
+          if (!reducedMotion && mains.length) spawnChromaBurst(getEntWorldCx(mains[0]), -24, 12, false);
+          recordInteraction('egg:offwork', mains[0]?.id || 'cat', now);
         } else if (kwOk && /(竹子|熊猫|panda)$/i.test(lower) && actors.panda) {
           lastTypeKwAt = now;
           startClip(actors.panda, 'pandaBamboo', 2200, { sym: 'heart' });
