@@ -544,34 +544,37 @@ export function renderPreviewHtml() {
   .sb-dot { width: 6px; height: 6px; border-radius: 999px; box-shadow: 0 0 6px currentColor; }
   .sb-quota-r { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.8px; font-weight: 600; color: var(--st-accent); }
 
-  /* ── Composer Inline Telemetry & Living Progress Bar (1:1 Inspired by Obsidian Prism optics.webp) ── */
+  /* ── Composer Inline Telemetry & Circular Context Ring (1:1 Inspired by Obsidian Prism companions.webp) ── */
   .comp-tel-pill {
-    height: 26px; padding: 0 9px; border-radius: 999px;
-    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.06);
-    color: var(--dsw-alias-label-secondary, #a8aab8);
-    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; font-variant-numeric: tabular-nums;
+    height: 28px; padding: 0 8px; border-radius: 999px;
+    border: 1px solid transparent; background: transparent;
+    color: var(--dsw-alias-label-secondary, #989aa8);
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 11.2px; font-variant-numeric: tabular-nums;
     display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    white-space: nowrap; flex-shrink: 0;
     transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
   }
   .comp-tel-pill:hover, .comp-tel-pill[aria-expanded="true"] {
-    background: rgba(var(--prism-accent-rgb, 102,157,246), 0.14);
-    border-color: rgba(var(--prism-accent-rgb, 102,157,246), 0.42);
+    background: rgba(var(--prism-accent-rgb, 102,157,246), 0.12);
+    border-color: rgba(var(--prism-accent-rgb, 102,157,246), 0.34);
     color: var(--dsw-alias-label-primary, #f2f2f5);
   }
-  .comp-tel-sep { opacity: 0.38; }
-  .comp-ctx-track {
-    width: 44px; height: 5px; border-radius: 999px;
-    background: var(--op-k1); box-shadow: var(--op-kw); overflow: hidden;
-    position: relative; display: inline-block;
+  .comp-tel-sep { opacity: 0.36; }
+  .comp-ctx-ring {
+    width: 15px; height: 15px; flex-shrink: 0; transform: rotate(-90deg);
+    display: inline-block; overflow: visible;
   }
-  .comp-ctx-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
-    background: var(--st-bar-grad);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--st-accent-2) 55%, transparent);
-    transition: width 320ms cubic-bezier(.22,1,.36,1);
+  .comp-ctx-ring-bg {
+    fill: none; stroke: rgba(148,163,184,0.22); stroke-width: 2.1;
   }
-  .comp-ctx-pct { font-weight: 600; color: var(--dsw-alias-label-primary, #f2f2f5); }
+  .comp-ctx-ring-fg {
+    fill: none; stroke: var(--st-accent, #6EA8FF); stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-dasharray: 37.7; stroke-dashoffset: 20.17;
+    filter: drop-shadow(0 0 3px color-mix(in srgb, var(--st-accent-2, #64D2FF) 58%, transparent));
+    transition: stroke-dashoffset 320ms cubic-bezier(.22,1,.36,1), stroke 180ms ease;
+  }
+  .comp-ctx-pct { font-weight: 600; color: var(--dsw-alias-label-primary, #e4e6f0); }
 
   /* ── Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) ── */
   #ds-telemetry-pop {
@@ -1141,16 +1144,16 @@ export function renderPreviewHtml() {
     background: var(--st-accent); height: 22px; box-shadow: 0 0 9px color-mix(in srgb, var(--st-accent) 72%, transparent);
   }
 
-  /* ── Composer Dock (Authentic Obsidian Prism surface-composer-card + circular ↑ send button) ── */
+  /* ── Composer Dock (Golden-Ratio 720px Alignment Matching #view-home & Obsidian Prism chat-mode) ── */
   [data-slot="conversation.composer"] {
     position: relative; z-index: 6;
-    width: 100%; max-width: 824px; margin: 0 auto;
-    padding: 58px 20px 20px;
+    width: 100%; max-width: 768px; margin: 0 auto;
+    padding: 54px 24px 20px;
     flex-shrink: 0;
   }
   [data-composer-card] {
     position: relative; overflow: visible !important;
-    padding: 12px 12px 9px;
+    padding: 12px 13px 10px;
     border-radius: var(--ag-cs-r-lg, 12px);
     background-color: var(--dsw-alias-bg-layer-2, rgba(20, 21, 26, 0.96));
     background-image: var(--ag-cs-composer-sheen, none);
@@ -1164,26 +1167,32 @@ export function renderPreviewHtml() {
     font-family: inherit; font-size: 14px; line-height: 1.55;
   }
   [data-composer-input]::placeholder { color: var(--dsw-alias-label-secondary, #626270); opacity: 0.85; }
-  .comp-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; width: 100%; }
-  .comp-tools { display: flex; align-items: center; gap: 5px; min-width: 0; flex-shrink: 1; }
+  .comp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; width: 100%; }
+  .comp-tools { display: flex; align-items: center; gap: 4px; min-width: 0; flex-shrink: 1; }
   .comp-icon-btn {
     width: 28px; height: 28px; border-radius: 999px; flex-shrink: 0;
-    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
-    color: var(--dsw-alias-label-secondary, #c4c4ce);
+    border: 1px solid transparent; background: transparent;
+    color: var(--dsw-alias-label-secondary, #a8aab8);
     display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
     transition: background-color 130ms ease, color 130ms ease;
   }
-  .comp-icon-btn:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
+  .comp-icon-btn:hover { background: rgba(128,136,156,0.14); color: var(--dsw-alias-label-primary, #fff); }
   .comp-pill {
-    height: 28px; padding: 0 8px; border-radius: 999px;
-    border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
+    height: 28px; padding: 0 9px; border-radius: 999px;
+    border: 1px solid transparent; background: transparent;
     color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 11.5px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
-    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
-    transition: background-color 130ms ease, color 130ms ease;
+    font-size: 12px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    transition: background-color 130ms ease, border-color 130ms ease, color 130ms ease;
   }
-  .comp-pill:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
-  .comp-right { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .comp-pill:hover, .comp-pill[aria-expanded="true"] {
+    background: rgba(128,136,156,0.12); border-color: rgba(255,255,255,0.07);
+    color: var(--dsw-alias-label-primary, #fff);
+  }
+  html[data-prism-theme="light"] .comp-pill:hover, html[data-prism-theme="light"] .comp-pill[aria-expanded="true"] {
+    background: rgba(15,23,42,0.06); border-color: rgba(15,23,42,0.08); color: #0f172a;
+  }
+  .comp-right { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.8px; color: var(--dsw-alias-label-secondary, #8a8a98); white-space: nowrap; flex-shrink: 0; }
   /* Authentic Obsidian Prism specular circular ↑ send button */
   .comp-send {
@@ -1572,8 +1581,12 @@ export function renderPreviewHtml() {
                 <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开自适应上下文液柱与 4 源配额浮窗">
                   <span id="comp-tps">74.8 t/s</span>
                   <span class="comp-tel-sep">·</span>
-                  <span id="comp-cache">缓存 86.9%</span>
-                  <span class="comp-ctx-track"><span class="comp-ctx-fill" id="comp-ctx-fill" style="width:46.5%"></span></span>
+                  <span id="comp-cache">缓存命中 86.9%</span>
+                  <span class="comp-tel-sep">·</span>
+                  <svg class="comp-ctx-ring" viewBox="0 0 16 16" aria-hidden="true">
+                    <circle class="comp-ctx-ring-bg" cx="8" cy="8" r="6"></circle>
+                    <circle class="comp-ctx-ring-fg" id="comp-ctx-fill" cx="8" cy="8" r="6"></circle>
+                  </svg>
                   <span class="comp-ctx-pct" id="comp-ctx-pct">46.5%</span>
                 </button>
                 <button class="comp-send" id="btn-send-demo" title="发送消息">
@@ -2029,7 +2042,11 @@ export function renderPreviewHtml() {
         var p1 = document.getElementById('comp-ctx-pct');
         var f2 = document.getElementById('vial-fill');
         var p2 = document.getElementById('vial-pct');
-        if (f1) f1.style.width = txt;
+        if (f1) {
+          var circ = 2 * Math.PI * 6;
+          f1.style.strokeDasharray = circ.toFixed(2);
+          f1.style.strokeDashoffset = (circ * (1 - p / 100)).toFixed(2);
+        }
         if (p1) p1.textContent = txt;
         if (f2) f2.style.height = txt;
         if (p2) p2.textContent = txt;
