@@ -508,41 +508,63 @@ export function renderPreviewHtml() {
     box-shadow: 0 2px 8px color-mix(in srgb, var(--st-accent) 34%, transparent), 0 0 0 1px rgba(255,255,255,0.16);
   }
 
-  /* ── Whisper-Minimal Sidebar Multi-Source Pill (Zero Clutter! Click to Open Glass Telemetry Popover) ── */
+  /* ── Redesigned Smoked-Obsidian 4-Pool Sidebar Quota Micro-Dashboard ── */
   .sb-quota-pill {
-    margin-top: auto; width: 100%; min-height: 38px; padding: 6px 9px 7px;
-    border-radius: 9px; border: 1px solid var(--op-kb);
-    background: rgba(128,136,156,0.055);
+    margin-top: auto; width: 100%; border-radius: 11px; padding: 9px 10px 8px;
+    border: 1px solid rgba(255,255,255,0.075);
+    background: linear-gradient(180deg, rgba(255,255,255,0.042) 0%, rgba(255,255,255,0.016) 100%);
     color: var(--dsw-alias-label-secondary, #a8aab8);
-    font-size: 11.5px; font-weight: 500; cursor: pointer;
-    display: flex; flex-direction: column; gap: 5px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.055);
-    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-  }
-  .sb-quota-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .sb-quota-mini-bar {
-    position: relative; width: 100%; height: 3.5px; border-radius: 999px; overflow: hidden;
-    background: rgba(148,163,184,0.14); box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.45);
-  }
-  .sb-quota-mini-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
-    background: linear-gradient(90deg, #4D6BFE 0%, #5CC6FC 100%);
-    box-shadow: 0 0 8px rgba(92,198,252,0.58);
-    transition: width 360ms cubic-bezier(.22,1,.36,1);
-  }
-  .sb-quota-mini-fill::after {
-    content: ""; position: absolute; right: 0; top: 0; bottom: 0; width: 5px; border-radius: 999px;
-    background: #FFFFFF; box-shadow: 0 0 6px #FFFFFF; opacity: 0.88;
+    font-size: 11px; font-weight: 500; cursor: pointer; text-align: left;
+    display: flex; flex-direction: column; gap: 7px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.085), 0 6px 18px -10px rgba(0,0,0,0.52);
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease;
   }
   .sb-quota-pill:hover {
-    background: rgba(var(--prism-accent-rgb, 102,157,246), 0.12);
-    border-color: rgba(var(--prism-accent-rgb, 102,157,246), 0.34);
+    background: linear-gradient(180deg, rgba(255,255,255,0.068) 0%, rgba(255,255,255,0.026) 100%);
+    border-color: color-mix(in srgb, var(--st-accent, #6EA8FF) 36%, rgba(255,255,255,0.10));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 22px -10px color-mix(in srgb, var(--st-accent, #6EA8FF) 28%, rgba(0,0,0,0.65));
     color: var(--dsw-alias-label-primary, #f2f2f5);
   }
-  .sb-quota-l { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
-  .sb-dots { display: inline-flex; align-items: center; gap: 3px; }
-  .sb-dot { width: 6px; height: 6px; border-radius: 999px; box-shadow: 0 0 6px currentColor; }
-  .sb-quota-r { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.8px; font-weight: 600; color: var(--st-accent); }
+  html[data-prism-theme="light"] .sb-quota-pill {
+    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(244,247,251,0.72) 100%);
+    border-color: rgba(15,23,42,0.09);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 12px -6px rgba(15,23,42,0.12);
+  }
+  .sb-quota-top { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+  .sb-quota-l { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; color: var(--dsw-alias-label-primary, #e4e6f0); opacity: 0.9; }
+  .sb-quota-r-wrap { display: inline-flex; align-items: center; gap: 4px; }
+  .sb-quota-r {
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.5px; font-weight: 650;
+    color: var(--st-accent, #6EA8FF); font-variant-numeric: tabular-nums;
+  }
+  .sb-quota-chev { opacity: 0.45; transition: transform 140ms ease, opacity 140ms ease; }
+  .sb-quota-pill:hover .sb-quota-chev { opacity: 0.9; transform: translateX(1.5px); }
+  .sb-quota-grid {
+    width: 100%; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  }
+  .sb-q-cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .sb-q-track {
+    position: relative; width: 100%; height: 4px; border-radius: 999px; overflow: hidden;
+    background: rgba(148,163,184,0.14);
+    box-shadow: inset 0 1px 1.5px rgba(0,0,0,0.45);
+  }
+  html[data-prism-theme="light"] .sb-q-track { background: rgba(15,23,42,0.10); box-shadow: none; }
+  .sb-q-fill {
+    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
+    transition: width 320ms cubic-bezier(.22,1,.36,1), filter 150ms ease;
+  }
+  .sb-q-fill::after {
+    content: ""; position: absolute; inset: 0 0 55% 0;
+    background: rgba(255,255,255,0.28); border-radius: 999px;
+  }
+  .sb-quota-pill:hover .sb-q-fill { filter: brightness(1.12); }
+  .sb-q-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--ag-cs-mono-stack, monospace); font-size: 9.2px; font-variant-numeric: tabular-nums;
+    opacity: 0.62; transition: opacity 140ms ease;
+  }
+  .sb-q-cell[data-active="1"] .sb-q-meta { opacity: 1; color: var(--dsw-alias-label-primary, #f2f2f5); font-weight: 600; }
+  .sb-q-code { letter-spacing: 0.02em; }
 
   /* ── Composer Inline Telemetry & Circular Context Ring (1:1 Inspired by Obsidian Prism companions.webp) ── */
   .comp-tel-pill {
@@ -760,6 +782,66 @@ export function renderPreviewHtml() {
   .mdl-usage-row:hover { background: rgba(255,255,255,0.055); color: var(--dsw-alias-label-primary, #fff); }
   html[data-prism-theme="light"] .mdl-usage-row:hover { background: rgba(15,23,42,0.05); color: #0f172a; }
   .mdl-usage-l { display: inline-flex; align-items: center; gap: 7px; }
+
+  /* ── Authentic Permissions / Execution Mode Menu (1:1 Antigravity + Obsidian Prism Smoked Glass) ── */
+  .comp-perm-btn {
+    height: 28px; padding: 0 8px; border-radius: 999px;
+    border: 1px solid transparent; background: transparent;
+    color: var(--dsw-alias-label-secondary, #c4c4ce);
+    font-size: 11.8px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
+    transition: background-color 130ms ease, border-color 130ms ease, color 130ms ease;
+  }
+  .comp-perm-btn:hover, .comp-perm-btn[aria-expanded="true"] {
+    background: rgba(128,136,156,0.12); border-color: rgba(255,255,255,0.08);
+    color: var(--dsw-alias-label-primary, #fff);
+  }
+  html[data-prism-theme="light"] .comp-perm-btn:hover, html[data-prism-theme="light"] .comp-perm-btn[aria-expanded="true"] {
+    background: rgba(15,23,42,0.06); border-color: rgba(15,23,42,0.09); color: #0f172a;
+  }
+  #ds-perm-pop {
+    position: fixed; bottom: 118px; left: 50%;
+    z-index: 2147483645; width: 268px; max-width: calc(100vw - 24px);
+    padding: 6px; border-radius: 14px;
+    background-color: var(--op-menu-bg); background-image: var(--op-menu-sheen);
+    backdrop-filter: blur(22px) saturate(160%); -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid var(--op-menu-bd);
+    box-shadow: inset 0 1px 0 rgba(235,243,255,0.14), 0 24px 60px -14px rgba(0,0,0,0.78);
+    color: var(--dsw-alias-label-primary, #f2f2f5);
+    display: none; flex-direction: column; gap: 2px;
+    animation: opPopIn 150ms cubic-bezier(.16,1,.3,1);
+    user-select: none;
+  }
+  #ds-perm-pop.open { display: flex; }
+  .perm-pop-head {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 10px 5px; font-size: 11px; font-weight: 500; letter-spacing: 0.02em;
+    color: var(--dsw-alias-label-secondary, #8a8a98); opacity: 0.8;
+  }
+  .perm-opt {
+    width: 100%; border: 0; border-radius: 9px; padding: 8px 10px;
+    background: transparent; color: inherit; font-family: inherit;
+    display: flex; align-items: center; gap: 10px; cursor: pointer; text-align: left;
+    transition: background-color 130ms ease, box-shadow 130ms ease;
+  }
+  .perm-opt:hover { background: rgba(218,228,255,0.052); box-shadow: inset 0 0 0 1px rgba(226,236,255,0.06); }
+  .perm-opt[data-ag-perm-selected="1"] {
+    background: rgba(156,192,255,0.092);
+    box-shadow: inset 0 0 0 1px rgba(196,218,255,0.12), inset 0 1px 0 rgba(236,244,255,0.08);
+  }
+  html[data-prism-theme="light"] .perm-opt:hover { background: rgba(15,23,42,0.045); box-shadow: none; }
+  html[data-prism-theme="light"] .perm-opt[data-ag-perm-selected="1"] { background: rgba(15,23,42,0.07); box-shadow: inset 0 0 0 1px rgba(15,23,42,0.10); }
+  .perm-ico { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; opacity: 0.84; }
+  .perm-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .perm-title-row { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; }
+  .perm-def-tag {
+    display: inline-flex; align-items: center; gap: 3px; height: 17px; padding: 0 6px; border-radius: 999px;
+    background: rgba(255,255,255,0.045); border: 1px solid rgba(218,228,255,0.10);
+    font-size: 10px; font-weight: 500; color: var(--dsw-alias-label-secondary, #9ea3b4);
+  }
+  .perm-desc { font-size: 11.5px; color: var(--dsw-alias-label-secondary, #8a8a98); line-height: 1.35; }
+  .perm-chk { width: 15px; height: 15px; flex-shrink: 0; opacity: 0; color: var(--dsw-alias-label-primary, #f2f2f5); transition: opacity 120ms ease; }
+  .perm-opt[data-ag-perm-selected="1"] .perm-chk { opacity: 0.92; }
 
   /* ── GitHub-Inspired Global Command Palette (Ctrl+K) ── */
   #ds-cmd-backdrop {
@@ -1435,7 +1517,7 @@ export function renderPreviewHtml() {
           <div class="dsh-sess-sub">dsh-plugin-dreamskin · 8 分钟前</div>
         </div>
         <div data-row-key="session:3">
-          <div class="dsh-sess-title">14 端适配器自动发现</div>
+          <div class="dsh-sess-title">多端适配器自动发现</div>
           <div class="dsh-sess-sub">Velopack + MSIX · 1 小时前</div>
         </div>
         <div data-row-key="session:4">
@@ -1444,16 +1526,19 @@ export function renderPreviewHtml() {
         </div>
       </div>
 
-      <!-- Whisper-Minimal Sidebar Multi-Source Status Pill (Click to Open Floating Glass Popover!) -->
+      <!-- Redesigned Smoked-Obsidian 4-Pool Quota Micro-Dashboard (Click to Open Floating Glass Popover!) -->
       <button class="sb-quota-pill" id="btn-sb-quota-pill" title="查看上下文试管与 4 源配额明细">
         <span class="sb-quota-top">
           <span class="sb-quota-l">
-            <span class="sb-dots" id="sb-quota-dots"></span>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.78"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 12 16 8"/><path d="M8.5 16.5h7"/></svg>
             <span>多源配额</span>
           </span>
-          <span class="sb-quota-r" id="sb-quota-pct">88%</span>
+          <span class="sb-quota-r-wrap">
+            <span class="sb-quota-r" id="sb-quota-pct">DS · 88%</span>
+            <svg class="sb-quota-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </span>
         </span>
-        <span class="sb-quota-mini-bar"><span class="sb-quota-mini-fill" id="sb-quota-mini-fill" style="width:88%"></span></span>
+        <span class="sb-quota-grid" id="sb-quota-grid"></span>
       </button>
 
       <button class="sb-foot-btn" id="btn-foot-settings">
@@ -1581,13 +1666,17 @@ export function renderPreviewHtml() {
                 <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开自适应上下文液柱与 4 源配额浮窗">
                   <span id="comp-tps">74.8 t/s</span>
                   <span class="comp-tel-sep">·</span>
-                  <span id="comp-cache">缓存命中 86.9%</span>
+                  <span id="comp-cache">缓存 86.9%</span>
                   <span class="comp-tel-sep">·</span>
                   <svg class="comp-ctx-ring" viewBox="0 0 16 16" aria-hidden="true">
                     <circle class="comp-ctx-ring-bg" cx="8" cy="8" r="6"></circle>
                     <circle class="comp-ctx-ring-fg" id="comp-ctx-fill" cx="8" cy="8" r="6"></circle>
                   </svg>
                   <span class="comp-ctx-pct" id="comp-ctx-pct">46.5%</span>
+                </button>
+                <button class="comp-perm-btn" id="btn-perm-mode" aria-expanded="false" title="切换本次会话的执行权限模式（请求审查 / 默认 / 自动 / 极速）">
+                  <span id="perm-btn-ico"></span>
+                  <span id="perm-btn-lbl">极速</span>
                 </button>
                 <button class="comp-send" id="btn-send-demo" title="发送消息">
                   <span data-icon-slot="arrow-up-launch"></span>
@@ -1629,6 +1718,15 @@ export function renderPreviewHtml() {
       </span>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
     </button>
+  </div>
+
+  <!-- Authentic Permissions / Execution Mode Popover (1:1 Antigravity + Obsidian Prism) -->
+  <div id="ds-perm-pop" data-testid="permissions-menu" data-dreamskin-control-panel="1" role="menu" aria-label="本次会话执行模式">
+    <div class="perm-pop-head">
+      <span>This Conversation · 执行模式</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+    </div>
+    <div id="ds-perm-list" data-testid="permissions-project-options"></div>
   </div>
 
   <!-- Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) -->
@@ -1984,21 +2082,25 @@ export function renderPreviewHtml() {
       }
 
       function renderMultiQuota() {
-        var dotsEl = document.getElementById('sb-quota-dots');
+        var gridEl = document.getElementById('sb-quota-grid');
         var pctEl = document.getElementById('sb-quota-pct');
         var popListEl = document.getElementById('pop-quota-list');
         var activeSrc = QUOTA_SOURCES.find(function (x) { return x.id === studioState.selectedSource; }) || QUOTA_SOURCES[0];
-        if (dotsEl) {
-          dotsEl.innerHTML = QUOTA_SOURCES.map(function (q) {
-            return '<span class="sb-dot" style="background:' + q.color + ';color:' + q.color + '" title="' + q.name + ' ' + q.pct5h + '%"></span>';
+        var shortCodes = { deepseek: 'DS', claude: 'CL', gemini: 'GM', codex: 'CX' };
+        if (gridEl) {
+          gridEl.innerHTML = QUOTA_SOURCES.map(function (q) {
+            var code = shortCodes[q.id] || q.id.slice(0, 2).toUpperCase();
+            var isAct = studioState.selectedSource === q.id;
+            return '<span class="sb-q-cell" data-active="' + (isAct ? '1' : '0') + '" title="' + q.name + ' · 剩余 ' + q.pct5h + '%">' +
+              '<span class="sb-q-track"><span class="sb-q-fill" style="width:' + q.pct5h + '%;background:' + q.grad + ';box-shadow:0 0 6px ' + q.color + '88"></span></span>' +
+              '<span class="sb-q-meta"><span class="sb-q-code">' + code + '</span><span>' + q.pct5h + '</span></span>' +
+            '</span>';
           }).join('');
         }
-        if (pctEl && activeSrc) pctEl.textContent = activeSrc.pct5h + '%';
-        var miniFill = document.getElementById('sb-quota-mini-fill');
-        if (miniFill && activeSrc) {
-          miniFill.style.width = activeSrc.pct5h + '%';
-          miniFill.style.background = activeSrc.grad;
-          miniFill.style.boxShadow = '0 0 8px ' + activeSrc.color;
+        if (pctEl && activeSrc) {
+          var aCode = shortCodes[activeSrc.id] || 'DS';
+          pctEl.textContent = aCode + ' · ' + activeSrc.pct5h + '%';
+          pctEl.style.color = activeSrc.color;
         }
         var popModel = document.getElementById('pop-model-name');
         if (popModel && activeSrc) popModel.textContent = activeSrc.model;
@@ -3177,6 +3279,7 @@ export function renderPreviewHtml() {
         var next = typeof force === 'boolean' ? force : !telPop.classList.contains('open');
         telPop.classList.toggle('open', next);
         if (next && typeof toggleModelPop === 'function') toggleModelPop(false);
+        if (next && typeof togglePermPop === 'function') togglePermPop(false);
         telPill.setAttribute('aria-expanded', next ? 'true' : 'false');
         if (next) {
           drawer.classList.remove('open');
@@ -3209,7 +3312,67 @@ export function renderPreviewHtml() {
         if (modelPop && modelPop.classList.contains('open') && !modelPop.contains(ev.target) && !modelBtn.contains(ev.target)) {
           toggleModelPop(false);
         }
+        if (permPop && permPop.classList.contains('open') && !permPop.contains(ev.target) && !permBtn.contains(ev.target)) {
+          togglePermPop(false);
+        }
       });
+
+      // Authentic Execution / Permissions Mode Popover (请求审查 / 默认 / 自动 / 极速)
+      var PERM_MODES = [
+        { id: 'review', label: '请求审查', desc: '每条命令均需审批。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>' },
+        { id: 'default', label: '默认', desc: '在执行敏感操作前询问。', isDefault: true, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' },
+        { id: 'auto', label: '自动', desc: '自动决定是否运行命令。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/></svg>' },
+        { id: 'turbo', label: '极速', desc: '无限制运行所有命令。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>' },
+      ];
+      var activePermId = 'turbo';
+      var permPop = document.getElementById('ds-perm-pop');
+      var permBtn = document.getElementById('btn-perm-mode');
+      var permListEl = document.getElementById('ds-perm-list');
+      var permBtnIco = document.getElementById('perm-btn-ico');
+      var permBtnLbl = document.getElementById('perm-btn-lbl');
+      var syncPermUi = function () {
+        var cur = PERM_MODES.find(function (m) { return m.id === activePermId; }) || PERM_MODES[3];
+        if (permBtnIco) permBtnIco.innerHTML = cur.icon;
+        if (permBtnLbl) permBtnLbl.textContent = cur.label;
+        if (!permListEl) return;
+        permListEl.innerHTML = PERM_MODES.map(function (m) {
+          var sel = m.id === activePermId;
+          return '<button class="perm-opt" data-testid="permissions-preset-option-' + m.id + '" data-perm-id="' + m.id + '" data-ag-perm-selected="' + (sel ? '1' : '0') + '">' +
+            '<span class="perm-ico">' + m.icon + '</span>' +
+            '<span class="perm-body">' +
+              '<span class="perm-title-row"><span>' + m.label + '</span>' + (m.isDefault ? '<span class="perm-def-tag" data-testid="permissions-default-tag">默认 ⓘ</span>' : '') + '</span>' +
+              '<span class="perm-desc">' + m.desc + '</span>' +
+            '</span>' +
+            '<svg class="perm-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
+          '</button>';
+        }).join('');
+        permListEl.querySelectorAll('.perm-opt').forEach(function (btn) {
+          btn.onclick = function () {
+            activePermId = btn.getAttribute('data-perm-id') || 'turbo';
+            syncPermUi();
+            togglePermPop(false);
+            var curM = PERM_MODES.find(function (m) { return m.id === activePermId; });
+            if (curM) toast('执行模式已切换：' + curM.label + ' — ' + curM.desc);
+          };
+        });
+      };
+      var togglePermPop = function (force) {
+        if (!permPop || !permBtn) return;
+        var next = typeof force === 'boolean' ? force : !permPop.classList.contains('open');
+        permPop.classList.toggle('open', next);
+        permBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
+        if (next) {
+          toggleTelPop(false);
+          if (typeof toggleModelPop === 'function') toggleModelPop(false);
+          drawer.classList.remove('open');
+          var r = permBtn.getBoundingClientRect();
+          permPop.style.left = Math.max(12, Math.min(window.innerWidth - 280, Math.round(r.right - 268))) + 'px';
+          syncPermUi();
+        }
+      };
+      if (permPop) permPop.addEventListener('click', function (ev) { ev.stopPropagation(); });
+      if (permBtn) permBtn.onclick = function (ev) { ev.stopPropagation(); togglePermPop(); };
+      syncPermUi();
 
       // Authentic Model Selector + Native AntigravityCodexEffortSlider (22-particle accelerating starfield + Claude pixel dither)
       var EFFORT_LEVELS = [
@@ -3367,6 +3530,7 @@ export function renderPreviewHtml() {
         modelBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
         if (next) {
           toggleTelPop(false);
+          if (typeof togglePermPop === 'function') togglePermPop(false);
           drawer.classList.remove('open');
           var r = modelBtn.getBoundingClientRect();
           modelPop.style.left = Math.max(12, Math.min(window.innerWidth - 324, Math.round(r.left - 8))) + 'px';
@@ -3464,6 +3628,7 @@ export function renderPreviewHtml() {
         drawer.classList.remove('open');
         toggleTelPop(false);
         toggleModelPop(false);
+        togglePermPop(false);
         cmdBackdrop.classList.add('open');
         cmdInput.value = '';
         studioState.cmdIndex = 0;
@@ -3483,7 +3648,7 @@ export function renderPreviewHtml() {
       document.addEventListener('keydown', function (ev) {
         if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); if (cmdBackdrop.classList.contains('open')) closeCmd(); else openCmd(); }
         else if ((ev.ctrlKey || ev.metaKey) && ev.shiftKey && ev.key.toLowerCase() === 'z') { ev.preventDefault(); setZen(); }
-        else if (ev.key === 'Escape') { closeCmd(); toggleTelPop(false); toggleModelPop(false); drawer.classList.remove('open'); }
+        else if (ev.key === 'Escape') { closeCmd(); toggleTelPop(false); toggleModelPop(false); togglePermPop(false); drawer.classList.remove('open'); }
       });
 
       // Boot
