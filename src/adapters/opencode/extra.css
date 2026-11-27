@@ -2,3 +2,10 @@
 html[data-agy-prism-skin] ::-webkit-scrollbar { width: 7px; height: 7px; }
 html[data-agy-prism-skin] ::-webkit-scrollbar-track { background: transparent; }
 html[data-agy-prism-skin] ::-webkit-scrollbar-thumb { background: rgba(var(--prism-accent-rgb, 56, 189, 248), 0.30); border-radius: 999px; }
+
+/* OpenCode 原生模型与 Plan/Agent 浮层黑曜美化 */
+html[data-agy-prism-skin][data-ag-cs-style="1"] :is([role="menu"], [role="listbox"], [data-slot="popover-content"]) {
+  border-radius: 12px !important;
+  border-color: rgba(218, 228, 255, 0.10) !important;
+  box-shadow: inset 0 1px 0 rgba(235, 243, 255, 0.09), 0 20px 48px -14px rgba(0, 0, 0, 0.66) !important;
+}

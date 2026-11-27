@@ -1679,7 +1679,7 @@ export function renderPreviewHtml() {
                   <span id="perm-btn-lbl">极速</span>
                 </button>
                 <button class="comp-send" id="btn-send-demo" title="发送消息">
-                  <span data-icon-slot="arrow-up-launch"></span>
+                  <span data-icon-slot="arrow-up-launch" data-icon-size="16"></span>
                 </button>
               </div>
             </div>
@@ -2305,9 +2305,9 @@ export function renderPreviewHtml() {
           document.querySelectorAll('[data-icon-slot]').forEach(function (el) {
             var name = el.getAttribute('data-icon-slot');
             var sz = Number(el.getAttribute('data-icon-size')) || 15;
-            var inner = ai.renderIcon ? ai.renderIcon(name, { size: sz }) : '';
+            var inner = ai.renderIcon ? ai.renderIcon(name, { size: sz, strokeWidth: name === 'arrow-up-launch' ? 2.1 : 1.85 }) : '';
             if (inner) {
-              el.innerHTML = '<svg class="ag-anim-icon" data-anim-icon="' + name + '" width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+              el.innerHTML = inner;
             }
           });
         }
@@ -2563,6 +2563,7 @@ export function renderPreviewHtml() {
           if (hTitle && c.sessions[0]) hTitle.textContent = c.sessions[0][0];
         }
         document.title = c.name + ' · DreamSkin Prism v${VERSION}';
+        if (typeof syncClientCapabilities === 'function') syncClientCapabilities(c.id);
         renderClientMenu();
         renderStudioHomePanel();
         applyNow();
@@ -3105,7 +3106,7 @@ export function renderPreviewHtml() {
           sendBtnEl.removeAttribute('data-testid');
           sendBtnEl.setAttribute('title', '发送消息');
           sendBtnEl.setAttribute('aria-label', '发送消息');
-          sendBtnEl.innerHTML = '<span data-icon-slot="arrow-up-launch"></span>';
+          sendBtnEl.innerHTML = '<span data-icon-slot="arrow-up-launch" data-icon-size="16"></span>';
           hydrateIcons();
         }
         if (simState.thoughtWrap) simState.thoughtWrap.removeAttribute('data-ag-cs-thought-streaming');
@@ -3317,26 +3318,81 @@ export function renderPreviewHtml() {
         }
       });
 
-      // Authentic Execution / Permissions Mode Popover (请求审查 / 默认 / 自动 / 极速)
-      var PERM_MODES = [
-        { id: 'review', label: '请求审查', desc: '每条命令均需审批。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>' },
-        { id: 'default', label: '默认', desc: '在执行敏感操作前询问。', isDefault: true, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>' },
-        { id: 'auto', label: '自动', desc: '自动决定是否运行命令。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/></svg>' },
-        { id: 'turbo', label: '极速', desc: '无限制运行所有命令。', isDefault: false, icon: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>' },
-      ];
-      var activePermId = 'turbo';
+      // Per-Client Real Execution / Permissions Mode Profiles (each client shows ONLY what it genuinely has!)
+      var PERM_ICONS = {
+        eye: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>',
+        lock: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+        shield: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/></svg>',
+        turbo: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V6l-7-3Z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
+      };
+      var CLIENT_PERM_PROFILES = {
+        antigravity: {
+          header: 'This Conversation · 执行模式',
+          defaultId: 'turbo',
+          modes: [
+            { id: 'review', label: '请求审查', desc: '每条命令均需审批。', isDefault: false, icon: PERM_ICONS.eye },
+            { id: 'default', label: '默认', desc: '在执行敏感操作前询问。', isDefault: true, icon: PERM_ICONS.lock },
+            { id: 'auto', label: '自动', desc: '自动决定是否运行命令。', isDefault: false, icon: PERM_ICONS.shield },
+            { id: 'turbo', label: '极速', desc: '无限制运行所有命令。', isDefault: false, icon: PERM_ICONS.turbo },
+          ],
+        },
+        dsh: {
+          header: 'DSH NEXT · 审批策略',
+          defaultId: 'auto',
+          modes: [
+            { id: 'ask', label: '询问审批', desc: '执行终端命令与文件写入前弹出审批卡。', isDefault: true, icon: PERM_ICONS.lock },
+            { id: 'auto', label: '自动执行', desc: '工作区内自动执行，越界操作再询问。', isDefault: false, icon: PERM_ICONS.shield },
+            { id: 'bypass', label: '极速放行', desc: '跳过命令审批，全自动连续推进。', isDefault: false, icon: PERM_ICONS.turbo },
+          ],
+        },
+        codex: {
+          header: 'Codex · Approval Mode',
+          defaultId: 'auto-edit',
+          modes: [
+            { id: 'suggest', label: 'Suggest', desc: '仅给出建议，每次改码与命令需确认。', isDefault: false, icon: PERM_ICONS.eye },
+            { id: 'auto-edit', label: 'Auto Edit', desc: '自动改文件，运行命令前先询问。', isDefault: true, icon: PERM_ICONS.shield },
+            { id: 'full-auto', label: 'Full Auto', desc: '沙盒内全自动改码与执行测试。', isDefault: false, icon: PERM_ICONS.turbo },
+          ],
+        },
+        agent: {
+          header: 'Agent · 执行模式',
+          defaultId: 'agent',
+          modes: [
+            { id: 'plan', label: 'Plan 规划', desc: '只读分析与规划方案，不直接改动文件。', isDefault: false, icon: PERM_ICONS.eye },
+            { id: 'agent', label: 'Agent 自动', desc: '按任务步骤自动编辑并运行受控检查。', isDefault: true, icon: PERM_ICONS.shield },
+            { id: 'yolo', label: '极速放行', desc: '免审批连续执行终端命令与改码。', isDefault: false, icon: PERM_ICONS.turbo },
+          ],
+        },
+      };
+      var NO_EXEC_PERM_CLIENTS = { cherry: true, 'minimax-design': true };
+      var activePermByClient = { antigravity: 'turbo', dsh: 'auto', codex: 'auto-edit' };
       var permPop = document.getElementById('ds-perm-pop');
       var permBtn = document.getElementById('btn-perm-mode');
       var permListEl = document.getElementById('ds-perm-list');
+      var permHeadSpan = permPop ? permPop.querySelector('.perm-pop-head span') : null;
       var permBtnIco = document.getElementById('perm-btn-ico');
       var permBtnLbl = document.getElementById('perm-btn-lbl');
+      var getClientPermProfile = function (cid) {
+        if (NO_EXEC_PERM_CLIENTS[cid]) return null;
+        return CLIENT_PERM_PROFILES[cid] || CLIENT_PERM_PROFILES.agent;
+      };
       var syncPermUi = function () {
-        var cur = PERM_MODES.find(function (m) { return m.id === activePermId; }) || PERM_MODES[3];
+        var cid = studioState.appId || 'dsh';
+        var prof = getClientPermProfile(cid);
+        if (!prof) {
+          if (permBtn) permBtn.style.display = 'none';
+          if (permPop) permPop.classList.remove('open');
+          return;
+        }
+        if (permBtn) permBtn.style.display = 'inline-flex';
+        var curId = activePermByClient[cid] || prof.defaultId;
+        var cur = prof.modes.find(function (m) { return m.id === curId; }) || prof.modes[0];
+        if (permHeadSpan) permHeadSpan.textContent = prof.header;
         if (permBtnIco) permBtnIco.innerHTML = cur.icon;
         if (permBtnLbl) permBtnLbl.textContent = cur.label;
         if (!permListEl) return;
-        permListEl.innerHTML = PERM_MODES.map(function (m) {
-          var sel = m.id === activePermId;
+        permListEl.innerHTML = prof.modes.map(function (m) {
+          var sel = m.id === cur.id;
           return '<button class="perm-opt" data-testid="permissions-preset-option-' + m.id + '" data-perm-id="' + m.id + '" data-ag-perm-selected="' + (sel ? '1' : '0') + '">' +
             '<span class="perm-ico">' + m.icon + '</span>' +
             '<span class="perm-body">' +
@@ -3348,16 +3404,23 @@ export function renderPreviewHtml() {
         }).join('');
         permListEl.querySelectorAll('.perm-opt').forEach(function (btn) {
           btn.onclick = function () {
-            activePermId = btn.getAttribute('data-perm-id') || 'turbo';
+            activePermByClient[cid] = btn.getAttribute('data-perm-id') || prof.defaultId;
             syncPermUi();
             togglePermPop(false);
-            var curM = PERM_MODES.find(function (m) { return m.id === activePermId; });
-            if (curM) toast('执行模式已切换：' + curM.label + ' — ' + curM.desc);
+            var curM = prof.modes.find(function (m) { return m.id === activePermByClient[cid]; });
+            if (curM) toast(prof.header.split(' · ')[0] + ' 已切换：' + curM.label + ' — ' + curM.desc);
           };
         });
       };
+      var syncClientCapabilities = function (cid) {
+        syncPermUi();
+        var sbQ = document.getElementById('btn-sb-quota-pill');
+        if (sbQ) {
+          sbQ.style.display = (cid === 'dsh' || cid === 'antigravity' || cid === 'codex') ? 'flex' : 'none';
+        }
+      };
       var togglePermPop = function (force) {
-        if (!permPop || !permBtn) return;
+        if (!permPop || !permBtn || permBtn.style.display === 'none') return;
         var next = typeof force === 'boolean' ? force : !permPop.classList.contains('open');
         permPop.classList.toggle('open', next);
         permBtn.setAttribute('aria-expanded', next ? 'true' : 'false');
@@ -3372,7 +3435,7 @@ export function renderPreviewHtml() {
       };
       if (permPop) permPop.addEventListener('click', function (ev) { ev.stopPropagation(); });
       if (permBtn) permBtn.onclick = function (ev) { ev.stopPropagation(); togglePermPop(); };
-      syncPermUi();
+      syncClientCapabilities(studioState.appId || 'dsh');
 
       // Authentic Model Selector + Native AntigravityCodexEffortSlider (22-particle accelerating starfield + Claude pixel dither)
       var EFFORT_LEVELS = [
