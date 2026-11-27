@@ -739,6 +739,7 @@ export const DEFAULT_CONFIG = Object.freeze({
   companionPosition: 'bottom-right',
   mascotSpec: 'crab',
   prismaticCoat: false,
+  completionSound: true,
   rimTone: 'follow',
   motionTier: 'ultra',
   ambientIntensity: 1,
@@ -1196,10 +1197,11 @@ export function sanitizeConfig(input = {}, base = DEFAULT_CONFIG) {
     modules,
     companionStyle: oneOf(merged.companionStyle, COMPANION_STYLES, DEFAULT_CONFIG.companionStyle),
     companionPosition: oneOf(merged.companionPosition, COMPANION_POSITIONS, DEFAULT_CONFIG.companionPosition),
-    mascotSpec: (typeof merged.mascotSpec === 'string' && /^r:(?:[ckdw][01](?:,[ckdw][01])*)?(?:\+m)?$/.test(merged.mascotSpec))
+    mascotSpec: (typeof merged.mascotSpec === 'string' && /^r:(?:[ckdwfp][01](?:,[ckdwfp][01])*)?(?:\+m)?$/.test(merged.mascotSpec))
       ? merged.mascotSpec
       : oneOf(merged.mascotSpec, MASCOT_PRESETS, DEFAULT_CONFIG.mascotSpec),
     prismaticCoat: bool(merged.prismaticCoat, DEFAULT_CONFIG.prismaticCoat),
+    completionSound: bool(merged.completionSound, DEFAULT_CONFIG.completionSound),
     rimTone: oneOf(merged.rimTone, RIM_TONES, DEFAULT_CONFIG.rimTone),
     motionTier: oneOf(merged.motionTier, MOTION_TIERS, DEFAULT_CONFIG.motionTier),
     ambientIntensity: num(merged.ambientIntensity, DEFAULT_CONFIG.ambientIntensity, 0, 1, 2),

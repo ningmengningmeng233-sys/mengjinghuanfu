@@ -1225,7 +1225,22 @@ export function renderPreviewHtml() {
   .op-pal-s { font-size: 10px; opacity: 0.58; }
 
   /* Live Pixel Mascot Casting Stage (renders REAL mascotArt pixels!) */
-  .op-cast-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 10px 12px; }
+  .op-cast-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px 12px; }
+  #btn-scroll-bottom {
+    position: absolute; left: 50%; bottom: 132px; transform: translate(-50%, 10px);
+    z-index: 28; height: 28px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid var(--op-kb);
+    background: color-mix(in srgb, var(--op-menu-bg, #14151b) 88%, transparent);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    color: var(--dsw-alias-label-primary, #f2f2f5);
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    box-shadow: 0 8px 24px -8px rgba(0,0,0,.6);
+    opacity: 0; pointer-events: none;
+    transition: opacity 180ms ease, transform 200ms cubic-bezier(.16,1,.3,1);
+  }
+  #btn-scroll-bottom.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+  #btn-scroll-bottom:hover { border-color: var(--st-accent, #6EA8FF); }
   .op-cast-card {
     display: flex; flex-direction: column; align-items: center; gap: 4px;
     padding: 8px 4px 7px; border-radius: 10px;
@@ -1468,7 +1483,7 @@ export function renderPreviewHtml() {
                 </button>
               </div>
               <div class="comp-right">
-                <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开 512K 上下文液柱与 4 源配额浮窗">
+                <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开自适应上下文液柱与 4 源配额浮窗">
                   <span id="comp-tps">74.8 tok/s</span>
                   <span class="comp-tel-sep">·</span>
                   <span id="comp-cache">缓存 86.9%</span>
@@ -1482,6 +1497,7 @@ export function renderPreviewHtml() {
             </div>
           </div>
         </div>
+        <button id="btn-scroll-bottom" title="快速回到底部最新回复">↓ 回到底部</button>
         <div id="conv-turn-rail" aria-label="对话大纲导轨"></div>
       </section>
     </main>
@@ -1489,7 +1505,7 @@ export function renderPreviewHtml() {
 
   <!-- Multi-Client Adapter Switcher Popover -->
   <div id="ds-client-pop" data-dreamskin-control-panel="1" role="menu" aria-label="切换已适配客户端">
-    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>11 端全适配</span></div>
+    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>14 端全适配</span></div>
     <div id="ds-client-list"></div>
   </div>
 
@@ -1635,27 +1651,32 @@ export function renderPreviewHtml() {
           <button class="op-switch" data-mod-sw="pixelCompanion"><span class="op-switch-thumb"></span></button>
         </div>
         <div class="op-row">
-          <div class="op-row-txt"><span class="op-row-t">快捷阵容</span><span class="op-row-d">默认纯净双宠，可一键召唤四宠或迷你蟹</span></div>
+          <div class="op-row-txt"><span class="op-row-t">快捷阵容</span><span class="op-row-d">支持 6 只原版像素主宠（含新加入的小赤狐与小熊猫）+ 3 只迷你蟹</span></div>
           <div class="op-seg" id="dr-mascot-presets">
-            <button data-mp="crab">双宠经典</button>
-            <button data-mp="quad">四宠同台</button>
-            <button data-mp="quad-minis">全员叠叠乐</button>
+            <button data-mp="crab">双宠</button>
+            <button data-mp="quad">四宠</button>
+            <button data-mp="all">六宠派对</button>
+            <button data-mp="all-minis">全员叠叠</button>
             <button data-mp="off">休息</button>
           </div>
         </div>
         <div class="op-cast-grid" id="dr-cast-grid"></div>
         <div class="op-row">
-          <div class="op-row-txt"><span class="op-row-t">实时互动剧场</span><span class="op-row-d">随时唤醒并触发原版投喂、戳戳与双宠剧场动画</span></div>
+          <div class="op-row-txt"><span class="op-row-t">实时互动剧场</span><span class="op-row-d">支持扔能量球追球、投喂、戳戳、欢呼，双击任意桌宠放专属绝招</span></div>
           <div class="op-seg" id="dr-mascot-theater">
-            <button data-mact="donut">投喂甜甜圈</button>
-            <button data-mact="coffee">递热咖啡</button>
-            <button data-mact="poke">戳一戳</button>
-            <button data-mact="cheer">双宠欢呼</button>
+            <button data-mact="ball">扔能量球</button>
+            <button data-mact="donut">甜甜圈</button>
+            <button data-mact="coffee">热咖啡</button>
+            <button data-mact="cheer">全员欢呼</button>
           </div>
         </div>
         <div class="op-row">
           <div class="op-row-txt"><span class="op-row-t">角隅像素栖息地</span><span class="op-row-d">输入框右下角微型像素摆件（自动随深夜/专注切换）</span></div>
           <div class="op-seg" id="dr-hab-seg"></div>
+        </div>
+        <div class="op-row">
+          <div class="op-row-txt"><span class="op-row-t">任务完工 · 水晶轻音</span><span class="op-row-d">AI 输出完成时播放极轻黑曜水晶提示音（纯合成零音频文件）</span></div>
+          <button class="op-switch" id="sw-sound" data-on="1"><span class="op-switch-thumb"></span></button>
         </div>
         <div class="op-row">
           <div class="op-row-txt"><span class="op-row-t">小紫猫 · 彩虹极光羽衣</span><span class="op-row-d">点亮原版隐藏彩蛋，小紫猫披上动态虹彩极光</span></div>
@@ -1720,6 +1741,8 @@ export function renderPreviewHtml() {
         { key: 'k', kind: 'cat', name: '小紫猫' },
         { key: 'd', kind: 'dragon', name: '银白龙' },
         { key: 'w', kind: 'whale', name: 'Deepy' },
+        { key: 'f', kind: 'fox', name: '小赤狐' },
+        { key: 'p', kind: 'panda', name: '小熊猫' },
         { key: 'm', kind: 'mini', name: '3 迷你蟹' },
       ];
 
@@ -1883,7 +1906,10 @@ export function renderPreviewHtml() {
               if (window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
                 window.__dreamSkinOptical.notifyMascot('model-shift', { model: src.model });
               }
-              toast('已切换当前推理源：' + src.name + ' (' + src.model + ')');
+              if (window.__dreamSkinOptical && window.__dreamSkinOptical.setCamp) {
+                window.__dreamSkinOptical.setCamp(src.model);
+              }
+              toast('已切换当前推理源：' + src.name + ' (' + src.model + ') · 对应阵营桌宠就位');
             }
             renderMultiQuota();
           };
@@ -2149,6 +2175,8 @@ export function renderPreviewHtml() {
         happy: '小紫猫心情极佳 · 冒爱心啦',
         sleep: '小紫猫打盹中…点我轻轻叫醒',
         loaf: '小紫猫揣手变成紫薯面包啦',
+        foxWisp: '小赤狐挥动大尾巴放出了灵狐星火！',
+        pandaBamboo: '团子小熊猫正津津有味啃着脆竹子！',
       };
 
       function syncMascotMoodChip() {
@@ -2167,11 +2195,12 @@ export function renderPreviewHtml() {
         var opt = window.__dreamSkinOptical;
         if (!opt) return;
         var acts = [
-          function () { opt.feedMascot('cat', 'donut'); toast('🍩 投喂小紫猫一枚草莓甜甜圈！'); },
-          function () { opt.feedMascot('cat', 'coffee'); toast('☕ 给小紫猫递上一杯现磨热美式！'); },
-          function () { opt.playMascotDemo('cheer'); toast('🎉 双宠同步欢呼剧场！'); },
-          function () { opt.pokeMascot('cat'); toast('👉 戳了戳小紫猫软乎乎的耳朵！'); },
-          function () { opt.notifyMascot('slash-cmd', { cmd: '/plan' }); toast('📐 触发双宠蓝图规划彩蛋！'); },
+          function () { opt.throwMascotBall && opt.throwMascotBall(); toast('⚾ 扔出一颗棱镜能量球，桌宠们追球去啦！'); },
+          function () { opt.feedMascot('cat', 'donut'); toast('🍩 投喂桌宠一枚草莓甜甜圈！'); },
+          function () { opt.feedMascot('cat', 'coffee'); toast('☕ 给桌宠递上一杯现磨热美式！'); },
+          function () { opt.playMascotDemo('cheer'); toast('🎉 桌宠同步欢呼剧场！'); },
+          function () { opt.pokeMascot('cat'); toast('👉 戳了戳桌宠软乎乎的小脑袋！'); },
+          function () { opt.notifyMascot('slash-cmd', { cmd: '/plan' }); toast('📐 触发桌宠蓝图规划彩蛋！'); },
         ];
         acts[eggStep % acts.length]();
         eggStep += 1;
@@ -2564,6 +2593,8 @@ export function renderPreviewHtml() {
           };
         });
         document.getElementById('sw-chroma').setAttribute('data-on', cfg.prismaticCoat ? '1' : '0');
+        var sndSw = document.getElementById('sw-sound');
+        if (sndSw) sndSw.setAttribute('data-on', cfg.completionSound === false ? '0' : '1');
 
         // Wallpapers & Glass Sliders
         var wallEl = document.getElementById('dr-wall-grid');
@@ -2743,12 +2774,21 @@ export function renderPreviewHtml() {
           var opt = window.__dreamSkinOptical;
           if (!opt) return;
           var act = btn.getAttribute('data-mact');
-          if (act === 'donut') { opt.feedMascot('cat', 'donut'); toast('已投喂小紫猫甜甜圈'); }
-          else if (act === 'coffee') { opt.feedMascot('cat', 'coffee'); toast('已递给小紫猫热咖啡'); }
-          else if (act === 'poke') { opt.pokeMascot('cat'); toast('戳了戳小紫猫！'); }
-          else if (act === 'cheer') { opt.playMascotDemo('cheer'); toast('双宠同步欢呼剧场已触发'); }
+          if (act === 'ball') { if (opt.throwMascotBall) opt.throwMascotBall(); toast('⚾ 已扔出棱镜能量球，看桌宠追球接球！'); }
+          else if (act === 'donut') { opt.feedMascot('cat', 'donut'); toast('🍩 已投喂甜甜圈'); }
+          else if (act === 'coffee') { opt.feedMascot('cat', 'coffee'); toast('☕ 已递上热咖啡'); }
+          else if (act === 'poke') { opt.pokeMascot('cat'); toast('戳了戳桌宠！'); }
+          else if (act === 'cheer') { opt.playMascotDemo('cheer'); toast('🎉 全员欢呼剧场已触发'); }
         };
       });
+      var swSoundEl = document.getElementById('sw-sound');
+      if (swSoundEl) swSoundEl.onclick = function () {
+        state.config.completionSound = state.config.completionSound === false ? true : false;
+        if (state.config.completionSound && window.__dreamSkinOptical && window.__dreamSkinOptical.playPrismChime) {
+          window.__dreamSkinOptical.playPrismChime('complete');
+        }
+        applyNow();
+      };
       document.getElementById('sw-chroma').onclick = function () { state.config.prismaticCoat = !state.config.prismaticCoat; applyNow(); };
       document.getElementById('sw-ligatures').onclick = function () { state.config.codeLigatures = !state.config.codeLigatures; applyNow(); };
       document.getElementById('sw-sb-compact').onclick = function () { state.config.sidebarCompact = !state.config.sidebarCompact; applyNow(); };
@@ -2996,7 +3036,12 @@ export function renderPreviewHtml() {
         if (window.__dreamSkinOptical && window.__dreamSkinOptical.notifyMascot) {
           if (txt.charAt(0) === '/') {
             var cmdToken = txt.split(' ')[0].toLowerCase();
-            window.__dreamSkinOptical.notifyMascot('slash-cmd', { cmd: cmdToken });
+            if (cmdToken === '/ball' || cmdToken === '/play') {
+              if (window.__dreamSkinOptical.throwMascotBall) window.__dreamSkinOptical.throwMascotBall();
+              toast('⚾ 扔出一颗棱镜能量球！');
+            } else {
+              window.__dreamSkinOptical.notifyMascot('slash-cmd', { cmd: cmdToken });
+            }
           } else {
             window.__dreamSkinOptical.notifyMascot('send', {});
           }
@@ -3005,6 +3050,19 @@ export function renderPreviewHtml() {
         sc.scrollTop = sc.scrollHeight;
       };
       document.getElementById('btn-send-demo').onclick = sendDemo;
+      var scrollAreaEl = document.querySelector('[data-conversation-scroll]');
+      var scrollBotBtn = document.getElementById('btn-scroll-bottom');
+      if (scrollAreaEl && scrollBotBtn) {
+        var syncScrollBotBtn = function () {
+          var gap = scrollAreaEl.scrollHeight - scrollAreaEl.scrollTop - scrollAreaEl.clientHeight;
+          var inConv = document.body.getAttribute('data-view') !== 'home';
+          scrollBotBtn.classList.toggle('show', inConv && gap > 120);
+        };
+        scrollAreaEl.addEventListener('scroll', syncScrollBotBtn, { passive: true });
+        scrollBotBtn.onclick = function () {
+          scrollAreaEl.scrollTo({ top: scrollAreaEl.scrollHeight, behavior: 'smooth' });
+        };
+      }
       document.getElementById('dsh-input').addEventListener('keydown', function (ev) {
         if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); sendDemo(); }
       });
