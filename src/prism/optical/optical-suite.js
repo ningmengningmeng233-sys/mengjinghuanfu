@@ -615,34 +615,8 @@
       }
       if (prev && !next && !o.hasError && !o.silent) {
         notifyMascotSafe('complete', {});
-        var soundOn = !(lastPayload && lastPayload.config && lastPayload.config.completionSound === false);
-        if (soundOn) playPrismChime('complete');
       }
       return isStreaming;
-    }
-
-    function playPrismChime(kind) {
-      try {
-        var Ctx = G.AudioContext || G.webkitAudioContext;
-        if (!Ctx) return;
-        var ctx = G.__dreamSkinAudioCtx || (G.__dreamSkinAudioCtx = new Ctx());
-        if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(function () {});
-        var now = ctx.currentTime;
-        var notes = kind === 'error' ? [440, 349.23] : [1046.5, 1567.98];
-        notes.forEach(function (freq, idx) {
-          var osc = ctx.createOscillator();
-          var gain = ctx.createGain();
-          osc.type = idx === 0 ? 'sine' : 'triangle';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.085);
-          gain.gain.setValueAtTime(0.0001, now + idx * 0.085);
-          gain.gain.exponentialRampToValueAtTime(0.048, now + idx * 0.085 + 0.015);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.085 + 0.24);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now + idx * 0.085);
-          osc.stop(now + idx * 0.085 + 0.26);
-        });
-      } catch (_) {}
     }
 
     function resolveCampFromModel(name) {
@@ -1559,15 +1533,6 @@
       return false;
     }
 
-    function throwMascotBall() {
-      if (!mascotRig) return false;
-      notifyMascotSafe('activity', {});
-      try {
-        if (typeof mascotRig.throwBall === 'function') return Boolean(mascotRig.throwBall());
-      } catch (_) {}
-      return false;
-    }
-
     function setHabitatMode(mode) {
       if (!mascotRig || typeof mascotRig.setHabitatPreview !== 'function') return 'auto';
       try {
@@ -1589,9 +1554,7 @@
       playMascotDemo: playMascotDemo,
       feedMascot: feedMascot,
       pokeMascot: pokeMascot,
-      throwMascotBall: throwMascotBall,
       setCamp: setCamp,
-      playPrismChime: playPrismChime,
       setHabitatMode: setHabitatMode,
       setStreaming: setStreamingState,
       getMascotSnapshot: getMascotSnapshot,
