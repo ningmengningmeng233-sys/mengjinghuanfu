@@ -2028,7 +2028,8 @@ export function renderPreviewHtml() {
       ];
 
       var ADAPTED_CLIENTS = [
-        { id: 'dsh', name: 'DSH NEXT', ver: '2.0.24-next', ws: 'dsh-workspace', channel: '原生双半体', model: 'DeepSeek-R1', sessions: [['DreamSkin Prism 三模式融合', 'DeepSeek-R1 · 刚刚'], ['DSH NEXT 原生双半体插件', 'dsh-plugin-dreamskin · 8 分钟前'], ['14 端适配器自动发现', 'Velopack + MSIX · 1 小时前'], ['WebGL2 地平线与 300Hz 棱镜', 'Obsidian Prism Core · 今天']] },
+        { id: 'dsh', name: 'DSH NEXT', ver: '2.0.24-next', ws: 'dsh-workspace', channel: '原生双半体', model: 'DeepSeek-R1', sessions: [['DreamSkin Prism 三模式融合', 'DeepSeek-R1 · 刚刚'], ['DSH NEXT 原生双半体插件', 'dsh-plugin-dreamskin · 8 分钟前'], ['多端适配器自动发现', 'Velopack + MSIX · 1 小时前'], ['WebGL2 地平线与 300Hz 棱镜', 'Obsidian Prism Core · 今天']] },
+        { id: 'antigravity', name: 'Antigravity (反重力)', ver: '2.35.1', ws: 'agy-hub', channel: '原生 Sidecar', model: 'Gemini 4 Neon', sessions: [['反重力 2.35 原生星轨滑块与权限菜单', 'Gemini 4 Neon · 刚刚'], ['4.0 动态壁纸 + 液态玻璃全保留', 'Browser Hole 零黑屏 · 10 分钟前'], ['6 只活体像素桌宠与 17 套生态剧场', 'Claude Opus 5.5 · 今天']] },
         { id: 'zcode', name: 'ZCode', ver: '4.0.0', ws: 'zcode-v4', channel: 'CDP 热注入', model: 'GLM-5 / Claude', sessions: [['ZCode 4.0.0 v4-composer 适配', 'GLM-5 · 刚刚'], ['timeline-message-layer 与气泡核验', 'ZCode 4.0 · 12 分钟前'], ['双宠顶边防裁切与侧栏丝滑轨', 'v4.0.0 · 今天']] },
         { id: 'cherry', name: 'Cherry Studio', ver: '2.1.6', ws: 'cherry-studio', channel: 'CDP 热注入', model: 'Claude 3.7 Sonnet', sessions: [['Cherry 2.1.6 / 2.2.3 双模式适配', 'Claude 3.7 Sonnet · 刚刚'], ['Agent 模式 agent-chat-main 适配', 'DeepSeek-R1 · 15 分钟前'], ['AntD 浮窗与浮动胶囊输入卡', 'Gemini 2.5 Pro · 今天']] },
         { id: 'codex', name: 'Codex', ver: '26.1117.4957', ws: 'codex-desktop', channel: 'MSIX 通道', model: 'Codex o3', sessions: [['Codex 26.1117 composer-surface 适配', 'Codex o3 · 刚刚'], ['MSIX 侧栏 thread-selected 光条', 'o4-mini · 22 分钟前'], ['300Hz 棱镜追光与像素双宠', 'MSIX 适配 · 今天']] },
