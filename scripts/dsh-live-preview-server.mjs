@@ -1231,16 +1231,16 @@ export function renderPreviewHtml() {
   }
   .comp-icon-btn:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
   .comp-pill {
-    height: 28px; padding: 0 10px; border-radius: 999px;
+    height: 28px; padding: 0 9px; border-radius: 999px;
     border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
     color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 12px; font-weight: 500;
-    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    font-size: 12px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
     transition: background-color 130ms ease, color 130ms ease;
   }
   .comp-pill:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
-  .comp-right { display: inline-flex; align-items: center; gap: 10px; }
-  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8a98); }
+  .comp-right { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8a98); white-space: nowrap; flex-shrink: 0; }
   /* Authentic Obsidian Prism specular circular ↑ send button */
   .comp-send {
     width: 30px; height: 30px; border-radius: 999px; border: 0; padding: 0;
@@ -1650,8 +1650,8 @@ export function renderPreviewHtml() {
   </div>
 
   <!-- Multi-Client Adapter Switcher Popover -->
-  <div id="ds-client-pop" data-dreamskin-control-panel="1" role="menu" aria-label="切换已适配客户端">
-    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>14 端全适配</span></div>
+  <div id="ds-client-pop" data-dreamskin-control-panel="1" role="menu" aria-label="切换客户端预览">
+    <div class="cl-pop-head"><span>切换客户端实时预览</span><span>多端配置预览</span></div>
     <div id="ds-client-list"></div>
   </div>
 
