@@ -3425,10 +3425,29 @@
       return pool[pool.length - 1];
     };
     const EGGS = ['onFire', 'cheerSticks', 'rickroll', 'siren'];
-    const DUETS = [['chatGreet', 0.4], ['lookNod', 0.25], ['catRub', 0.2], ['readAlong', 0.15]];
+    const DUETS = [
+      ['chatGreet', 0.22],
+      ['lookNod', 0.14],
+      ['catRub', 0.14],
+      ['readAlong', 0.10],
+      ['foxTease', 0.12],
+      ['pandaShare', 0.12],
+      ['elementClash', 0.08],
+      ['highFive', 0.08],
+    ];
     const pickDuet = () => {
-      let r = random();
-      for (const [k, w] of DUETS) if ((r -= w) < 0) return k;
+      const mains = activeMainActors();
+      const hasKind = (k) => mains.some((a) => a.kind === k);
+      const eligible = DUETS.filter(([k]) => {
+        if (k === 'foxTease') return mains.length >= 2 && hasKind('fox');
+        if (k === 'pandaShare') return mains.length >= 2 && hasKind('panda');
+        if (k === 'elementClash') return hasKind('whale') && (hasKind('dragon') || hasKind('fox'));
+        if (k === 'highFive') return mains.length >= 2;
+        return true;
+      });
+      const totalW = eligible.reduce((s, [, w]) => s + w, 0) || 1;
+      let r = random() * totalW;
+      for (const [k, w] of eligible) if ((r -= w) < 0) return k;
       return 'chatGreet';
     };
 
@@ -3494,6 +3513,91 @@
         if (wt >= 2) steps.push([wm + 1700, cat.id, 'walk', wm, { patrolDir: -dir }]);
         steps.push([wm * 2 + 1800, 'resetHome']);
         return { dur: wm * 2 + 2000, steps };
+      },
+      // 🦊 小赤狐偷放灵狐星火逗伙伴，伙伴先吓一跳再开心转圈
+      foxTease: (ctx) => {
+        const fox = ctx.mains.find((a) => a.kind === 'fox');
+        const buddy = ctx.mains.find((a) => a !== fox && (a.kind === 'cat' || a.kind === 'panda' || a.kind === 'clawd')) || ctx.mains.find((a) => a !== fox);
+        if (!fox || !buddy) return THEATER_SCRIPTS.highFive(ctx);
+        const dir = buddy.x < fox.x ? -1 : 1;
+        const wt = min(14, round(max(0, abs(buddy.x - fox.x) - 50) / 1.5));
+        const wm = wt * TICK;
+        const steps = [];
+        if (wt >= 2) steps.push([0, fox.id, 'walk', wm, { patrolDir: dir }]);
+        steps.push([wm, fox.id, 'foxWisp', 1800, { mirror: dir < 0, sym: 'spark' }]);
+        steps.push([wm + 260, buddy.id, 'wow', 700, { face: faceToward(buddy, fox), sym: 'bang' }]);
+        steps.push([wm + 1000, buddy.id, 'happy', 1100, { face: faceToward(buddy, fox), sym: 'heart' }]);
+        steps.push([wm + 1050, () => {
+          if (!reducedMotion) spawnChromaBurst((getEntWorldCx(fox) + getEntWorldCx(buddy)) / 2, -26, 8, false);
+        }]);
+        if (wt >= 2) steps.push([wm + 2100, fox.id, 'walk', wm, { patrolDir: -dir }]);
+        steps.push([wm * 2 + 2250, 'resetHome']);
+        return { dur: wm * 2 + 2450, steps };
+      },
+      // 🐼 小熊猫摇摇晃晃过去分脆竹子/零食，两只一起开吃点头
+      pandaShare: (ctx) => {
+        const panda = ctx.mains.find((a) => a.kind === 'panda');
+        const buddy = ctx.mains.find((a) => a !== panda);
+        if (!panda || !buddy) return THEATER_SCRIPTS.highFive(ctx);
+        const dir = buddy.x < panda.x ? -1 : 1;
+        const wt = min(14, round(max(0, abs(buddy.x - panda.x) - 50) / 1.5));
+        const wm = wt * TICK;
+        const buddySnack = buddy.kind === 'cat' || buddy.kind === 'whale' ? 'eatFish' : 'eat';
+        const steps = [];
+        if (wt >= 2) steps.push([0, panda.id, 'walk', wm, { patrolDir: dir }]);
+        steps.push([wm, panda.id, 'pandaBamboo', 2100, { mirror: dir < 0, sym: 'heart' }]);
+        steps.push([wm + 350, buddy.id, buddySnack, 1750, { face: faceToward(buddy, panda), sym: 'heart' }]);
+        steps.push([wm + 2150, buddy.id, 'happy', 700, { sym: 'note' }]);
+        if (wt >= 2) steps.push([wm + 2200, panda.id, 'walk', wm, { patrolDir: -dir }]);
+        steps.push([wm * 2 + 2350, 'resetHome']);
+        return { dur: wm * 2 + 2550, steps };
+      },
+      // 🐉🔥 vs 🐳💧 冰火/星火元素对撞二重奏，中间炸出彩虹水汽星屑
+      elementClash: (ctx) => {
+        const whale = ctx.mains.find((a) => a.kind === 'whale');
+        const fire = ctx.mains.find((a) => a.kind === 'dragon') || ctx.mains.find((a) => a.kind === 'fox');
+        if (!whale || !fire) return THEATER_SCRIPTS.highFive(ctx);
+        const firePose = fire.kind === 'dragon' ? 'dragonFlame' : 'foxWisp';
+        return {
+          dur: 2700,
+          steps: [
+            [0, fire.id, firePose, 2000, { face: faceToward(fire, whale), sym: 'spark' }],
+            [240, whale.id, 'whaleSpout', 2000, { face: faceToward(whale, fire), sym: 'spark' }],
+            [700, () => {
+              if (!reducedMotion) spawnChromaBurst((getEntWorldCx(fire) + getEntWorldCx(whale)) / 2, -30, 14, false);
+            }],
+            [2050, fire.id, 'happy', 650, { sym: 'heart' }],
+            [2050, whale.id, 'happy', 650, { sym: 'heart' }],
+          ],
+        };
+      },
+      // ✨ 任意双宠碰头同步转圈击掌彩蛋
+      highFive: (ctx) => {
+        const mains = ctx.mains;
+        if (mains.length < 2) return THEATER_SCRIPTS.chatGreet(ctx);
+        const iA = floor(random() * mains.length);
+        const a = mains[iA];
+        const b = mains[(iA + 1) % mains.length];
+        const fA = faceToward(a, b);
+        const fB = fA === 'right' ? 'left' : 'right';
+        return {
+          dur: 2400,
+          steps: [
+            [0, a.id, 'lookNod', 650, { face: fA, param: 2 }],
+            [0, b.id, 'lookNod', 650, { face: fB, param: 2 }],
+            [680, a.id, 'spinHop', 1000, { sym: 'spark' }],
+            [680, b.id, 'spinHop', 1000, { sym: 'spark' }],
+            [820, () => {
+              if (!reducedMotion) {
+                hop(a, 'happy');
+                hop(b, 'happy');
+                spawnChromaBurst((getEntWorldCx(a) + getEntWorldCx(b)) / 2, -28, 10, false);
+              }
+            }],
+            [1720, a.id, 'happy', 650, { sym: 'heart' }],
+            [1720, b.id, 'happy', 650, { sym: 'heart' }],
+          ],
+        };
       },
     };
 
@@ -3612,6 +3716,16 @@
             playSeq(mover, [['happy', 1, 2, -1]]);
           }
           syncAllStackedFollowers();
+          // 叠满 3 层及以上图腾塔时，整座塔静静炸出一圈彩蛋星屑并齐声开心
+          const towerNow = getTowerMembers(mover.id);
+          if (towerNow.length >= 3 && !reducedMotion) {
+            const topEnt = towerNow[towerNow.length - 1];
+            spawnChromaBurst(getEntWorldCx(topEnt), computeWorldFootY(topEnt) - 24, 14, false);
+            for (const m of towerNow) {
+              if (!isMiniEnt(m)) { m.sym = 'heart'; m.symUntil = now + 1500; }
+            }
+            recordInteraction('totem-3-celebrate', mover.id, now);
+          }
           renderAllFrames(now);
           return true;
         }
@@ -4055,7 +4169,10 @@
       });
     };
 
-    // ── 投喂彩蛋（右键=甜甜圈 / Alt+左键=热咖啡）：立即消气清 pokeCount 并解除 sulk ──
+    // ── 投喂彩蛋（右键=甜甜圈 / Alt+左键=热咖啡）：立即消气清 pokeCount；旁边伙伴会眼馋盯食，连喂两只触发齐欢呼 ──
+    let lastFeedAt = 0;
+    let lastFeedActorId = null;
+    let lastTypeKwAt = 0;
     const feedActor = (actor, item = 'donut') => {
       if (!actor || isMiniEnt(actor) || disposed) return false;
       const now = nowMs();
@@ -4067,6 +4184,24 @@
       }
       const pose = item === 'coffee' ? 'feedCoffee' : 'feedDonut';
       startClip(actor, pose, 2200, { sym: 'heart' });
+      const others = activeMainActors().filter((o) => o !== actor && !o.dragging && !o.stackedOn);
+      if (others.length) {
+        if (lastFeedActorId && lastFeedActorId !== actor.id && now - lastFeedAt < 4500) {
+          // 刚喂完一只又喂另一只 → 全员共享下午茶欢呼彩蛋！
+          const prev = actors[lastFeedActorId];
+          if (prev) startClip(prev, 'happy', 1500, { sym: 'heart' });
+          if (!reducedMotion) spawnChromaBurst(getEntWorldCx(actor), computeWorldFootY(actor) - 20, 10, false);
+          recordInteraction('feast-duo', `${lastFeedActorId}+${actor.id}`, now);
+        } else {
+          // 旁边最近的伙伴回头眼馋地盯着看
+          const watcher = others.reduce((best, cur) => (abs(cur.x - actor.x) < abs(best.x - actor.x) ? cur : best), others[0]);
+          if (watcher && (!watcher.overridePose || now >= watcher.overrideUntil)) {
+            startClip(watcher, 'lookNod', 1600, { face: faceToward(watcher, actor), param: 4, sym: 'q' });
+          }
+        }
+      }
+      lastFeedAt = now;
+      lastFeedActorId = actor.id;
       recordInteraction(pose, actor.id, now);
       renderAllFrames(now);
       return true;
@@ -4796,10 +4931,29 @@
       learn() {
         for (const a of activeMainActors()) startClip(a, a.kind === 'cat' || a.kind === 'dragon' ? 'slashLearnBook' : 'slashLearnBulb', 2600);
       },
+      // 秘密斜杠彩蛋：/party /dance 全员各展专属绝招，/hug /pet 双宠贴贴
+      party() {
+        const mains = activeMainActors();
+        for (const a of mains) {
+          const p = a.kind === 'fox' ? 'foxWisp' : a.kind === 'panda' ? 'pandaBamboo' : a.kind === 'dragon' ? 'dragonFlame' : a.kind === 'whale' ? 'whaleSpout' : 'cheerSticks';
+          startClip(a, p, 2600, { sym: 'spark' });
+          if (!reducedMotion && !a.stackedOn) hop(a, 'happy');
+        }
+        if (!reducedMotion && mains.length) {
+          spawnChromaBurst(getEntWorldCx(mains[0]), computeWorldFootY(mains[0]) - 24, 14, false);
+        }
+        if (miniPileEnabled) crabsWave();
+      },
+      hug() {
+        const mains = activeMainActors();
+        if (mains.some((a) => a.kind === 'panda') && mains.length >= 2) runDuet('pandaShare');
+        else if (mains.some((a) => a.kind === 'fox') && mains.length >= 2) runDuet('foxTease');
+        else runDuet('catRub');
+      },
     };
     const runSlashTheater = (rawCmd) => {
       const cmd = String(rawCmd || '').replace(/^\/+/, '').trim().toLowerCase();
-      const norm = cmd === 'swarm' ? 'teamwork' : cmd;
+      const norm = cmd === 'swarm' ? 'teamwork' : cmd === 'dance' ? 'party' : cmd === 'pet' ? 'hug' : cmd;
       const fn = cmd && !disposed && hasOwn(SLASH_HANDLERS, norm) ? SLASH_HANDLERS[norm] : null;
       if (!fn) return false;
       const now = nowMs();
@@ -4864,6 +5018,8 @@
         for (const a of mains) {
           if (a.kind === 'dragon') startClip(a, 'dragonFlame', 2000, { sym: 'spark' });
           else if (a.kind === 'whale') startClip(a, 'whaleSpout', 2000, { sym: 'heart' });
+          else if (a.kind === 'fox') startClip(a, 'foxWisp', 2000, { sym: 'spark' });
+          else if (a.kind === 'panda') startClip(a, 'pandaBamboo', 2000, { sym: 'heart' });
           else if (a.kind === 'cat') startClip(a, 'happy', 2000, { face: clawd ? faceToward(a, clawd) : 'left', sym: 'spark' });
           else startClip(a, 'happy', 2000, { face: cat ? faceToward(a, cat) : 'right', sym: 'heart' });
         }
@@ -5288,9 +5444,41 @@
         const now = nowMs();
         markActivity();
         const workers = workingActors();
+        const mains = activeMainActors();
         if (!workers.length) return;
         const trimmed = String(text || '').replace(/\s+$/, '');
-        if (/[?？]$/.test(trimmed)) {
+        const lower = trimmed.toLowerCase();
+        // 隐藏打字关键词彩蛋（5 秒冷却防刷屏，静默自然不加任何 UI）
+        const kwOk = now - lastTypeKwAt > 5000;
+        if (kwOk && /(柠檬|lemon)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) {
+            startClip(a, a.kind === 'fox' ? 'foxWisp' : a.kind === 'panda' ? 'pandaBamboo' : 'happy', 1800, { sym: 'heart' });
+            if (!reducedMotion && !a.stackedOn) hop(a, 'happy');
+          }
+          if (!reducedMotion && mains.length) spawnChromaBurst(getEntWorldCx(mains[0]), -24, 14, false);
+          recordInteraction('egg:lemon', mains[0]?.id || 'cat', now);
+        } else if (kwOk && /(竹子|熊猫|panda)$/i.test(lower) && actors.panda) {
+          lastTypeKwAt = now;
+          startClip(actors.panda, 'pandaBamboo', 2200, { sym: 'heart' });
+          recordInteraction('egg:bamboo', 'panda', now);
+        } else if (kwOk && /(狐狸|小赤狐|星火|fox)$/i.test(lower) && actors.fox) {
+          lastTypeKwAt = now;
+          startClip(actors.fox, 'foxWisp', 2200, { sym: 'spark' });
+          recordInteraction('egg:fox', 'fox', now);
+        } else if (kwOk && /(bug|报错|error)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const w of workers) startClip(w, 'worry', 1300, { sym: 'sweat' });
+          recordInteraction('egg:bug', workers[0].id, now);
+        } else if (kwOk && /(摸鱼|好困|晚安|sleep)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) startClip(a, 'yawn', 1400, { sym: 'z1' });
+          recordInteraction('egg:sleepy', mains[0]?.id || 'cat', now);
+        } else if (kwOk && /(加油|666|牛哇|真棒)$/i.test(lower)) {
+          lastTypeKwAt = now;
+          for (const a of mains) startClip(a, 'cheerSticks', 1600, { sym: 'spark' });
+          recordInteraction('egg:cheer', mains[0]?.id || 'cat', now);
+        } else if (/[?？]$/.test(trimmed)) {
           for (const w of workers) startClip(w, 'tilt', 750, { rot: -9, sym: 'q' });
         } else if (/[!！]$/.test(trimmed)) {
           for (const w of workers) startClip(w, 'wow', 700, { sym: 'bang' });
