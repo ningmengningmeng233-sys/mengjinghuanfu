@@ -10074,6 +10074,23 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       '[contenteditable="true"][data-ag-cs-smooth-caret="1"] { caret-color: transparent !important; }',
       '@keyframes ag-cs-caret-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }',
       '',
+      '/* Task Running / AI Streaming State (Zero-Lag Pure Compositor Shimmer + Sidebar Pulse Dot) */',
+      '@keyframes ag-stream-shimmer { 0% { background-position: 0% 50%; opacity: 0.72; } 50% { background-position: 100% 50%; opacity: 1; } 100% { background-position: 0% 50%; opacity: 0.72; } }',
+      '@keyframes ag-stream-dot-pulse { 0%, 100% { transform: scale(0.85); opacity: 0.65; } 50% { transform: scale(1.22); opacity: 1; } }',
+      'html[data-ag-cs-style="1"][data-ag-cs-streaming="1"] :is([data-composer-card], .surface-composer-card, [data-testid="agent-input-box"]) {',
+      '  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ag-cs-accent, #669DF6) 46%, transparent), 0 10px 34px -8px color-mix(in srgb, var(--ag-cs-accent, #669DF6) 32%, transparent) !important;',
+      '}',
+      'html[data-ag-cs-style="1"][data-ag-cs-streaming="1"][data-ag-cs-motion!="off"] :is([data-composer-card], .surface-composer-card, [data-testid="agent-input-box"])::before {',
+      '  content: ""; position: absolute; left: 14px; right: 14px; top: 0; height: 2px; border-radius: 999px; pointer-events: none; z-index: 26;',
+      '  background: linear-gradient(90deg, transparent 0%, #64D2FF 22%, #6EA8FF 48%, #A78BFA 74%, transparent 100%);',
+      '  background-size: 220% 100%; animation: ag-stream-shimmer 2.1s linear infinite;',
+      '}',
+      'html[data-ag-cs-style="1"][data-ag-cs-streaming="1"] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][data-selected="true"])::after {',
+      '  content: ""; position: absolute; right: 11px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; border-radius: 50%; pointer-events: none;',
+      '  background: var(--ag-cs-accent, #64D2FF); box-shadow: 0 0 10px var(--ag-cs-accent, #64D2FF);',
+      '  animation: ag-stream-dot-pulse 1.25s ease-in-out infinite;',
+      '}',
+      '',
       '/* Smoked Obsidian Silky Sidebar Rows & Active Bar (All 14 Clients — binary-verified 2026 selectors) */',
       'html[data-ag-cs-style="1"] :is([data-row-key^="session:"], [data-app-action-sidebar-thread-row], [data-testid="agent-session-row"], [data-purpose-section-list], [data-thread-item], [data-sidebar-row], .monaco-list-row) {',
       '  transition: background-color 180ms cubic-bezier(.22,1,.36,1), color 150ms ease, transform 160ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease;',
@@ -10138,8 +10155,68 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
     var lastBusyAt = 0;
     var glassOverlayActive = false;
     var scrollThrottleBound = false;
+    var isStreaming = false;
+    var manualStreamingOverride = null;
+    var streamPollTimer = 0;
     var onScrollBusy = function () { lastBusyAt = Date.now(); };
-    function isPerfBusy() { return (Date.now() - lastBusyAt) < 420; }
+    function isPerfBusy() { return isStreaming || (Date.now() - lastBusyAt) < 420; }
+
+    var STREAM_DETECT_SEL = [
+      'button[data-streaming="1"]',
+      'button[data-testid*="stop" i]',
+      'button[aria-label*="停止"]',
+      'button[aria-label*="中止"]',
+      'button[aria-label*="Stop generating" i]',
+      'button[aria-label*="Stop response" i]',
+      'button[aria-label*="Cancel generation" i]',
+      '[data-chat-streaming="1"]',
+      '[data-streaming="true"]',
+    ].join(', ');
+
+    function detectHostStreaming() {
+      if (manualStreamingOverride !== null) return manualStreamingOverride;
+      if (D.documentElement && D.documentElement.getAttribute('data-dreamskin-streaming') === '1') return true;
+      try {
+        var el = D.querySelector(STREAM_DETECT_SEL);
+        if (el && el.offsetParent !== null && !el.disabled) return true;
+      } catch (_) {}
+      return false;
+    }
+
+    function setStreamingState(nextRunning, opts) {
+      var o = opts && typeof opts === 'object' ? opts : {};
+      if (o.manual === true) manualStreamingOverride = Boolean(nextRunning);
+      else if (o.manual === false) manualStreamingOverride = null;
+      var next = Boolean(nextRunning);
+      var prev = isStreaming;
+      isStreaming = next;
+      if (D.documentElement) {
+        if (next) setAttrIfChanged(D.documentElement, 'data-ag-cs-streaming', '1');
+        else if (D.documentElement.hasAttribute('data-ag-cs-streaming')) D.documentElement.removeAttribute('data-ag-cs-streaming');
+      }
+      if (next) lastBusyAt = Date.now();
+      if (mascotRig && typeof mascotRig.setState === 'function') {
+        try {
+          mascotRig.setState({
+            streaming: next,
+            streamTier: Number(o.tier || 2),
+            hasError: Boolean(o.hasError),
+          });
+        } catch (_) {}
+      }
+      if (prev && !next && !o.hasError && !o.silent) {
+        notifyMascotSafe('complete', {});
+      }
+      return isStreaming;
+    }
+
+    function pollStreamingState() {
+      if (destroyed || !active || D.hidden) return;
+      var detected = detectHostStreaming();
+      if (detected !== isStreaming) {
+        setStreamingState(detected, {});
+      }
+    }
 
     function notifyMascotSafe(eventName, payload) {
       if (!mascotRig || typeof mascotRig.notify !== 'function') return;
@@ -10441,7 +10518,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         mascotRig = rigMod.mountDualMascotStage(stage, {
           mascot: mCfg.mascot,
           camp: mCfg.camp,
-          streaming: false,
+          streaming: isStreaming,
           streamTier: 2,
           hasError: false,
           yieldMode: 'none',
@@ -10932,6 +11009,10 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         try { spaMo.observe(D.body, { childList: true, subtree: true }); } catch (_) {}
       }
 
+      if (!streamPollTimer) {
+        streamPollTimer = setInterval(pollStreamingState, 600);
+      }
+      pollStreamingState();
       if (domRescanTimer) clearTimeout(domRescanTimer);
       domRescanTimer = setTimeout(function () {
         domRescanTimer = 0;
@@ -10947,6 +11028,12 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       active = false;
       if (domRescanTimer) { clearTimeout(domRescanTimer); domRescanTimer = 0; }
       if (spaRescanTimer) { clearTimeout(spaRescanTimer); spaRescanTimer = 0; }
+      if (streamPollTimer) { clearInterval(streamPollTimer); streamPollTimer = 0; }
+      isStreaming = false;
+      manualStreamingOverride = null;
+      if (D.documentElement && D.documentElement.hasAttribute('data-ag-cs-streaming')) {
+        D.documentElement.removeAttribute('data-ag-cs-streaming');
+      }
       if (spaMo) { try { spaMo.disconnect(); } catch (_) {} spaMo = null; }
       if (scrollThrottleBound) {
         try { G.removeEventListener('wheel', onScrollBusy, true); } catch (_) {}
@@ -10976,6 +11063,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
         rimMounted: Boolean(rimCtl),
         mascotMounted: Boolean(mascotRig),
         mascotSpec: mascotSig,
+        streaming: isStreaming,
         rippleMounted: Boolean(rippleField),
         rippleMode: rippleField ? rippleField.mode : 'none',
         glowMode: rippleGlow ? rippleGlow.mode : 'none',
@@ -11035,6 +11123,7 @@ outColor = clamp(vec4(premulRgb, outAlpha), 0.0, 1.0);
       feedMascot: feedMascot,
       pokeMascot: pokeMascot,
       setHabitatMode: setHabitatMode,
+      setStreaming: setStreamingState,
       getMascotSnapshot: getMascotSnapshot,
     };
   }

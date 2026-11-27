@@ -1328,6 +1328,7 @@ export function renderPreviewHtml() {
           <span class="hdr-title" id="hdr-title">DreamSkin Prism 三模式融合</span>
         </div>
         <div class="hdr-right">
+          <button class="hdr-cmd-btn" id="btn-sim-task" title="模拟 AI 任务运行中：查看双宠工作态、棱镜流光、侧栏呼吸点与完成欢呼" style="color: var(--st-accent-2, #64D2FF); border-color: color-mix(in srgb, var(--st-accent, #6EA8FF) 42%, transparent);">▶ 模拟运行任务</button>
           <button class="hdr-cmd-btn" id="btn-open-cmd" title="打开全局命令面板 (Ctrl+K)">⌘K</button>
           <div class="hdr-seg-view" role="tablist">
             <button class="hdr-seg-btn" id="tab-view-home" aria-selected="true">首页光场</button>
@@ -1374,6 +1375,7 @@ export function renderPreviewHtml() {
               <button class="home-chip" data-quick-mode="wallpaper">纯梦境壁纸</button>
               <button class="home-chip" data-quick-mode="hybrid">自由混搭</button>
               <button class="home-chip" id="btn-home-rainbow">点亮小紫猫彩虹极光</button>
+              <button class="home-chip" id="btn-home-sim-task">▶ 看任务运行中效果</button>
             </div>
           </div>
 
@@ -1459,7 +1461,7 @@ export function renderPreviewHtml() {
   <!-- Floating Smoked-Glass Telemetry Vial & Multi-Source Quota Popover (1:1 optics.webp) -->
   <div id="ds-telemetry-pop" data-dreamskin-control-panel="1" role="dialog" aria-label="上下文与多源配额详情">
     <div class="vial-col">
-      <span class="vial-cap">512K</span>
+      <span class="vial-cap">AUTO</span>
       <span class="vial-pct" id="vial-pct">46.5%</span>
       <div class="vial-glass">
         <div class="vial-fill" id="vial-fill" style="height:46.5%"></div>
@@ -2811,8 +2813,101 @@ export function renderPreviewHtml() {
         setTimeout(function () { lbl.textContent = '复制'; }, 1400);
       };
 
+      // Live AI Task Running / Streaming Simulation (shows real busy mascots, prism stream bar, sidebar pulse & completion cheer!)
+      var simState = { running: false, timer: null, step: 0, msgEl: null, thoughtEl: null };
+      var simBtnHdr = document.getElementById('btn-sim-task');
+      var simBtnHome = document.getElementById('btn-home-sim-task');
+      var sendBtnEl = document.getElementById('btn-send-demo');
+      var SIM_CHUNKS = [
+        '正在扫描本机 DSH NEXT 2.0.24-next 与其余 13 款客户端适配器… ',
+        '已检测到多插件共存环境，自动启用流式防卡顿降频保护（背景画布让出 65% GPU 像素开销）。\\n\\n',
+        '1. 像素双宠（Clawd + 小紫猫）已切换为原版专注干活/盯进度动画；\\n',
+        '2. 输入框顶部棱镜边沿亮起柔和思考流光，左侧运行中对话亮起呼吸指示点；\\n',
+        '3. 所有 DSH 官方 --dsw-* 插件变量保持实时同步，绝不遮挡审批卡与右侧抽屉。\\n\\n',
+        '✓ 全部 14 端状态检查通过，任务执行完成！'
+      ];
+      function stopTaskSimulation(aborted) {
+        if (!simState.running) return;
+        clearInterval(simState.timer);
+        simState.timer = null;
+        simState.running = false;
+        if (simBtnHdr) simBtnHdr.textContent = '▶ 模拟运行任务';
+        if (simBtnHome) simBtnHome.textContent = '▶ 看任务运行中效果';
+        if (sendBtnEl) {
+          sendBtnEl.removeAttribute('data-streaming');
+          sendBtnEl.setAttribute('title', '发送消息');
+          sendBtnEl.setAttribute('aria-label', '发送消息');
+          sendBtnEl.innerHTML = '<span data-icon-slot="arrow-up-launch"></span>';
+          hydrateIcons();
+        }
+        if (simState.thoughtEl) {
+          simState.thoughtEl.textContent = aborted
+            ? '已手动中止任务 · 双宠返回待机'
+            : '已完成深度思考与多端校验 · 耗时 6.4s · 0 掉帧';
+        }
+        if (window.__dreamSkinOptical && window.__dreamSkinOptical.setStreaming) {
+          window.__dreamSkinOptical.setStreaming(false, { hasError: false, silent: Boolean(aborted) });
+        }
+        toast(aborted ? '已中止模拟任务' : '✓ 任务运行完成 · Clawd 与小紫猫欢呼提醒！');
+      }
+      function startTaskSimulation() {
+        if (simState.running) { stopTaskSimulation(true); return; }
+        setView('conv');
+        simState.running = true;
+        simState.step = 0;
+        if (simBtnHdr) simBtnHdr.textContent = '■ 停止模拟';
+        if (simBtnHome) simBtnHome.textContent = '■ 停止模拟';
+        if (sendBtnEl) {
+          sendBtnEl.setAttribute('data-streaming', '1');
+          sendBtnEl.setAttribute('title', '停止生成');
+          sendBtnEl.setAttribute('aria-label', '停止生成');
+          sendBtnEl.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,.75)"></span>';
+        }
+        var flow = document.querySelector('[data-slot="conversation.chat.flow"]');
+        var resp = document.createElement('div');
+        resp.setAttribute('data-chat-group-part', 'response');
+        resp.setAttribute('data-chat-streaming', '1');
+        var th = document.createElement('div');
+        th.className = 'thought-trigger';
+        th.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--st-accent-2,#64D2FF);box-shadow:0 0 10px var(--st-accent-2,#64D2FF)"></span><span class="sim-th-txt">DeepSeek-R1 正在深度思考并实时输出…（注意上方双宠与输入框流光）</span>';
+        var bodyP = document.createElement('p');
+        bodyP.className = 'resp-p';
+        bodyP.style.whiteSpace = 'pre-wrap';
+        bodyP.textContent = '';
+        resp.appendChild(th);
+        resp.appendChild(bodyP);
+        flow.appendChild(resp);
+        simState.msgEl = bodyP;
+        simState.thoughtEl = th.querySelector('.sim-th-txt');
+        var sc = document.querySelector('[data-conversation-scroll]');
+        if (sc) sc.scrollTop = sc.scrollHeight;
+        if (window.__dreamSkinOptical && window.__dreamSkinOptical.setStreaming) {
+          window.__dreamSkinOptical.setStreaming(true, { tier: 2 });
+        }
+        toast('⚡ 任务开始运行 · 双宠进入工作态 + 输入框棱镜流光 + 侧栏呼吸点');
+        var fullText = SIM_CHUNKS.join('');
+        var charIdx = 0;
+        simState.timer = setInterval(function () {
+          if (!simState.running) return;
+          charIdx = Math.min(fullText.length, charIdx + 5);
+          if (simState.msgEl) simState.msgEl.textContent = fullText.slice(0, charIdx);
+          studioState.ctxPct = Math.min(92, studioState.ctxPct + 0.14);
+          var tpsEl = document.getElementById('comp-tps');
+          if (tpsEl) tpsEl.textContent = (78 + Math.random() * 14).toFixed(1) + ' tok/s';
+          syncTelemetryBars();
+          if (sc) sc.scrollTop = sc.scrollHeight;
+          if (charIdx >= fullText.length) {
+            resp.removeAttribute('data-chat-streaming');
+            stopTaskSimulation(false);
+          }
+        }, 120);
+      }
+      if (simBtnHdr) simBtnHdr.onclick = startTaskSimulation;
+      if (simBtnHome) simBtnHome.onclick = startTaskSimulation;
+
       // Send demo message + real mascot send / slash-cmd reactions
       var sendDemo = function () {
+        if (simState.running) { stopTaskSimulation(true); return; }
         var inp = document.getElementById('dsh-input');
         var txt = (inp.value || '').trim();
         if (!txt) return;
