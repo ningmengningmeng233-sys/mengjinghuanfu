@@ -30,6 +30,7 @@
     "urlPattern": "^app://.*/index\\.html"
   },
   "testedVersions": [
+    "26.1117.4957.0",
     "26.1021.3705.0"
   ]
 }

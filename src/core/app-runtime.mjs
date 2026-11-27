@@ -78,8 +78,18 @@ export function makeIsMainTarget(target = {}) {
 
 function buildProfile(data, rootDir) {
   const dir = join(rootDir, data.adapterDir);
-  const exeNameRaw = (data.discover && data.discover.exeNames && data.discover.exeNames[0]) || '';
-  const exeName = IS_MAC ? exeNameRaw.replace(/\.exe$/i, '') : exeNameRaw;
+  const exeNamesRaw = (data.discover && Array.isArray(data.discover.exeNames) ? data.discover.exeNames : []).filter(Boolean);
+  const exeNames = IS_MAC ? exeNamesRaw.map((n) => n.replace(/\.exe$/i, '')) : exeNamesRaw;
+  const exeName = exeNames[0] || '';
+  const uninstallNames = [
+    ...new Set(
+      [
+        ...(data.discover && Array.isArray(data.discover.uninstallDisplayNames) ? data.discover.uninstallDisplayNames : []),
+        (data.discover && data.discover.uninstallDisplayName) || '',
+      ].filter(Boolean),
+    ),
+  ];
+  if (!uninstallNames.length && data.name) uninstallNames.push(data.name);
 
   let partsMap = null;
   let partsCss = '';
@@ -100,8 +110,10 @@ function buildProfile(data, rootDir) {
     name: data.name,
     channel: data.channel,
     exeName,
+    exeNames,
     envExe: (data.discover && data.discover.envExe) || '',
-    uninstallName: (data.discover && data.discover.uninstallDisplayName) || data.name,
+    uninstallName: uninstallNames[0] || data.name,
+    uninstallNames,
     macBundle: macBundleOf(data.discover),
     candidates: () => candidatesOf(data),
     ...(helperRe ? { isHelperCmd: (cmd) => helperRe.test(cmd) } : {}),

@@ -2,29 +2,36 @@
   "app.root": {
     "scope": "html:has([data-testid=\"sidebar-base-card\"])",
     "scopeBody": "body:has([data-testid=\"sidebar-base-card\"])",
-    "selector": "body > div.h-screen, div.windows-app-content",
+    "selector": "#root",
     "required": true
   },
   "app.sidebar": {
-    "selector": "[data-testid=\"sidebar-base-card\"]",
-    "pane": "[data-testid=\"sidebar-base-card\"]",
+    "selector": "[data-testid=\"sidebar-base-card\"], aside",
     "required": true
   },
   "app.sidebar.item": {
-    "selector": "button.mavis-sidebar-item"
+    "selector": "[data-testid=\"sidebar-base-card\"] [role=\"button\"], aside a"
   },
   "app.topbar": {
-    "selector": "[data-testid=\"windows-titlebar\"], header.windows-titlebar"
+    "selector": "header"
   },
   "app.content": {
-    "selector": "[data-testid=\"mavis-home-content\"]",
+    "selector": "main",
     "required": true
+  },
+  "chat.messages": {
+    "selector": "[data-testid=\"chat-status-shell\"], main [class*=\"message\"], main [class*=\"chat\"]"
+  },
+  "chat.bubble.user": {
+    "selector": "[data-testid=\"user-message-text\"], [data-testid=\"user-message-genui\"]"
   },
   "chat.composer": {
-    "selector": "[data-testid=\"message-input\"]",
-    "required": true
+    "selector": "[data-message-input-root], form:has(textarea), [class*=\"composer\"]"
   },
-  "chat.composer.input": {
-    "selector": "[data-testid=\"message-textarea\"]"
+  "code.block": {
+    "selector": "[data-testid=\"compact-code-highlight\"], pre:has(> code)"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], [role=\"menu\"]"
   }
 }

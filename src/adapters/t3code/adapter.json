@@ -1,0 +1,39 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "t3code",
+  "name": "T3 Code",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\t3code\\T3 Code (Beta).exe",
+      "%LOCALAPPDATA%\\Programs\\t3code\\T3 Code.exe"
+    ],
+    "envExe": "DREAMSKIN_T3CODE_EXE",
+    "exeNames": [
+      "T3 Code (Beta).exe",
+      "T3 Code.exe"
+    ],
+    "uninstallDisplayName": "T3 Code",
+    "mac": {
+      "bundle": "T3 Code",
+      "source": "按 T3 Code 桌面版命名推断，尚未在真 Mac 核实",
+      "status": "unverified"
+    }
+  },
+  "prism": {
+    "defaultDebugPort": 9352,
+    "browserHoleSupport": false
+  },
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "target": {
+    "urlPattern": "^(?:file://|https?://(?:127[.]0[.]0[.]1|localhost):[0-9]+/)"
+  },
+  "readySelector": "#root",
+  "testedVersions": [
+    "0.1.11"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}

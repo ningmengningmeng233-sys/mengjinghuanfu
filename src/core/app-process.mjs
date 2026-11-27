@@ -27,13 +27,25 @@ export function listProcesses(app) {
   }
 }
 
+function exeNamesOf(app) {
+  const list = Array.isArray(app?.exeNames) && app.exeNames.length ? app.exeNames : (app?.exeName ? [app.exeName] : []);
+  return [...new Set(list.map((s) => String(s || '').trim()).filter(Boolean))];
+}
+
+function uninstallNamesOf(app) {
+  const list = Array.isArray(app?.uninstallNames) && app.uninstallNames.length
+    ? app.uninstallNames
+    : (app?.uninstallName ? [app.uninstallName] : []);
+  return [...new Set(list.map((s) => String(s || '').trim()).filter(Boolean))];
+}
+
 // 纯函数（可单测）：全量进程行 -> 某个应用的进程列表。isMain 口径与旧实现一致：
 // 主进程 = 命令行没有 --type=，且 profile 没把它判成后台进程。
 export function processesForApp(rows, app) {
-  const exe = String(app.exeName || "").toLowerCase();
-  return (rows || []).filter((p) => String(p.name || "").toLowerCase() === exe).map((p) => {
-    const cmd = p.cmd || "";
-    return { pid: p.pid, path: p.path || "", cmd,
+  const names = new Set(exeNamesOf(app).map((n) => n.toLowerCase()));
+  return (rows || []).filter((p) => names.has(String(p.name || '').toLowerCase())).map((p) => {
+    const cmd = p.cmd || '';
+    return { pid: p.pid, path: p.path || '', cmd,
       isMain: !/\s--type=/.test(cmd) && !(app.isHelperCmd && app.isHelperCmd(cmd)) };
   });
 }
@@ -91,8 +103,13 @@ export function debugPortOf(proc) {
 // 注册表这一步抽成可注入的纯逻辑（deps.queryInstallLocation / deps.queryUninstallEntries / deps.exists），方便单测模拟注册表返回，不依赖真机。
 export function exeFromInstallLocation(loc, exeName, exists = existsSync) {
   if (!loc) return '';
-  const p = join(loc, exeName);
-  return exists(p) ? p : '';
+  const cleanLoc = String(loc).replace(/^"+|"+$/g, '').trim();
+  if (!cleanLoc) return '';
+  const direct = join(cleanLoc, exeName);
+  if (exists(direct)) return direct;
+  const velopack = join(cleanLoc, 'current', exeName);
+  if (exists(velopack)) return velopack;
+  return '';
 }
 
 // 注册表路径类字段（DisplayIcon / UninstallString）的清洗：带引号时取引号内路径；
@@ -161,7 +178,18 @@ function allUninstallEntries() {
 }
 
 function registryUninstallEntries(app) {
-  return uninstallEntriesForApp(allUninstallEntries(), app.uninstallName);
+  const all = allUninstallEntries();
+  const names = uninstallNamesOf(app);
+  if (!names.length) return [];
+  const out = [];
+  const seen = new Set();
+  for (const name of names) {
+    for (const e of uninstallEntriesForApp(all, name)) {
+      const key = `${e.displayName}|${e.installLocation}|${e.displayIcon}|${e.uninstallString}`;
+      if (!seen.has(key)) { seen.add(key); out.push(e); }
+    }
+  }
+  return out;
 }
 export function findExe(app, running = listProcesses(app), deps = {}) {
   const exists = deps.exists || existsSync;
@@ -191,14 +219,22 @@ export function findExe(app, running = listProcesses(app), deps = {}) {
     return '';
   }
   try {
+    const names = exeNamesOf(app);
     // 旧注入口径（deps.queryInstallLocation）保持原样：单测注入它时走老路、不碰真机注册表。
     if (deps.queryInstallLocation) {
-      return exeFromInstallLocation(deps.queryInstallLocation(app), app.exeName, exists);
+      const loc = deps.queryInstallLocation(app);
+      for (const exe of names) {
+        const hit = exeFromInstallLocation(loc, exe, exists);
+        if (hit) return hit;
+      }
+      return '';
     }
     const entries = deps.queryUninstallEntries ? deps.queryUninstallEntries(app) : registryUninstallEntries(app);
-    for (const e of entries || []) {
-      const hit = exeFromUninstallEntry(e, app.exeName, exists);
-      if (hit) return hit;
+    for (const exe of names) {
+      for (const e of entries || []) {
+        const hit = exeFromUninstallEntry(e, exe, exists);
+        if (hit) return hit;
+      }
     }
   } catch {}
   return '';

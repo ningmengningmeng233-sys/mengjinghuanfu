@@ -20,6 +20,12 @@
     "selector": ".part.editor",
     "required": true
   },
+  "chat.messages": {
+    "selector": ".interactive-list"
+  },
+  "chat.composer": {
+    "selector": ".interactive-input-part, .chat-input-container"
+  },
   "code.block": {
     "selector": ".monaco-editor"
   },

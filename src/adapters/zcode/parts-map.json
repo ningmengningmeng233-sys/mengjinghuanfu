@@ -21,17 +21,27 @@
     "active": "[data-slot=\"tabs-trigger\"][data-state=\"active\"], [data-testid=\"task-new-button\"]"
   },
   "app.content": {
-    "selector": "[data-workspace-conversation-frame], [data-panel]",
+    "selector": "[data-workspace-conversation-frame], [data-testid=\"chat-view\"], [data-panel]",
     "main": "body:has([data-workspace-shell]) main",
     "required": true
   },
+  "chat.messages": {
+    "selector": "[data-v4-timeline-message-layer=\"true\"], [data-workspace-conversation-frame] [role=\"log\"], [data-testid=\"chat-view\"] [role=\"log\"]"
+  },
+  "chat.bubble.user": {
+    "selector": "[data-v4-user-input-bubble], [data-message-role=\"user\"]"
+  },
   "chat.composer": {
-    "selector": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute)",
+    "selector": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute), [data-composer-layout]",
     "dock": "[data-v4-composer-dock], [data-v4-composer-dock-content]",
-    "radius": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute)",
+    "radius": "[data-testid=\"v4-composer\"] .chat-composer-input-surface > form > div:not(.absolute), [data-composer-layout]",
     "required": true
   },
+  "code.block": {
+    "selector": "pre:has(> code)"
+  },
   "overlay.panel": {
+    "selector": "[data-testid=\"composer-model-panel\"], [data-slot=\"dialog-content\"]",
     "header": "[data-slot=\"dialog-header\"]",
     "title": "[data-slot=\"dialog-title\"]"
   }

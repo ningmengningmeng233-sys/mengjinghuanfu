@@ -1,0 +1,37 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "workbuddy",
+  "name": "WorkBuddy",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\WorkBuddy\\WorkBuddy.exe"
+    ],
+    "envExe": "DREAMSKIN_WORKBUDDY_EXE",
+    "exeNames": [
+      "WorkBuddy.exe"
+    ],
+    "uninstallDisplayName": "WorkBuddy",
+    "mac": {
+      "bundle": "WorkBuddy",
+      "source": "按 WorkBuddy 桌面版命名推断，尚未在真 Mac 核实",
+      "status": "unverified"
+    }
+  },
+  "prism": {
+    "defaultDebugPort": 9351,
+    "browserHoleSupport": false
+  },
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "target": {
+    "urlPattern": "^(?:file://|https?://(?:127[.]0[.]0[.]1|localhost):[0-9]+/)"
+  },
+  "readySelector": "#root, .monaco-workbench",
+  "testedVersions": [
+    "5.5.6"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}

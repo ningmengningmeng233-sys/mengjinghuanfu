@@ -60,6 +60,7 @@
     "urlPattern": "^https?://(?:127\\.0\\.0\\.1|localhost):[0-9]+/"
   },
   "testedVersions": [
+    "2.35.1",
     "2.34.0"
   ]
 }

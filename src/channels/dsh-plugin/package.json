@@ -1,17 +1,27 @@
 {
   "name": "dsh-plugin-dreamskin",
   "version": "{{version}}",
-  "description": "DreamSkin skin plugin for DeepSeek Harness: reads the local active-skin.css written by DreamSkin and contributes its layers as style rows to the Web UI boot page through the host webserver index-injection event. Local files only; no network, no session access.",
+  "description": "DreamSkin Prism 三模式原生换肤插件（纯黑曜光学 / 纯梦境壁纸 / 自由混搭）——只读本机 DreamSkin 皮肤文件，零外网、零会话读取、免改 app.asar。",
   "type": "module",
-  "main": "lib/main.js",
+  "main": "./lib/main.js",
   "exports": {
     ".": "./lib/main.js",
+    "./client": "./lib/client.js",
+    "./client.js": "./lib/client.js",
     "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "dsh": {
+    "id": "dsh-plugin-dreamskin",
+    "name": "梦境换肤 Prism",
+    "version": "{{version}}",
+    "permissions": "仅只读本机 %LOCALAPPDATA%/DreamSkin/dsh/ 皮肤与模式配置；零外网请求、不读取对话与凭证",
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
     }
   },
   "license": "MIT"

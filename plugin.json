@@ -1,0 +1,15 @@
+{
+  "name": "dreamskin-prism",
+  "displayName": "梦境换肤 Prism",
+  "description": "全平台三模式换肤工作台（纯黑曜光学 / 纯梦境壁纸 / 自由混搭 + 冲突自动裁决）——支持 Google Antigravity、DSH NEXT 原生双半体插件、Cherry、Codex、ZCode、MiniMax、Qoder、OpenCode、WorkBuddy、T3 Code、VS Code 等 14 家应用。",
+  "version": "4.1.0",
+  "logo": "assets/logo.svg",
+  "author": "lemon",
+  "homepage": "https://github.com/ningmengningmeng233-sys/mengjinghuanfu",
+  "repository": "https://github.com/ningmengningmeng233-sys/mengjinghuanfu",
+  "suggestedPrompts": [
+    "打开梦境换肤 Prism 侧边栏工作台",
+    "查看当前反重力与已装软件的换肤连接状态",
+    "把反重力切换到通透浮岛或专注护眼风格"
+  ]
+}

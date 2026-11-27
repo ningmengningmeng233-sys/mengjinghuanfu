@@ -1,0 +1,35 @@
+{
+  "app.root": {
+    "scope": "html:has(#root), html:has(#app)",
+    "scopeBody": "body",
+    "selector": "#root, #app",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-slot=\"session-review-v2-sidebar-tree\"], aside, nav[class*=\"sidebar\"]"
+  },
+  "app.sidebar.item": {
+    "selector": "[data-slot=\"tab-link\"], [data-slot=\"session-title-child\"], aside a, aside [role=\"button\"], nav[class*=\"sidebar\"] [role=\"button\"]"
+  },
+  "app.topbar": {
+    "selector": "header, [data-slot=\"tabs-list\"]"
+  },
+  "app.content": {
+    "selector": "main, [data-slot=\"session-review-scroll\"]"
+  },
+  "chat.messages": {
+    "selector": "main [role=\"log\"], main [class*=\"message\"], main [class*=\"session\"]"
+  },
+  "chat.composer": {
+    "selector": "[data-component=\"session-followup-dock\"], form:has(textarea), [class*=\"prompt\"]"
+  },
+  "chat.composer.input": {
+    "selector": "[data-slot=\"text-input-v2-input\"]"
+  },
+  "code.block": {
+    "selector": "pre:has(> code)"
+  },
+  "overlay.panel": {
+    "selector": "[data-slot=\"dialog-content\"], [data-component=\"session-tab-popover\"], [role=\"dialog\"], [role=\"menu\"]"
+  }
+}

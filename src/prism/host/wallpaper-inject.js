@@ -9,7 +9,7 @@
 (function agyPrismSkinKernelMain() {
   'use strict';
 
-  var VERSION = '4.0.0';
+  var VERSION = '4.1.0';
   var W = typeof window !== 'undefined' ? window : null;
   if (!W || !W.document) return { installed: false, reason: 'no-window' };
   if (W.top && W !== W.top) return { installed: false, reason: 'subframe' };
@@ -23,9 +23,14 @@
   var STATIC_STYLE_ID = 'agy-prism-static-css';
   var CARET_STYLE_ID = 'agy-prism-caret-css';
   var FX_CANVAS_ID = 'agy-prism-fx-canvas';
+  var COMPANION_ID = 'agy-prism-companion';
   var ROOT_ATTR = 'data-agy-prism-skin';
   var GLASS_ATTR = 'data-agy-prism-glass';
   var WALLPAPER_ATTR = 'data-agy-prism-wallpaper';
+  var SKIN_MODE_ATTR = 'data-prism-skin-mode';
+  var FACET_ATTR = 'data-prism-optical-facet';
+  var MOTION_ATTR = 'data-prism-motion';
+  var COMPANION_ATTR = 'data-prism-companion';
   var ACTIVE_HOLE_SEL = '[data-browser-hole]:not([data-browser-hole="false"])';
 
   // Preserve state or tear down an older kernel cleanly before mounting.
@@ -925,6 +930,62 @@
       fxTrailMode: String(c.fxTrailMode || 'dust').toLowerCase(),
       parallaxEnabled: bool(c.parallaxEnabled, false),
       parallaxStrength: clamp(num(c.parallaxStrength, 12), 0, 40),
+      skinMode: c.skinMode === 'optical' || c.skinMode === 'hybrid' ? c.skinMode : 'wallpaper',
+      modules: c.modules && typeof c.modules === 'object' ? c.modules : null,
+      companionStyle: ['clawd', 'neko', 'crabs', 'orb'].indexOf(String(c.companionStyle || '')) >= 0 ? String(c.companionStyle) : 'clawd',
+      companionPosition: ['bottom-right', 'bottom-left', 'top-right'].indexOf(String(c.companionPosition || '')) >= 0 ? String(c.companionPosition) : 'bottom-right',
+      mascotSpec: String(c.mascotSpec || 'crab'),
+      prismaticCoat: bool(c.prismaticCoat, false),
+      rimTone: ['follow', 'cobalt', 'iris', 'amber', 'mono'].indexOf(String(c.rimTone || '')) >= 0 ? String(c.rimTone) : 'follow',
+      motionTier: ['off', 'subtle', 'standard', 'ultra'].indexOf(String(c.motionTier || '')) >= 0 ? String(c.motionTier) : 'ultra',
+      ambientIntensity: clamp(num(c.ambientIntensity, 1), 0, 1),
+      vividness: ['soft', 'balanced', 'vivid'].indexOf(String(c.vividness || '')) >= 0 ? String(c.vividness) : 'balanced',
+      fontStyle: ['modern', 'editorial', 'mono'].indexOf(String(c.fontStyle || '')) >= 0 ? String(c.fontStyle) : 'modern',
+      textStyle: ['stylized', 'crisp', 'minimal'].indexOf(String(c.textStyle || '')) >= 0 ? String(c.textStyle) : 'stylized',
+      habitatMode: ['auto', 'cactus', 'lamp', 'hourglass'].indexOf(String(c.habitatMode || '')) >= 0 ? String(c.habitatMode) : 'auto',
+      codeFont: String(c.codeFont || 'default'),
+      codeLigatures: bool(c.codeLigatures, false),
+      sidebarCompact: bool(c.sidebarCompact, false),
+    };
+  }
+
+  function resolveEffectiveModules(cfg, payloadComp) {
+    if (payloadComp && payloadComp.effectiveModules && typeof payloadComp.effectiveModules === 'object') {
+      return payloadComp.effectiveModules;
+    }
+    var mode = cfg && cfg.skinMode ? cfg.skinMode : 'wallpaper';
+    var m = (cfg && cfg.modules) || {};
+    if (mode === 'optical') {
+      return {
+        wallpaperLayer: false,
+        glassLayer: false,
+        opticalPalette: m.opticalPalette !== false,
+        opticalFacet: m.opticalFacet !== false,
+        rippleField: m.rippleField !== false,
+        microMotion: m.microMotion !== false,
+        pixelCompanion: m.pixelCompanion !== false,
+      };
+    }
+    if (mode === 'wallpaper') {
+      return {
+        wallpaperLayer: m.wallpaperLayer !== false,
+        glassLayer: m.glassLayer !== false && m.wallpaperLayer !== false,
+        opticalPalette: m.opticalPalette !== false,
+        opticalFacet: false,
+        rippleField: false,
+        microMotion: false,
+        pixelCompanion: false,
+      };
+    }
+    var wl = m.wallpaperLayer !== false;
+    return {
+      wallpaperLayer: wl,
+      glassLayer: wl && m.glassLayer !== false,
+      opticalPalette: m.opticalPalette !== false,
+      opticalFacet: m.opticalFacet !== false,
+      rippleField: Boolean(m.rippleField),
+      microMotion: m.microMotion !== false,
+      pixelCompanion: m.pixelCompanion !== false,
     };
   }
 
@@ -1152,11 +1213,17 @@
       '--prism-scroll-thumb': rgbaStr(ptRgb, 0.22),
     };
 
+    var effMods = resolveEffectiveModules(cfg, state.composition);
     var structuralSig = [
       VERSION,
       state.effectiveTheme,
       cfg.colorScheme === 'host-native' ? 'host' : 'prism',
       cfg.layoutMode,
+      cfg.skinMode || 'wallpaper',
+      effMods.wallpaperLayer ? 'w1' : 'w0',
+      effMods.opticalFacet ? 'f1' : 'f0',
+      effMods.microMotion ? 'm1' : 'm0',
+      effMods.pixelCompanion ? 'c1' : 'c0',
     ].join('|');
 
     return {
@@ -1573,6 +1640,61 @@
       GG + ' ::selection { background-color: var(--prism-selection-bg) !important; color: inherit; }\n' +
       GW + ' ::-webkit-scrollbar-track { background: transparent !important; }\n' +
       GG + ' ::-webkit-scrollbar-thumb { background: var(--prism-scroll-thumb) !important; border-radius: 999px; }'
+    );
+
+    // 6. Pure Optical Mode (no wallpaper/glass) + Faceted Bevels + Micro-Motion + Original SVG Pixel Companion
+    out.push(
+      'html[' + ROOT_ATTR + '][' + SKIN_MODE_ATTR + '="optical"] {\n' +
+      '  background-color: var(--prism-native-floor, #0e0e11) !important;\n' +
+      '  color: var(--prism-fg) !important;\n' +
+      '}\n' +
+      'html[' + ROOT_ATTR + '][' + SKIN_MODE_ATTR + '="optical"] body {\n' +
+      '  background-color: var(--prism-native-floor, #0e0e11) !important;\n' +
+      '  color: var(--prism-fg) !important;\n' +
+      '}\n' +
+      'html[' + ROOT_ATTR + '][' + FACET_ATTR + '="on"] :is(.agy-sidebar, [data-slot="sidebar"], [data-composer-card], .surface-composer-card, .md-code-block) {\n' +
+      '  border: 1px solid rgba(var(--prism-accent-rgb, 102, 157, 246), 0.24) !important;\n' +
+      '  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), var(--prism-shadow-island) !important;\n' +
+      '}\n' +
+      'html[' + ROOT_ATTR + '][' + MOTION_ATTR + '="on"] :is(button, [role="button"], [data-row-key], .monaco-list-row) {\n' +
+      '  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1), border-color 160ms ease, transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;\n' +
+      '}\n' +
+      'html[' + ROOT_ATTR + '][' + MOTION_ATTR + '="on"] :is([data-composer-card], .surface-composer-card, [data-testid="agent-input-box"]):focus-within {\n' +
+      '  border-color: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.56) !important;\n' +
+      '  box-shadow: 0 0 0 2px rgba(var(--prism-accent-rgb, 102, 157, 246), 0.20), var(--prism-shadow-island) !important;\n' +
+      '}\n' +
+      '@media (prefers-reduced-motion: reduce) {\n' +
+      '  html[' + ROOT_ATTR + '][' + MOTION_ATTR + '="on"] * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }\n' +
+      '}\n' +
+      '@keyframes agyPrismFloat { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-4px); } }\n' +
+      '@keyframes agyPrismHop { 0% { transform: translateY(0) scale(1); } 40% { transform: translateY(-10px) scale(1.08); } 100% { transform: translateY(0) scale(1); } }\n' +
+      '#' + COMPANION_ID + ' {\n' +
+      '  position: fixed !important;\n' +
+      '  z-index: 2147483640 !important;\n' +
+      '  pointer-events: none !important;\n' +
+      '  user-select: none !important;\n' +
+      '  -webkit-user-select: none !important;\n' +
+      '  display: flex; align-items: flex-end; gap: 6px;\n' +
+      '}\n' +
+      '#' + COMPANION_ID + ' .agy-prism-pet-btn {\n' +
+      '  pointer-events: auto !important;\n' +
+      '  cursor: grab;\n' +
+      '  width: 44px; height: 44px; border-radius: 14px;\n' +
+      '  display: flex; align-items: center; justify-content: center;\n' +
+      '  background: rgba(18, 22, 34, 0.78);\n' +
+      '  border: 1px solid rgba(var(--prism-accent-rgb, 102, 157, 246), 0.36);\n' +
+      '  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.16);\n' +
+      '  animation: agyPrismFloat 3.2s ease-in-out infinite;\n' +
+      '}\n' +
+      '#' + COMPANION_ID + ' .agy-prism-pet-btn.hop { animation: agyPrismHop 420ms cubic-bezier(0.34, 1.56, 0.64, 1); }\n' +
+      '#' + COMPANION_ID + ' .agy-prism-pet-tip {\n' +
+      '  pointer-events: none; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;\n' +
+      '  color: var(--prism-fg, #f2f2f5); background: rgba(16, 20, 32, 0.90);\n' +
+      '  border: 1px solid rgba(var(--prism-accent-rgb, 102, 157, 246), 0.32);\n' +
+      '  opacity: 0; transform: translateY(4px); transition: opacity 180ms ease, transform 180ms ease;\n' +
+      '  white-space: nowrap;\n' +
+      '}\n' +
+      '#' + COMPANION_ID + ' .agy-prism-pet-tip.show { opacity: 1; transform: translateY(0); }'
     );
 
     return out.join('\n\n');
@@ -2285,6 +2407,24 @@
   }
 
   function mountStageMedia(forceReplace) {
+    var effMods = resolveEffectiveModules(state.cfg, state.composition);
+    if (!effMods.wallpaperLayer) {
+      clearInterval(state.slideTimer);
+      state.slideTimer = 0;
+      clearTimeout(state.pendingMediaTimer);
+      state.pendingMediaTimer = 0;
+      if (state.pendingWrap) { disposeWrap(state.pendingWrap); state.pendingWrap = null; }
+      flushOutgoingWraps();
+      if (state.activeWrap) { disposeWrap(state.activeWrap); state.activeWrap = null; }
+      state.activeVideo = null;
+      state.activeAudio = null;
+      state.activeIframe = null;
+      state.activeMediaKey = '';
+      setWallpaperReady(false);
+      var oldStage = doc.getElementById(STAGE_ID);
+      if (oldStage && oldStage.parentNode) oldStage.parentNode.removeChild(oldStage);
+      return;
+    }
     var stage = ensureStage();
     if (!stage) return;
     var cfg = state.cfg;
@@ -3074,6 +3214,48 @@
     return el;
   }
 
+  function buildCompanionSvg(styleKey) {
+    if (styleKey === 'neko') {
+      return '<svg viewBox="0 0 32 32" width="28" height="28" shape-rendering="crispEdges"><rect x="6" y="6" width="4" height="4" fill="#c084fc"/><rect x="22" y="6" width="4" height="4" fill="#c084fc"/><rect x="6" y="10" width="20" height="14" rx="2" fill="#a855f7"/><rect x="10" y="14" width="3" height="3" fill="#0f172a"/><rect x="19" y="14" width="3" height="3" fill="#0f172a"/><rect x="14" y="18" width="4" height="2" fill="#f9a8d4"/></svg>';
+    }
+    if (styleKey === 'crabs') {
+      return '<svg viewBox="0 0 32 32" width="28" height="28" shape-rendering="crispEdges"><rect x="5" y="10" width="4" height="5" fill="#fb7185"/><rect x="23" y="10" width="4" height="5" fill="#fb7185"/><rect x="8" y="13" width="16" height="9" fill="#f43f5e"/><rect x="11" y="15" width="3" height="3" fill="#fff"/><rect x="18" y="15" width="3" height="3" fill="#fff"/><rect x="12" y="16" width="2" height="2" fill="#0f172a"/><rect x="19" y="16" width="2" height="2" fill="#0f172a"/><rect x="7" y="22" width="3" height="4" fill="#e11d48"/><rect x="22" y="22" width="3" height="4" fill="#e11d48"/></svg>';
+    }
+    if (styleKey === 'orb') {
+      return '<svg viewBox="0 0 32 32" width="28" height="28"><defs><radialGradient id="prOrb" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="55%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#6366f1"/></radialGradient></defs><circle cx="16" cy="16" r="11" fill="url(#prOrb)"/><polygon points="16,7 22,16 16,25 10,16" fill="rgba(255,255,255,0.28)"/></svg>';
+    }
+    return '<svg viewBox="0 0 32 32" width="28" height="28" shape-rendering="crispEdges"><rect x="7" y="9" width="18" height="12" fill="#f97316"/><rect x="4" y="12" width="3" height="6" fill="#ea580c"/><rect x="25" y="12" width="3" height="6" fill="#ea580c"/><rect x="11" y="13" width="3" height="3" fill="#0f172a"/><rect x="18" y="13" width="3" height="3" fill="#0f172a"/><rect x="9" y="21" width="3" height="4" fill="#ea580c"/><rect x="14" y="21" width="4" height="4" fill="#ea580c"/><rect x="20" y="21" width="3" height="4" fill="#ea580c"/></svg>';
+  }
+
+  function removePixelCompanion() {
+    var old = doc.getElementById(COMPANION_ID);
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    try {
+      if (W.__dreamSkinOptical && typeof W.__dreamSkinOptical.teardown === 'function') {
+        W.__dreamSkinOptical.teardown();
+      }
+    } catch (_) {}
+  }
+
+  function syncPixelCompanion(cfg, effMods) {
+    var old = doc.getElementById(COMPANION_ID);
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    if (!state.skinEnabled || !doc.body) {
+      removePixelCompanion();
+      return;
+    }
+    if (W.__dreamSkinOptical && typeof W.__dreamSkinOptical.apply === 'function') {
+      try {
+        W.__dreamSkinOptical.apply({
+          skinEnabled: state.skinEnabled,
+          config: cfg,
+          composition: state.composition || { skinMode: cfg.skinMode || 'wallpaper', effectiveModules: effMods },
+          adapterProfile: state.adapterProfile || null,
+        });
+      } catch (_) {}
+    }
+  }
+
   function refreshSkinStyles() {
     if (destroyed) return;
     var root = doc.documentElement;
@@ -3092,10 +3274,15 @@
     state.hostTheme = detectHostTheme();
     state.effectiveTheme = resolveEffectiveTheme(state.cfg);
 
-    var effKind = resolveEffectiveKind(state.item, state.cfg);
+    var effMods = resolveEffectiveModules(state.cfg, state.composition);
+    var effKind = effMods.wallpaperLayer ? resolveEffectiveKind(state.item, state.cfg) : 'none';
     var rootAttrs = [
       [ROOT_ATTR, VERSION],
       [GLASS_ATTR, 'ready'],
+      [SKIN_MODE_ATTR, state.cfg.skinMode || 'wallpaper'],
+      [FACET_ATTR, effMods.opticalFacet ? 'on' : 'off'],
+      [MOTION_ATTR, effMods.microMotion ? 'on' : 'off'],
+      [COMPANION_ATTR, effMods.pixelCompanion ? 'on' : 'off'],
       ['data-prism-theme', state.effectiveTheme],
       ['data-prism-scheme', state.cfg.colorScheme],
       ['data-prism-accent-mode', state.cfg.accentMode],
@@ -3103,7 +3290,7 @@
       ['data-prism-corners', state.cfg.cornerStyle],
       ['data-prism-borders', state.cfg.borders],
       ['data-prism-shadows', state.cfg.shadows ? 'on' : 'off'],
-      ['data-prism-glass', state.cfg.glassSurfaces ? 'on' : 'off'],
+      ['data-prism-glass', effMods.glassLayer ? 'on' : 'off'],
       ['data-prism-code-mode', state.cfg.codeReadabilityMode],
       ['data-prism-kind', effKind],
     ];
@@ -3112,7 +3299,7 @@
         root.setAttribute(rootAttrs[i][0], rootAttrs[i][1]);
       }
     }
-    if (state.wallpaperReady) {
+    if (effMods.wallpaperLayer && state.wallpaperReady) {
       if (root.getAttribute(WALLPAPER_ATTR) !== 'ready') root.setAttribute(WALLPAPER_ATTR, 'ready');
     } else {
       root.removeAttribute(WALLPAPER_ATTR);
@@ -3143,6 +3330,7 @@
 
     applyCaretStyle(state.cfg);
     ensureFxCanvas();
+    syncPixelCompanion(state.cfg, effMods);
     syncBrowserHoleCutout();
     syncSidecarIframes(state.cfg);
   }
@@ -3189,6 +3377,7 @@
     if (caretEl && caretEl.parentNode) caretEl.parentNode.removeChild(caretEl);
     var fxEl = doc.getElementById(FX_CANVAS_ID);
     if (fxEl && fxEl.parentNode) fxEl.parentNode.removeChild(fxEl);
+    removePixelCompanion();
 
     var root = doc.documentElement;
     if (root) {
@@ -3196,6 +3385,10 @@
         ROOT_ATTR,
         GLASS_ATTR,
         WALLPAPER_ATTR,
+        SKIN_MODE_ATTR,
+        FACET_ATTR,
+        MOTION_ATTR,
+        COMPANION_ATTR,
         'data-prism-theme',
         'data-prism-scheme',
         'data-prism-accent-mode',
@@ -3315,6 +3508,11 @@
       state.slides = [];
     }
 
+    if (p.composition && typeof p.composition === 'object') {
+      state.composition = p.composition;
+    } else if (p.composition === null) {
+      state.composition = null;
+    }
     state.cfg = normalizeConfig(rawCfg, state.item);
 
     var runMount = function () {

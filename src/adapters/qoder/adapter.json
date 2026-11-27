@@ -1,0 +1,44 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "qoder",
+  "name": "Qoder",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\Qoder\\Qoder.exe",
+      "%ProgramFiles%\\Qoder\\Qoder.exe"
+    ],
+    "envExe": "DREAMSKIN_QODER_EXE",
+    "exeNames": [
+      "Qoder.exe"
+    ],
+    "uninstallDisplayName": "Qoder",
+    "uninstallDisplayNames": [
+      "Qoder",
+      "Qoder IDE"
+    ],
+    "mac": {
+      "bundle": "Qoder",
+      "source": "按 Qoder macOS 桌面应用命名推断，尚未在真 Mac 核实",
+      "status": "unverified"
+    }
+  },
+  "prism": {
+    "defaultDebugPort": 9349,
+    "browserHoleSupport": false
+  },
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "target": {
+    "urlPattern": "^(?:vscode-file|file)://.*/workbench/workbench\\.html"
+  },
+  "readySelector": ".monaco-workbench",
+  "testedVersions": [
+    "0.5.16",
+    "0.4.4",
+    "0.3.3"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}

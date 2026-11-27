@@ -1,1 +1,123 @@
-/* ===== DeepSeek Harness Dream Skin {{version}} · 额外层 ===== */
+/* ===== DeepSeek Harness (DSH NEXT 2.0.24~2.0.28) DreamSkin Prism {{version}} · 额外层 ===== */
+/* 1. 完整桥接 DSH NEXT 官方 Design Platform 全部 --dsw-alias-* / --dsw-specific-* 设计令牌，
+      让官方内置插件（插件市场、定时任务、轨迹表、Action Cards、Agent Team、审批流、Inspector）
+      与社区第三方插件（dsh-quota、dsh-plugin-genui、提示词改写、配额面板等）天然统一色调且零冲突！ */
+
+html[data-agy-prism-skin] {
+  /* 基础底板与多层级面板 */
+  --dsw-alias-bg-base: var(--prism-native-floor, var(--prism-surface-chat, #0e0e11));
+  --dsw-alias-bg-layer-1: var(--prism-surface-chat, #0e0e11);
+  --dsw-alias-bg-layer-2: var(--prism-surface-card, #141418);
+  --dsw-alias-bg-layer-3: var(--prism-surface-popover, #1a1b22);
+  --dsw-alias-bg-layer-4: var(--prism-surface-popover, #22232c);
+  --dsw-alias-bg-overlay: var(--prism-surface-popover, rgba(16, 17, 22, 0.94));
+  --dsw-alias-bg-document-preview: var(--prism-surface-card, #141418);
+  --dsw-alias-bg-module-platform: var(--prism-surface-sidebar, #09090b);
+  --dsw-alias-bg-sidebar: var(--prism-surface-sidebar, #09090b);
+
+  /* 官方侧栏专用令牌（DSH NEXT 2.0.24+ 真实键名） */
+  --dsw-specific-sidebar-fill: var(--prism-surface-sidebar, #09090b);
+  --dsw-specific-sidebar-tint: var(--prism-surface-sidebar, #09090b);
+  --dsw-specific-sidebar-glass-fill: var(--prism-surface-sidebar, rgba(12, 13, 18, 0.86));
+  --dsw-specific-sidebar-glass-hover: var(--prism-muted-bg, rgba(128, 136, 156, 0.12));
+  --dsw-specific-sidebar-nav-item-active: var(--prism-muted-bg, rgba(255, 255, 255, 0.08));
+  --dsw-specific-sidebar-nav-item-active-accent: var(--prism-accent, #669df6);
+
+  /* 卡片 / 设置页 / 插件面板 / 气泡 / 输入框 / 浮层菜单（所有插件自动继承） */
+  --dsw-alias-card-fill: var(--prism-surface-card, #141418);
+  --dsw-alias-card-fill-hover: var(--prism-muted-bg, rgba(128, 136, 156, 0.12));
+  --dsw-alias-card-tile-fill: var(--prism-surface-card, #141418);
+  --dsw-alias-settings-card-fill: var(--prism-surface-card, #141418);
+  --dsw-alias-settings-card-stroke: var(--prism-border-card, rgba(255, 255, 255, 0.10));
+  --dsw-alias-hovercard-bg: var(--prism-surface-popover, #181920);
+  --dsw-alias-hovercard-label-primary: var(--prism-fg, #f2f2f5);
+  --dsw-alias-hovercard-label-secondary: var(--prism-fg-muted, #8a8a98);
+  --dsw-alias-toast-bg: var(--prism-surface-popover, #181920);
+  --dsw-alias-toast-label: var(--prism-fg, #f2f2f5);
+  --dsw-alias-tooltip-bg: var(--prism-surface-popover, #181920);
+  --dsw-alias-tooltip-label: var(--prism-fg, #f2f2f5);
+  --dsw-specific-bubble: var(--prism-surface-card, #16171d);
+  --dsw-specific-bubble-highlight: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.14);
+  --dsw-specific-input-major: var(--prism-surface-composer, #14151a);
+  --dsw-specific-menu: var(--prism-surface-popover, #16171e);
+  --dsw-specific-selector: var(--prism-surface-card, #16171e);
+
+  /* 文字、边框、交互态、品牌强调与代码区 */
+  --dsw-alias-label-primary: var(--prism-fg, #f2f2f5);
+  --dsw-alias-label-secondary: var(--prism-fg-muted, #9497a6);
+  --dsw-alias-label-tertiary: var(--prism-fg-faint, #6d7080);
+  --dsw-alias-label-dimmed: var(--prism-fg-faint, #6d7080);
+  --dsw-alias-label-caption: var(--prism-fg-muted, #8a8a98);
+  --dsw-alias-link: var(--prism-link, var(--prism-accent, #669df6));
+  --dsw-alias-border-l1: var(--prism-border-hairline, rgba(255, 255, 255, 0.08));
+  --dsw-alias-border-l2: var(--prism-border-card, rgba(255, 255, 255, 0.12));
+  --dsw-alias-border-l3: var(--prism-border-popover, rgba(255, 255, 255, 0.16));
+  --dsw-alias-border-selected: var(--prism-accent, #669df6);
+  --dsw-alias-interactive-bg-hover: var(--prism-muted-bg, rgba(128, 136, 156, 0.10));
+  --dsw-alias-interactive-bg-active: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.16);
+  --dsw-alias-interactive-bg-hover-accent: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.20);
+  --dsw-alias-brand-primary: var(--prism-accent, #669df6);
+  --dsw-alias-brand-text: var(--prism-accent, #669df6);
+  --dsw-alias-button-primary-fill: var(--prism-accent, #669df6);
+  --dsw-alias-trajectory-accent: var(--prism-accent, #669df6);
+  --dsw-alias-markdown-code-block: var(--prism-surface-editor, #101116);
+  --dsw-alias-markdown-code-block-banner: var(--prism-surface-card, #16171d);
+  --dsw-alias-markdown-inline-code: var(--prism-muted-bg, rgba(128, 136, 156, 0.14));
+  --dsw-alias-scrollbar-bg-l1: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.28);
+  --dsw-alias-scrollbar-hover-l1: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.52);
+  --dsw-focus-ring-color: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.45);
+}
+
+/* 2. 纯黑曜光学模式：Obsidian Prism 极细 hairline 与通透地平线光场 */
+html[data-agy-prism-skin][data-prism-skin-mode="optical"] [data-slot="sidebar"] {
+  background-color: var(--prism-surface-sidebar) !important;
+  border-right: 1px solid var(--prism-border-hairline, rgba(218, 228, 255, 0.058)) !important;
+}
+html[data-agy-prism-skin][data-prism-skin-mode="optical"] [data-sidebar-right-panel] {
+  background-color: var(--prism-surface-sidebar) !important;
+  border-left: 1px solid var(--prism-border-hairline, rgba(218, 228, 255, 0.058)) !important;
+}
+html[data-agy-prism-skin][data-prism-skin-mode="optical"] [data-slot="main"] {
+  background-color: var(--prism-surface-chat) !important;
+}
+html[data-agy-prism-skin] [data-composer-card] {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* 3. 和平共存其他 DSH 插件（审批卡、命令浮窗、右侧插件详情抽屉）— 绝不挡点击、绝不盖层级 */
+html[data-agy-prism-skin] :is([data-conversation-composer-overlay], [data-sidebar-drawer], [data-plugin-detail]) {
+  z-index: 45 !important;
+}
+html[data-agy-prism-skin] [data-composer-card]:has([data-conversation-composer-overlay]) .ag-cs-dual-stage {
+  z-index: 8 !important;
+  pointer-events: none !important;
+}
+
+/* 4. 根治 DSH 长会话/流式输出卡顿：关闭滚动区毛玻璃回读 + CSS Containment 隔离重排重绘 */
+html[data-agy-prism-skin] [data-conversation-scroll],
+html[data-agy-prism-skin] [data-slot="conversation.chat.flow"] {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  contain: layout style;
+}
+html[data-agy-prism-skin] [data-slot="conversation.chat.node"] {
+  contain: layout style;
+}
+html[data-agy-prism-skin] [data-slot="conversation.composer"] {
+  background: transparent !important;
+}
+html[data-agy-prism-skin] ::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+html[data-agy-prism-skin] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+html[data-agy-prism-skin] ::-webkit-scrollbar-thumb {
+  background: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.30);
+  border-radius: 999px;
+}
+html[data-agy-prism-skin] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.56);
+}

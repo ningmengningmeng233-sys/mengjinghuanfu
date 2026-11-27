@@ -1,4 +1,9 @@
-/* ===== DreamSkin for Codex {{version}} · 额外层 ===== */
-
-/* 暂无已实证的应用独有规则：Codex 的 DOM 锚点待真机验证（spike报告/S-1-Codex.md），
-   有实测依据后在此补，并同步补 parts-map.json。 */
+/* ===== OpenAI Codex DreamSkin Prism {{version}} · 额外层 ===== */
+html[data-agy-prism-skin] {
+  --surface-primary: var(--prism-surface-chat, #0e0e11);
+  --surface-secondary: var(--prism-surface-sidebar, #09090b);
+  --border-default: var(--prism-border-card, rgba(255, 255, 255, 0.12));
+}
+html[data-agy-prism-skin] ::-webkit-scrollbar { width: 7px; height: 7px; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-track { background: transparent; }
+html[data-agy-prism-skin] ::-webkit-scrollbar-thumb { background: rgba(var(--prism-accent-rgb, 102, 157, 246), 0.28); border-radius: 999px; }

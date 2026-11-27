@@ -24,6 +24,7 @@
   },
   "readySelector": "[data-testid=\"sidebar-base-card\"]",
   "testedVersions": [
+    "3.1.7",
     "3.1.0"
   ],
   "partsMap": "parts-map.json",

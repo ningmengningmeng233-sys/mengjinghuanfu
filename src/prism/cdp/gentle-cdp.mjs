@@ -33,6 +33,11 @@ const APP_DEFAULT_PORTS = Object.freeze({
   codex: 9346,
   windsurf: 9347,
   kiro: 9348,
+  qoder: 9349,
+  opencode: 9350,
+  workbuddy: 9351,
+  t3code: 9352,
+  vscode: 9353,
 });
 
 export function defaultPortForApp(appId = '') {

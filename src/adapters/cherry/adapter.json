@@ -58,8 +58,9 @@
     "urlPattern": "^file://.*/windows/main/index\\.html"
   },
   "testedVersions": [
-    "2.1.4",
-    "2.1.6"
+    "2.2.3",
+    "2.1.6",
+    "2.1.4"
   ],
   "userCssId": "user-defined-custom-css"
 }

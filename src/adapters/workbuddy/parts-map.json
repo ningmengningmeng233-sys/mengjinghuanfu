@@ -1,0 +1,35 @@
+{
+  "app.root": {
+    "scope": "html:has(#root), html:has(.monaco-workbench)",
+    "scopeBody": "body",
+    "selector": "#root, .monaco-workbench",
+    "required": true
+  },
+  "app.sidebar": {
+    "selector": "[data-testid=\"sidebar-dock\"], aside, .part.sidebar, [class*=\"sidebar\"]"
+  },
+  "app.sidebar.item": {
+    "selector": "[data-testid=\"sidebar-dock\"] [role=\"button\"], aside a, aside [role=\"button\"], .monaco-list-row"
+  },
+  "app.topbar": {
+    "selector": "[data-testid=\"sidebar-header\"], header, .part.titlebar"
+  },
+  "app.content": {
+    "selector": "[data-testid=\"conversation-shell\"], main, .part.editor"
+  },
+  "chat.messages": {
+    "selector": "[data-testid=\"conversation-shell\"] [data-message-id], main [role=\"log\"], .interactive-list"
+  },
+  "chat.composer": {
+    "selector": "[data-testid=\"conversation-input-area\"], form:has(textarea), [class*=\"composer\"], .interactive-input-part"
+  },
+  "chat.composer.input": {
+    "selector": "[data-testid=\"conversation-input\"]"
+  },
+  "code.block": {
+    "selector": "pre:has(> code), .monaco-editor"
+  },
+  "overlay.panel": {
+    "selector": "[role=\"dialog\"], [role=\"menu\"], .quick-input-widget"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "dreamskin-adapter/1",
+  "id": "minimax-design",
+  "name": "MiniMax Design",
+  "channel": "exe",
+  "discover": {
+    "candidates": [
+      "%LOCALAPPDATA%\\Programs\\MiniMax Design\\MiniMax Design.exe",
+      "%LOCALAPPDATA%\\MiniMax Design\\current\\MiniMax Design.exe"
+    ],
+    "envExe": "DREAMSKIN_MINIMAX_DESIGN_EXE",
+    "exeNames": [
+      "MiniMax Design.exe"
+    ],
+    "uninstallDisplayName": "MiniMax Design",
+    "mac": {
+      "bundle": "MiniMax Design",
+      "source": "按 MiniMax 桌面产品命名推断，尚未在真 Mac 核实",
+      "status": "unverified"
+    }
+  },
+  "prism": {
+    "defaultDebugPort": 9345,
+    "browserHoleSupport": false
+  },
+  "process": {
+    "gracefulCloseMs": 8000
+  },
+  "target": {
+    "urlPattern": "^(?:app|https?)://.*/"
+  },
+  "readySelector": "#root",
+  "testedVersions": [
+    "3.0.13"
+  ],
+  "partsMap": "parts-map.json",
+  "extraCss": "extra.css"
+}

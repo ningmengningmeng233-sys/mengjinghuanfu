@@ -1,8 +1,8 @@
 {
   "name": "dreamskin-prism",
   "displayName": "梦境换肤 Prism",
-  "description": "多软件动态壁纸与 Obsidian Prism 液态玻璃换肤工作台——一等公民支持 Google Antigravity（含内置浏览器精准挖洞）及 Cherry、Codex、DSH、ZCode、MiniMax Code 等 8 家应用。",
-  "version": "4.0.0",
+  "description": "全平台三模式换肤工作台（纯黑曜光学 / 纯梦境壁纸 / 自由混搭 + 冲突自动裁决）——支持 Google Antigravity、DSH NEXT 原生双半体插件、Cherry、Codex、ZCode、MiniMax、Qoder、OpenCode、WorkBuddy、T3 Code、VS Code 等 14 家应用。",
+  "version": "4.1.0",
   "logo": "assets/logo.svg",
   "author": "lemon",
   "homepage": "https://github.com/ningmengningmeng233-sys/mengjinghuanfu",

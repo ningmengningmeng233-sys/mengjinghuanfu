@@ -59,6 +59,28 @@ const FALLBACK_SVGS = {
     <rect x="4" y="4" width="56" height="56" rx="15" fill="#0D1E22" stroke="#2DD4BF" stroke-opacity=".55" stroke-width="2"/>
     <path d="M17 42C22 28 31 20 46 18C41 28 37 35 39 44C32 41 25 40 17 42Z" fill="#2DD4BF"/>
   </svg>`,
+  qoder: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <rect x="4" y="4" width="56" height="56" rx="15" fill="#101828" stroke="#38BDF8" stroke-opacity=".6" stroke-width="2.2"/>
+    <circle cx="31" cy="31" r="13" stroke="#38BDF8" stroke-width="4"/>
+    <path d="M39 39L47 47" stroke="#818CF8" stroke-width="4.5" stroke-linecap="round"/>
+  </svg>`,
+  opencode: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <rect x="4" y="4" width="56" height="56" rx="15" fill="#0F172A" stroke="#22D3EE" stroke-opacity=".55" stroke-width="2.2"/>
+    <path d="M24 22L15 32L24 42M40 22L49 32L40 42M35 18L29 46" stroke="#22D3EE" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  workbuddy: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <rect x="4" y="4" width="56" height="56" rx="15" fill="#0E1D1A" stroke="#34D399" stroke-opacity=".58" stroke-width="2.2"/>
+    <path d="M16 22L23 42L32 26L41 42L48 22" stroke="#34D399" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  t3code: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <rect x="4" y="4" width="56" height="56" rx="15" fill="#171226" stroke="#A78BFA" stroke-opacity=".6" stroke-width="2.2"/>
+    <path d="M16 22H34M25 22V44M37 22H48L41 32H47C48 39 43 44 36 44" stroke="#A78BFA" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+  vscode: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <rect x="4" y="4" width="56" height="56" rx="15" fill="#0C192C" stroke="#3B82F6" stroke-opacity=".62" stroke-width="2.2"/>
+    <path d="M44 16L22 36L16 32L44 48V16Z" fill="#3B82F6"/>
+    <path d="M16 32L44 16V48L22 28" stroke="#93C5FD" stroke-width="3.2" stroke-linejoin="round"/>
+  </svg>`,
 };
 
 const DEFAULT_FALLBACK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
