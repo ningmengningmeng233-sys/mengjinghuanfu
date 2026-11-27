@@ -414,39 +414,39 @@ export function renderPreviewHtml() {
   .dsh-session-list {
     position: relative; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; padding: 2px 1px;
   }
-  /* 120Hz Silky GPU-Composited Gliding Sidebar Active Pill + Hover Ghost Pill */
+  /* 120Hz Restrained Sidebar Active Pill + Subtle Hover Wash (Aligned to Original Obsidian Prism) */
   .sb-hover-pill {
     position: absolute; left: 1px; right: 1px; top: 0; height: 42px;
     border-radius: var(--ag-cs-r-md, 7px); pointer-events: none; z-index: 0;
-    background: rgba(128,136,156,0.085);
+    background: rgba(255,255,255,0.036);
     opacity: 0;
     transform: translate3d(0, 0, 0);
-    transition: transform 200ms cubic-bezier(.22,1,.36,1), height 180ms cubic-bezier(.22,1,.36,1), opacity 150ms ease;
+    transition: transform 170ms cubic-bezier(.2,0,0,1), height 150ms ease, opacity 130ms ease;
     will-change: transform, height, opacity;
   }
   .sb-active-pill {
     position: absolute; left: 1px; right: 1px; top: 0; height: 44px;
     border-radius: var(--ag-cs-r-md, 7px); pointer-events: none; z-index: 1;
-    background: color-mix(in srgb, var(--st-accent) 12%, rgba(255,255,255,0.065));
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.11), 0 4px 14px -6px rgba(0,0,0,0.45);
-    border: 1px solid color-mix(in srgb, var(--st-accent) 24%, rgba(255,255,255,0.07));
+    background: rgba(255,255,255,0.068);
+    border: 1px solid rgba(255,255,255,0.055);
     transform: translate3d(0, 0, 0);
-    transition: transform 290ms cubic-bezier(.22,1.12,.36,1), height 230ms cubic-bezier(.22,1,.36,1), opacity 180ms ease;
+    transition: transform 220ms cubic-bezier(.22,1.06,.36,1), height 180ms cubic-bezier(.2,0,0,1), opacity 150ms ease;
     will-change: transform, height;
   }
   .sb-active-pill::before {
-    content: ""; position: absolute; left: 3px; top: 8px; bottom: 8px; width: 2.5px; border-radius: 999px;
+    content: ""; position: absolute; left: 3px; top: 9px; bottom: 9px; width: 2px; border-radius: 999px;
     background: var(--st-bar-grad);
-    box-shadow: 0 0 9px color-mix(in srgb, var(--st-accent) 72%, transparent);
-    transition: background 180ms ease, box-shadow 180ms ease;
+    opacity: 0.85;
+    transition: background 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
   }
   html[data-ag-cs-streaming="1"] .sb-active-pill {
-    background-image: var(--ag-cs-run-wash, linear-gradient(90deg, rgba(49,134,255,.14) 0%, rgba(92,198,252,.05) 55%, transparent));
-    border-color: rgba(92,198,252,.28);
+    background-image: var(--ag-cs-run-wash, linear-gradient(90deg, rgba(49,134,255,.12) 0%, rgba(92,198,252,.04) 55%, transparent));
+    border-color: rgba(92,198,252,.22);
   }
   html[data-ag-cs-streaming="1"] .sb-active-pill::before {
     background: var(--ag-cs-run-rb, linear-gradient(#FBBC04 0%, #EA4335 16%, #9B72CB 34%, #5CC6FC 58%, #3186FF 100%));
-    box-shadow: 0 0 10px rgba(49,134,255,.52);
+    box-shadow: 0 0 8px rgba(49,134,255,.45);
+    opacity: 1;
   }
   .hdr-sim-btn {
     height: 28px; padding: 0 11px; border-radius: 999px;
@@ -736,58 +736,56 @@ export function renderPreviewHtml() {
     color: var(--eff-text, #c4b5fd);
   }
   .ds-effort-track {
-    position: relative; height: 28px; border-radius: 999px; cursor: grab; touch-action: none;
-    background: linear-gradient(180deg, rgba(7,9,15,0.88) 0%, rgba(18,22,34,0.82) 100%);
-    border: 1px solid rgba(255,255,255,0.10);
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.62), 0 1px 0 rgba(255,255,255,0.05);
+    position: relative; height: 28px; border-radius: 999px; cursor: pointer; touch-action: none;
+    background: rgba(128,128,145,0.18);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.24), inset 0 0 0 1px rgba(255,255,255,0.06);
     overflow: visible;
+    transition: box-shadow 200ms ease;
+  }
+  .ds-effort-track[data-energy="1"] {
+    box-shadow: 0 0 14px rgba(168,85,247,0.34), inset 0 1px 2px rgba(0,0,0,0.24);
   }
   html[data-prism-theme="light"] .ds-effort-track {
-    background: linear-gradient(180deg, rgba(15,23,42,0.10) 0%, rgba(15,23,42,0.05) 100%);
-    border-color: rgba(15,23,42,0.12); box-shadow: inset 0 1px 3px rgba(15,23,42,0.14);
+    background: rgba(15,23,42,0.10);
+    box-shadow: inset 0 1px 2px rgba(15,23,42,0.14), inset 0 0 0 1px rgba(15,23,42,0.08);
   }
   .ds-effort-track[data-dragging="1"] { cursor: grabbing; }
-  .ds-effort-clip { position: absolute; inset: 1px; border-radius: 999px; overflow: hidden; pointer-events: none; }
+  .ds-effort-clip { position: absolute; inset: 0; border-radius: 999px; overflow: hidden; pointer-events: none; }
   .ds-effort-fill {
-    position: absolute; inset: 0 auto 0 0; border-radius: 999px;
-    transition: width 110ms cubic-bezier(.22,1,.36,1), background 220ms ease;
-    box-shadow: 0 0 18px -2px var(--eff-color, rgba(129,140,248,0.65));
+    position: absolute; inset: 0 auto 0 0; border-radius: 14px 0 0 14px;
+    transition: width 90ms cubic-bezier(.2,0,0,1), background 180ms ease;
   }
   .ds-effort-track[data-dragging="1"] .ds-effort-fill { transition: none; }
   .ds-effort-stars {
-    position: absolute; inset: 0; pointer-events: none; opacity: var(--eff-star-op, 0.75);
+    position: absolute; inset: 0; pointer-events: none; opacity: var(--eff-star-op, 0);
+    transition: opacity 200ms ease;
     background-image:
-      radial-gradient(1.3px 1.3px at 6px 8px, rgba(255,255,255,0.92), transparent),
-      radial-gradient(1.2px 1.2px at 18px 18px, rgba(186,230,253,0.85), transparent),
-      radial-gradient(1px 1px at 29px 11px, rgba(255,255,255,0.75), transparent);
-    background-size: 36px 26px;
-    animation: ag-cs-star-drift 3.4s linear infinite;
+      radial-gradient(1.5px 1.5px at 8px 9px, rgba(245,243,255,0.88), transparent),
+      radial-gradient(1.2px 1.2px at 22px 19px, rgba(216,180,254,0.80), transparent),
+      radial-gradient(1px 1px at 34px 12px, rgba(245,243,255,0.68), transparent);
+    background-size: 42px 28px;
+    animation: ag-cs-star-drift 3.6s linear infinite;
   }
   .ds-effort-ticks {
-    position: absolute; inset: 0 13px; display: flex; align-items: center; justify-content: space-between;
+    position: absolute; inset: 0 14px; display: flex; align-items: center; justify-content: space-between;
     pointer-events: none; z-index: 3;
   }
   .ds-effort-tick {
-    width: 4.5px; height: 4.5px; border-radius: 999px;
-    background: rgba(148,163,184,0.34); transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+    width: 3px; height: 3px; border-radius: 999px;
+    background: rgba(255,255,255,0.28); transition: background-color 120ms ease;
   }
   .ds-effort-tick.is-on {
-    background: rgba(255,255,255,0.94); box-shadow: 0 0 6px rgba(255,255,255,0.85); transform: scale(1.12);
+    background: rgba(255,255,255,0.65);
   }
   .ds-effort-knob {
-    position: absolute; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+    position: absolute; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px;
     border-radius: 999px; z-index: 4; pointer-events: none;
-    background: radial-gradient(circle at 36% 32%, #FFFFFF 0%, #E0E7FF 58%, #93C5FD 100%);
-    border: 1.5px solid rgba(255,255,255,0.94);
-    box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--eff-color, #818cf8) 34%, transparent), 0 3px 12px rgba(0,0,0,0.55), 0 0 14px var(--eff-color, rgba(129,140,248,0.68));
-    display: flex; align-items: center; justify-content: center;
-    transition: left 110ms cubic-bezier(.22,1,.36,1), transform 140ms cubic-bezier(.34,1.4,.64,1);
+    background: #ffffff;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.34), 0 0 0 0.5px rgba(0,0,0,0.06);
+    transition: left 90ms cubic-bezier(.2,0,0,1);
+    will-change: left;
   }
-  .ds-effort-track[data-dragging="1"] .ds-effort-knob { transition: none; transform: scale(1.12); }
-  .ds-effort-knob::after {
-    content: ""; width: 6px; height: 6px; border-radius: 999px;
-    background: var(--eff-color, #6366f1); box-shadow: 0 0 6px var(--eff-color, #6366f1);
-  }
+  .ds-effort-track[data-dragging="1"] .ds-effort-knob { transition: none; }
   .eff-stops { display: flex; justify-content: space-between; padding: 0 2px; }
   .eff-stop-btn {
     border: 0; background: transparent; padding: 2px 4px; border-radius: 5px; cursor: pointer;
@@ -1200,8 +1198,8 @@ export function renderPreviewHtml() {
   /* ── Composer Dock (Authentic Obsidian Prism surface-composer-card + circular ↑ send button) ── */
   [data-slot="conversation.composer"] {
     position: relative; z-index: 6;
-    width: 100%; max-width: 768px; margin: 0 auto;
-    padding: 58px 24px 20px;
+    width: 100%; max-width: 824px; margin: 0 auto;
+    padding: 58px 20px 20px;
     flex-shrink: 0;
   }
   [data-composer-card] {
@@ -1220,10 +1218,10 @@ export function renderPreviewHtml() {
     font-family: inherit; font-size: 14px; line-height: 1.55;
   }
   [data-composer-input]::placeholder { color: var(--dsw-alias-label-secondary, #626270); opacity: 0.85; }
-  .comp-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .comp-tools { display: flex; align-items: center; gap: 6px; }
+  .comp-foot { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; width: 100%; }
+  .comp-tools { display: flex; align-items: center; gap: 5px; min-width: 0; flex-shrink: 1; }
   .comp-icon-btn {
-    width: 28px; height: 28px; border-radius: 999px;
+    width: 28px; height: 28px; border-radius: 999px; flex-shrink: 0;
     border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
     color: var(--dsw-alias-label-secondary, #c4c4ce);
     display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
@@ -1231,16 +1229,16 @@ export function renderPreviewHtml() {
   }
   .comp-icon-btn:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
   .comp-pill {
-    height: 28px; padding: 0 9px; border-radius: 999px;
+    height: 28px; padding: 0 8px; border-radius: 999px;
     border: 1px solid var(--op-kb); background: rgba(128,136,156,0.08);
     color: var(--dsw-alias-label-secondary, #c4c4ce);
-    font-size: 12px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
-    display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+    font-size: 11.5px; font-weight: 500; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 4px; cursor: pointer;
     transition: background-color 130ms ease, color 130ms ease;
   }
   .comp-pill:hover { background: rgba(128,136,156,0.16); color: var(--dsw-alias-label-primary, #fff); }
-  .comp-right { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 11px; color: var(--dsw-alias-label-secondary, #8a8a98); white-space: nowrap; flex-shrink: 0; }
+  .comp-right { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .comp-meta { font-family: var(--ag-cs-mono-stack, monospace); font-size: 10.8px; color: var(--dsw-alias-label-secondary, #8a8a98); white-space: nowrap; flex-shrink: 0; }
   /* Authentic Obsidian Prism specular circular ↑ send button */
   .comp-send {
     width: 30px; height: 30px; border-radius: 999px; border: 0; padding: 0;
@@ -1617,13 +1615,13 @@ export function renderPreviewHtml() {
                   <span id="comp-model-spark"></span>
                   <span id="comp-model-label">DeepSeek-R1</span>
                 </button>
-                <button class="comp-effort-pill" id="btn-effort-pill" aria-expanded="false" title="点击展开 DSH 星轨思考强度拖动条（可拖动切换关闭/低/中/高/极高）">
+                <button class="comp-effort-pill" id="btn-effort-pill" aria-expanded="false" title="点击展开星轨思考强度拖动条（可拖动切换关闭/低/中/高/极高）">
                   <span class="eff-dot" id="eff-pill-dot"></span>
-                  <span id="eff-pill-txt">思考 · 高</span>
+                  <span id="eff-pill-txt">思考 高</span>
                 </button>
                 <button class="comp-pill" id="btn-comp-stage">
                   <span data-icon-slot="layers-stack"></span>
-                  <span>桌宠选角舞台</span>
+                  <span>桌宠选角</span>
                 </button>
                 <button class="comp-pomo-pill" id="btn-pomo-pill" data-running="0" title="点击开启 25 分钟心流番茄钟（自动切换像素沙漏，结束时双宠欢呼）">
                   <span>⏳</span><span id="pomo-time">25:00</span>
@@ -1631,7 +1629,7 @@ export function renderPreviewHtml() {
               </div>
               <div class="comp-right">
                 <button class="comp-tel-pill" id="btn-telemetry-pill" aria-expanded="false" title="点击展开自适应上下文液柱与 4 源配额浮窗">
-                  <span id="comp-tps">74.8 tok/s</span>
+                  <span id="comp-tps">74.8 t/s</span>
                   <span class="comp-tel-sep">·</span>
                   <span id="comp-cache">缓存 86.9%</span>
                   <span class="comp-ctx-track"><span class="comp-ctx-fill" id="comp-ctx-fill" style="width:46.5%"></span></span>
@@ -3179,7 +3177,7 @@ export function renderPreviewHtml() {
           if (simState.msgEl) simState.msgEl.textContent = fullText.slice(0, charIdx);
           studioState.ctxPct = Math.min(92, studioState.ctxPct + 0.14);
           var tpsEl = document.getElementById('comp-tps');
-          if (tpsEl) tpsEl.textContent = (78 + Math.random() * 14).toFixed(1) + ' tok/s';
+          if (tpsEl) tpsEl.textContent = (78 + Math.random() * 14).toFixed(1) + ' t/s';
           syncTelemetryBars();
           if (sc) sc.scrollTop = sc.scrollHeight;
           if (charIdx >= fullText.length) {
@@ -3295,7 +3293,7 @@ export function renderPreviewHtml() {
           q.pct5h = Math.max(12, Math.min(99, q.pct5h + delta));
         });
         var tps = (68 + Math.random() * 18).toFixed(1);
-        document.getElementById('comp-tps').textContent = tps + ' tok/s';
+        document.getElementById('comp-tps').textContent = tps + ' t/s';
         renderMultiQuota();
         if (studioState.tab === 'quotas') renderStudioHomePanel();
         toast('已刷新 4 个配额来源与实时吞吐指标');
@@ -3309,13 +3307,13 @@ export function renderPreviewHtml() {
         }
       });
 
-      // DSH NEXT Draggable Starfield Reasoning Effort Slider (5 tiers: off -> low -> medium -> high -> xhigh)
+      // Restrained Original Obsidian Prism Reasoning Effort Slider (5 tiers: off -> low -> medium -> high -> xhigh)
       var EFFORT_TIERS = [
-        { key: 'off', label: '关闭', pill: '思考 · 关', badge: '关闭 · Off', color: '#64748b', text: '#94a3b8', grad: 'linear-gradient(90deg, #475569 0%, #64748b 100%)', starOp: 0.12, desc: '关闭深度思考 · 毫秒级直出，适合简单问答' },
-        { key: 'low', label: '低', pill: '思考 · 低', badge: '低 · Low', color: '#38bdf8', text: '#7dd3fc', grad: 'linear-gradient(90deg, #0284c7 0%, #38bdf8 100%)', starOp: 0.45, desc: '轻度推理 · 响应轻快，大幅节省额度消耗' },
-        { key: 'medium', label: '中', pill: '思考 · 中', badge: '中 · Medium', color: '#60a5fa', text: '#93c5fd', grad: 'linear-gradient(90deg, #2563eb 0%, #60a5fa 60%, #818cf8 100%)', starOp: 0.68, desc: '均衡档位 · 日常编码与多文件改写最稳妥' },
-        { key: 'high', label: '高', pill: '思考 · 高', badge: '高 · High', color: '#818cf8', text: '#c4b5fd', grad: 'linear-gradient(90deg, #3b82f6 0%, #6366f1 52%, #a855f7 100%)', starOp: 0.88, desc: '高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）' },
-        { key: 'xhigh', label: '极高', pill: '思考 · 极高', badge: '极高 · Max', color: '#c084fc', text: '#f5d0fe', grad: 'linear-gradient(90deg, #38bdf8 0%, #6366f1 34%, #a855f7 66%, #ec4899 86%, #fbbf24 100%)', starOp: 1, desc: '极限算力 · 全谱星轨满载，桌宠同步进入高能爆气态！' },
+        { key: 'off', label: '关闭', pill: '思考 关', badge: '关闭 · Off', color: '#64748b', text: '#94a3b8', grad: 'rgba(128,128,145,0.22)', starOp: 0, energy: '0', desc: '关闭深度思考 · 毫秒级直出，适合简单问答' },
+        { key: 'low', label: '低', pill: '思考 低', badge: '低 · Low', color: '#4d93f8', text: '#93c5fd', grad: '#4d93f8', starOp: 0, energy: '0', desc: '轻度推理 · 响应轻快，大幅节省额度消耗' },
+        { key: 'medium', label: '中', pill: '思考 中', badge: '中 · Medium', color: '#5d86f5', text: '#a5b4fc', grad: '#5d86f5', starOp: 0, energy: '0', desc: '均衡档位 · 日常编码与多文件改写最稳妥' },
+        { key: 'high', label: '高', pill: '思考 高', badge: '高 · High', color: '#8b5cf6', text: '#c4b5fd', grad: 'linear-gradient(90deg, #4b47c8 0%, #7c3aed 65%, #9b5ef0 100%)', starOp: 0.42, energy: '1', desc: '高档位 · 深度链路推理，兼顾代码质量与响应速度（推荐）' },
+        { key: 'xhigh', label: '极高', pill: '思考 极高', badge: '极高 · Max', color: '#a855f7', text: '#d8b4fe', grad: 'linear-gradient(90deg, #3b1178 0%, #6d28d9 30%, #9333ea 62%, #c084fc 100%)', starOp: 0.88, energy: '1', desc: '极限算力 · 紫云星轨满载，桌宠同步进入专注高能态' },
       ];
       var effortIdx = 3;
       var effortPop = document.getElementById('ds-effort-pop');
@@ -3329,6 +3327,7 @@ export function renderPreviewHtml() {
       var renderEffortVisual = function (pct, idx, notify) {
         var tier = EFFORT_TIERS[idx] || EFFORT_TIERS[3];
         var clampedPct = Math.max(0, Math.min(1, pct));
+        var posExpr = 'calc(14px + (100% - 28px) * ' + clampedPct.toFixed(4) + ')';
         if (effortPop) {
           effortPop.style.setProperty('--eff-color', tier.color);
           effortPop.style.setProperty('--eff-text', tier.text);
@@ -3336,11 +3335,14 @@ export function renderPreviewHtml() {
         }
         if (effortPill) effortPill.style.setProperty('--eff-color', tier.color);
         if (effortFill) {
-          effortFill.style.width = (idx === 0 && clampedPct < 0.04 ? 8 : Math.max(10, clampedPct * 100)) + '%';
+          effortFill.style.width = posExpr;
           effortFill.style.background = tier.grad;
         }
-        if (effortKnob) effortKnob.style.left = 'calc(13px + (100% - 26px) * ' + clampedPct.toFixed(4) + ')';
-        if (effortTrack) effortTrack.setAttribute('aria-valuenow', String(idx));
+        if (effortKnob) effortKnob.style.left = posExpr;
+        if (effortTrack) {
+          effortTrack.setAttribute('aria-valuenow', String(idx));
+          effortTrack.setAttribute('data-energy', tier.energy);
+        }
         if (effortValEl) effortValEl.textContent = tier.badge;
         if (effortDescEl) effortDescEl.textContent = tier.desc;
         if (effortPillTxt) effortPillTxt.textContent = tier.pill;

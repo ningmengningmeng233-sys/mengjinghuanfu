@@ -19,6 +19,7 @@
   // T3 Code 0.1.11, Antigravity, VS Code, Qoder, Kiro, Windsurf)
   var COMPOSER_SELECTORS = [
     '[data-composer-card]',
+    '#antigravity\\.agentSidePanelInputBox > .surface-composer-card',
     '.surface-composer-card',
     '[data-testid="agent-input-box"]',
     '[data-ui="chat.composer"]',
@@ -47,6 +48,7 @@
   var MAIN_STAGE_SELECTORS = [
     '[data-slot="main"]',
     '.agy-home',
+    '[data-testid="conversation-view"]',
     '[data-main-content-body]',
     '[data-ui="chat.view"]',
     '[data-ui="agents.agent-chat-main"]',
@@ -445,41 +447,40 @@
       '}',
       '',
       '/* Smoked Obsidian Silky Sidebar Rows & Active Bar (All 14 Clients — binary-verified 2026 selectors) */',
-      'html[data-ag-cs-style="1"] :is([data-row-key^="session:"], [data-app-action-sidebar-thread-row], [data-testid="agent-session-row"], [data-purpose-section-list], [data-thread-item], [data-sidebar-row], .monaco-list-row) {',
+      'html[data-ag-cs-style="1"] :is([data-row-key^="session:"], [data-testid="conversation-row-sidebar"], [data-app-action-sidebar-thread-row], [data-testid="agent-session-row"], [data-purpose-section-list], [data-thread-item], [data-sidebar-row], .monaco-list-row) {',
       '  transition: background-color 180ms cubic-bezier(.22,1,.36,1), color 150ms ease, transform 160ms cubic-bezier(.22,1,.36,1), box-shadow 180ms ease;',
       '}',
-      'html[data-ag-cs-style="1"][data-ag-cs-motion!="off"] :is([data-row-key^="session:"], [data-app-action-sidebar-thread-row], [data-testid="agent-session-row"], [data-thread-item]):active {',
+      'html[data-ag-cs-style="1"][data-ag-cs-motion!="off"] :is([data-row-key^="session:"], [data-testid="conversation-row-sidebar"], [data-app-action-sidebar-thread-row], [data-testid="agent-session-row"], [data-thread-item]):active {',
       '  transform: scale(0.985);',
       '}',
       '@keyframes ag-sb-bar-in { from { transform: scaleY(0.25); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }',
-      'html[data-ag-cs-style="1"][data-prism-optical-facet="on"] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][data-selected="true"], [data-app-action-sidebar-thread-row][aria-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active="true"], .monaco-list-row.selected, #app-sidebar [aria-selected="true"], [data-testid="agent-session-row"][aria-selected="true"], .topic-list-item.active, [data-purpose-section-list][data-active="true"], [data-thread-item][data-active="true"], [data-testid="sidebar-base-card"] [aria-selected="true"], aside a[aria-current="page"]) {',
+      'html[data-ag-cs-style="1"][data-prism-optical-facet="on"] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][data-selected="true"], [data-testid="conversation-row-sidebar"][data-selected="true"], [data-testid="conversation-row-sidebar"][aria-selected="true"], [data-testid="conversation-row-sidebar"][data-active="true"], [data-app-action-sidebar-thread-row][aria-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active="true"], .monaco-list-row.selected, #app-sidebar [aria-selected="true"], [data-testid="agent-session-row"][aria-selected="true"], .topic-list-item.active, [data-purpose-section-list][data-active="true"], [data-thread-item][data-active="true"], [data-testid="sidebar-base-card"] [aria-selected="true"], aside a[aria-current="page"]) {',
       '  position: relative !important;',
       '}',
-      'html[data-ag-cs-style="1"][data-prism-optical-facet="on"] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][data-selected="true"], [data-app-action-sidebar-thread-row][aria-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active="true"], .monaco-list-row.selected, #app-sidebar [aria-selected="true"], [data-testid="agent-session-row"][aria-selected="true"], .topic-list-item.active, [data-purpose-section-list][data-active="true"], [data-thread-item][data-active="true"], [data-testid="sidebar-base-card"] [aria-selected="true"], aside a[aria-current="page"])::after {',
+      'html[data-ag-cs-style="1"][data-prism-optical-facet="on"] :is([data-row-key^="session:"][aria-selected="true"], [data-row-key^="session:"][data-selected="true"], [data-testid="conversation-row-sidebar"][data-selected="true"], [data-testid="conversation-row-sidebar"][aria-selected="true"], [data-testid="conversation-row-sidebar"][data-active="true"], [data-app-action-sidebar-thread-row][aria-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected="true"], [data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active="true"], .monaco-list-row.selected, #app-sidebar [aria-selected="true"], [data-testid="agent-session-row"][aria-selected="true"], .topic-list-item.active, [data-purpose-section-list][data-active="true"], [data-thread-item][data-active="true"], [data-testid="sidebar-base-card"] [aria-selected="true"], aside a[aria-current="page"])::after {',
       '  content: ""; position: absolute; left: 4px; top: 7px; bottom: 7px; width: 2px; border-radius: 999px;',
       '  background: var(--ag-cs-sb-bar); box-shadow: var(--ag-cs-sb-glow); pointer-events: none;',
       '  transform-origin: center; animation: ag-sb-bar-in 210ms cubic-bezier(.22,1.25,.36,1) both;',
       '}',
-      'html[data-ag-cs-style="1"][data-ag-cs-sidebar-compact="on"] [data-row-key^="session:"] {',
+      'html[data-ag-cs-style="1"][data-ag-cs-sidebar-compact="on"] :is([data-row-key^="session:"], [data-testid="conversation-row-sidebar"]) {',
       '  padding-top: 5px !important; padding-bottom: 5px !important;',
       '}',
-      '/* DSH NEXT Draggable Reasoning / Thinking Effort Slider & Luminous Quota Bars Prism Beautification */',
-      '@keyframes ag-cs-star-drift { from { background-position: 0 0, 12px 6px; } to { background-position: -36px 0, -24px 6px; } }',
+      '/* Restrained Original Obsidian Prism Effort Slider & Luminous Quota Bars Beautification */',
+      '@keyframes ag-cs-star-drift { from { background-position: 0 0, 12px 6px; } to { background-position: -42px 0, -30px 6px; } }',
       '@keyframes ag-cs-bar-gleam { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }',
       'html[data-ag-cs-style="1"] :is([data-effort-slider], [data-reasoning-effort], [aria-label*="思考"], [aria-label*="推理"], [aria-label*="Effort" i], [aria-label*="Thinking" i]) input[type="range"] {',
       '  -webkit-appearance: none !important; appearance: none !important; height: 8px !important; border-radius: 999px !important;',
-      '  background: linear-gradient(90deg, rgba(56,189,248,.45) 0%, rgba(99,102,241,.72) 52%, rgba(168,85,247,.88) 82%, rgba(251,191,36,.92) 100%) !important;',
-      '  box-shadow: inset 0 1px 2px rgba(0,0,0,.45), 0 0 12px -2px rgba(99,102,241,.42) !important; cursor: grab !important;',
+      '  background: linear-gradient(90deg, rgba(77,147,248,.68) 0%, rgba(109,40,217,.74) 70%, rgba(168,85,247,.84) 100%) !important;',
+      '  box-shadow: inset 0 1px 2px rgba(0,0,0,.32), inset 0 0 0 1px rgba(255,255,255,.06) !important; cursor: pointer !important;',
       '}',
       'html[data-ag-cs-style="1"] :is([data-effort-slider], [data-reasoning-effort], [aria-label*="思考"], [aria-label*="推理"], [aria-label*="Effort" i], [aria-label*="Thinking" i]) input[type="range"]::-webkit-slider-thumb {',
-      '  -webkit-appearance: none !important; appearance: none !important; width: 18px !important; height: 18px !important; border-radius: 999px !important;',
-      '  background: radial-gradient(circle at 38% 34%, #FFFFFF 0%, #DBEAFE 55%, #818CF8 100%) !important;',
-      '  border: 1.5px solid rgba(255,255,255,.85) !important;',
-      '  box-shadow: 0 0 0 2px rgba(99,102,241,.28), 0 2px 10px rgba(56,189,248,.58) !important;',
-      '  transition: transform 140ms cubic-bezier(.34,1.4,.64,1), box-shadow 140ms ease !important;',
+      '  -webkit-appearance: none !important; appearance: none !important; width: 16px !important; height: 16px !important; border-radius: 999px !important;',
+      '  background: #FFFFFF !important; border: 0 !important;',
+      '  box-shadow: 0 1px 5px rgba(0,0,0,.34), 0 0 0 0.5px rgba(0,0,0,.06) !important;',
+      '  transition: transform 120ms cubic-bezier(.2,0,0,1) !important;',
       '}',
       'html[data-ag-cs-style="1"] :is([data-effort-slider], [data-reasoning-effort], [aria-label*="思考"], [aria-label*="推理"], [aria-label*="Effort" i], [aria-label*="Thinking" i]) input[type="range"]::-webkit-slider-thumb:hover {',
-      '  transform: scale(1.14) !important; box-shadow: 0 0 0 3px rgba(125,211,252,.36), 0 0 16px rgba(168,85,247,.72) !important;',
+      '  transform: scale(1.08) !important;',
       '}',
       'html[data-ag-cs-style="1"] :is([data-slot*="quota"], [class*="quota" i], .dsh-quota-card) :is([role="progressbar"], progress, .mq-bar) {',
       '  border-radius: 999px !important; box-shadow: inset 0 1px 2px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,255,255,.07) !important;',
@@ -537,12 +538,14 @@
 
     var STREAM_DETECT_SEL = [
       'button[data-streaming="1"]',
+      'button[data-testid="input-cancel-button"]',
       'button[data-testid*="stop" i]',
       'button[aria-label*="停止"]',
       'button[aria-label*="中止"]',
       'button[aria-label*="Stop generating" i]',
       'button[aria-label*="Stop response" i]',
       'button[aria-label*="Cancel generation" i]',
+      '[data-testid="agent-loading"]',
       '[data-chat-streaming="1"]',
       '[data-streaming="true"]',
     ].join(', ');
@@ -561,6 +564,8 @@
       '[data-row-key^="session:"][aria-selected="true"]',
       '[data-row-key^="session:"][data-selected="true"]',
       '[data-testid="conversation-row-sidebar"][data-selected="true"]',
+      '[data-testid="conversation-row-sidebar"][aria-selected="true"]',
+      '[data-testid="conversation-row-sidebar"][data-active="true"]',
       '[data-app-action-sidebar-thread-row][aria-selected="true"]',
       '[data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected="true"]',
       '[data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active="true"]',
@@ -1433,6 +1438,19 @@
       // 4. 4-Tier Spring Motion Engine + Smooth Caret
       syncMotionAndCaret(Boolean(eff.microMotion));
 
+      // 4b. Native Antigravity Starfield Reasoning Effort Slider (auto-yields if standalone obsidian-prism / effort-slider exists)
+      try {
+        var isAntigravityHost = appId === 'antigravity' || Boolean(D.querySelector('[data-testid="model-selector-trigger"], [data-testid="model-selector-panel"], [data-testid="agent-input-box"]'));
+        if (isAntigravityHost && G.__agPrismEffortSlider && typeof G.__agPrismEffortSlider.sync === 'function') {
+          G.__agPrismEffortSlider.sync({
+            effortSliderModule: cfg.effortSliderModule === 'off' ? 'off' : 'auto',
+            effortMemory: cfg.effortMemory === 'off' ? 'off' : 'on',
+          });
+        } else if (G.__agPrismEffortSlider && typeof G.__agPrismEffortSlider.destroy === 'function') {
+          G.__agPrismEffortSlider.destroy();
+        }
+      } catch (_) {}
+
       // 5. Streaming-safe SPA remount observer (zero layout thrash during AI token streaming!)
       if (typeof G.MutationObserver === 'function' && D.body && !spaMo) {
         spaMo = new G.MutationObserver(function () {
@@ -1497,6 +1515,11 @@
       teardownMascot();
       teardownRipple();
       teardownMotionAndCaret();
+      try {
+        if (G.__agPrismEffortSlider && typeof G.__agPrismEffortSlider.destroy === 'function') {
+          G.__agPrismEffortSlider.destroy();
+        }
+      } catch (_) {}
       removeOpticalStyle();
       clearRootAttrs();
     }
