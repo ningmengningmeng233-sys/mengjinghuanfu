@@ -1581,7 +1581,6 @@
     const chromaTapTimes = [];
     let chromaPhase = 0;
     const chromaSparks = [];
-    let toyBall = null;
     let fxCanvasCleared = true;
 
     // 打盹生态：45s（深夜 30s）无用户操作 → 哈欠 → 打盹；任何操作唤醒
@@ -2774,9 +2773,9 @@
       return true;
     };
 
-    // 舞台棱镜像素星屑 + 互动抛球渲染器（无粒子且无球时自动缩回 0×0 释放 GPU 显存纹理，0 常驻开销）
+    // 舞台棱镜像素星屑渲染器（无粒子时自动缩回 0×0 释放 GPU 显存纹理，0 常驻开销）
     const stepAndPaintChromaFx = () => {
-      if (!chromaSparks.length && !toyBall) {
+      if (!chromaSparks.length) {
         if (!fxCanvasCleared || fxCanvas.width || fxCanvas.height) releaseFxCanvas();
         return;
       }
@@ -2792,66 +2791,10 @@
         if (fxCanvas.style) { fxCanvas.style.width = `${wCss}px`; fxCanvas.style.height = `${hCss}px`; }
       }
       const ctx = fxCanvas._ctx || (fxCanvas._ctx = fxCanvas.getContext('2d'));
-      if (!ctx) { chromaSparks.length = 0; toyBall = null; releaseFxCanvas(); return; }
+      if (!ctx) { chromaSparks.length = 0; releaseFxCanvas(); return; }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, wCss, hCss);
       ctx.imageSmoothingEnabled = false;
-      if (toyBall) {
-        toyBall.ticks += 1;
-        toyBall.x += toyBall.vx;
-        toyBall.y += toyBall.vy;
-        toyBall.vy += 1.05;
-        if (toyBall.y >= 0) {
-          toyBall.y = 0;
-          if (abs(toyBall.vy) > 2.2) {
-            toyBall.vy = -toyBall.vy * 0.62;
-            toyBall.vx *= 0.88;
-            toyBall.bounces += 1;
-          } else {
-            toyBall.vy = 0;
-            toyBall.vx *= 0.82;
-          }
-        }
-        if (toyBall.x < 14) { toyBall.x = 14; toyBall.vx = abs(toyBall.vx) * 0.78; }
-        if (toyBall.x > wCss - 14) { toyBall.x = wCss - 14; toyBall.vx = -abs(toyBall.vx) * 0.78; }
-        if (toyBall.ticks % 2 === 0 && chromaSparks.length < 44) {
-          chromaSparks.push({ x: toyBall.x, y: toyBall.y - 4, vx: -toyBall.vx * 0.12, vy: -0.6, color: toyBall.ticks % 4 === 0 ? '#64D2FF' : '#A78BFA', size: PX, life: 0, maxLife: 8 });
-        }
-        const chaser = actors[toyBall.chaserId] || activeMainActors()[0];
-        if (chaser && !chaser.dragging && !chaser.stackedOn) {
-          const cx = chaser.x + 48;
-          const dx = toyBall.x - cx;
-          if (abs(dx) > 18) {
-            const step = clamp(dx, -11, 11);
-            chaser.x = clampActorX(chaser.x + step);
-            chaser.overridePose = 'walk';
-            chaser.overrideUntil = nowMs() + 260;
-            chaser.faceDir = dx < 0 ? 'left' : 'right';
-          }
-          if (abs(toyBall.x - (chaser.x + 48)) < 26 && toyBall.y > -26 && toyBall.ticks >= 4) {
-            const catchX = toyBall.x;
-            const catchColors = ['#64D2FF', '#A78BFA', '#FBBC04', '#34D399', '#F472B6'];
-            for (let k = 0; k < 12; k++) {
-              const ang = (Math.PI * 2 * k) / 12;
-              chromaSparks.push({ x: catchX, y: -12, vx: Math.cos(ang) * 2.6, vy: Math.sin(ang) * 2.4 - 1.5, color: catchColors[k % catchColors.length], size: PX, life: 0, maxLife: 14 });
-            }
-            const trick = chaser.kind === 'fox' ? 'foxWisp' : chaser.kind === 'panda' ? 'pandaBamboo' : chaser.kind === 'dragon' ? 'dragonFlame' : chaser.kind === 'whale' ? 'whaleSpout' : 'happy';
-            startClip(chaser, trick, 1500, { sym: 'heart' });
-            if (!reducedMotion) hop(chaser, 'happy');
-            recordInteraction('ball-catch', chaser.id);
-            toyBall = null;
-          }
-        }
-        if (toyBall && toyBall.ticks > 52) toyBall = null;
-        if (toyBall) {
-          const bx = round(toyBall.x / PX) * PX;
-          const by = round((hCss - 12 + toyBall.y) / PX) * PX;
-          ctx.fillStyle = toyBall.ticks % 2 === 0 ? '#64D2FF' : '#A78BFA';
-          ctx.fillRect(bx - PX, by - PX, PX * 3, PX * 3);
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(bx, by, PX, PX);
-        }
-      }
       for (let i = chromaSparks.length - 1; i >= 0; i--) {
         const sp = chromaSparks[i];
         sp.life += 1;
@@ -2862,7 +2805,7 @@
         ctx.fillStyle = sp.life % 3 === 1 ? '#FFFFFF' : sp.color;
         ctx.fillRect(round(sp.x / PX) * PX, round((hCss - 8 + sp.y) / PX) * PX, sp.size, sp.size);
       }
-      if (!chromaSparks.length && !toyBall) releaseFxCanvas();
+      if (!chromaSparks.length) releaseFxCanvas();
     };
 
     let lastChromaStepTick = -1;
@@ -4468,7 +4411,7 @@
     const inTrans = () =>
       [...activeMainActors(), ...miniCrabs].some(
         (e) => e.dragging || e.ballisticActive || e.leap || e.y < -0.4 || abs(e.vy) > 0.01
-      ) || !!reboundTm || !!toyBall;
+      ) || !!reboundTm;
     const syncPwr = () => {
       if (disposed) return;
       if (isHostDetached() || parked) {
@@ -5335,26 +5278,6 @@
       feed(id = 'cat', item = 'donut') {
         const target = actors[id] || activeMainActors()[0] || null;
         return target ? feedActor(target, item) : false;
-      },
-      throwBall() {
-        const mains = activeMainActors();
-        if (!mains.length || disposed) return false;
-        markActivity();
-        const w = max(240, readStageWidth());
-        const chaser = mains[floor(random() * mains.length)];
-        const fromLeft = chaser.x + 48 > w * 0.5;
-        toyBall = {
-          x: fromLeft ? 28 : w - 28,
-          y: -44,
-          vx: fromLeft ? rand(8, 12) : -rand(8, 12),
-          vy: -rand(5, 8),
-          bounces: 0,
-          ticks: 0,
-          chaserId: chaser.id,
-        };
-        syncHeartbeat();
-        renderAllFrames();
-        return true;
       },
       setHabitatPreview(mode = 'auto') {
         habitatPreview = ['auto', 'cactus', 'lamp', 'hourglass'].includes(mode) ? mode : 'auto';
