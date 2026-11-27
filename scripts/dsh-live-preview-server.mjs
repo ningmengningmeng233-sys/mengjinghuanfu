@@ -438,6 +438,34 @@ export function renderPreviewHtml() {
     content: ""; position: absolute; left: 3px; top: 8px; bottom: 8px; width: 2.5px; border-radius: 999px;
     background: var(--st-bar-grad);
     box-shadow: 0 0 9px color-mix(in srgb, var(--st-accent) 72%, transparent);
+    transition: background 180ms ease, box-shadow 180ms ease;
+  }
+  html[data-ag-cs-streaming="1"] .sb-active-pill {
+    background-image: var(--ag-cs-run-wash, linear-gradient(90deg, rgba(49,134,255,.14) 0%, rgba(92,198,252,.05) 55%, transparent));
+    border-color: rgba(92,198,252,.28);
+  }
+  html[data-ag-cs-streaming="1"] .sb-active-pill::before {
+    background: var(--ag-cs-run-rb, linear-gradient(#FBBC04 0%, #EA4335 16%, #9B72CB 34%, #5CC6FC 58%, #3186FF 100%));
+    box-shadow: 0 0 10px rgba(49,134,255,.52);
+  }
+  .hdr-sim-btn {
+    height: 28px; padding: 0 11px; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--st-accent, #6EA8FF) 36%, var(--op-kb));
+    background: color-mix(in srgb, var(--st-accent, #6EA8FF) 10%, var(--op-k0));
+    color: var(--st-accent-2, #64D2FF);
+    font-family: var(--font-sans); font-size: 12px; font-weight: 600; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    box-shadow: var(--op-ks2);
+    transition: transform 130ms cubic-bezier(.34,1.4,.64,1), border-color 140ms ease, background-color 140ms ease, color 140ms ease;
+  }
+  .hdr-sim-btn svg { display: block; flex-shrink: 0; }
+  .hdr-sim-btn:hover { transform: translateY(-1px); border-color: var(--st-accent-2, #64D2FF); }
+  .hdr-sim-btn:active { transform: scale(0.95); }
+  .hdr-sim-btn[data-running="1"] {
+    color: #fca5a5;
+    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(239, 68, 68, 0.14);
   }
   html[data-prism-theme="light"] .sb-active-pill {
     background: #FFFFFF;
@@ -449,9 +477,10 @@ export function renderPreviewHtml() {
     display: flex; flex-direction: column; gap: 2px;
     background: transparent !important; box-shadow: none !important;
     color: var(--dsw-alias-label-secondary, #8a8a98);
-    transition: color 160ms ease, transform 160ms cubic-bezier(.22,1,.36,1);
+    transition: color 160ms ease, transform 160ms cubic-bezier(.22,1,.36,1), padding-right 160ms ease;
     transform-origin: center left;
   }
+  [data-row-key^="session:"][data-ag-cs-row-running="1"] { padding-right: 34px; }
   [data-row-key^="session:"]::after { display: none !important; }
   [data-row-key^="session:"]:hover { color: var(--dsw-alias-label-primary, #f2f2f5); }
   [data-row-key^="session:"]:active { transform: scale(0.982); }
@@ -1328,7 +1357,10 @@ export function renderPreviewHtml() {
           <span class="hdr-title" id="hdr-title">DreamSkin Prism 三模式融合</span>
         </div>
         <div class="hdr-right">
-          <button class="hdr-cmd-btn" id="btn-sim-task" title="模拟 AI 任务运行中：查看双宠工作态、棱镜流光、侧栏呼吸点与完成欢呼" style="color: var(--st-accent-2, #64D2FF); border-color: color-mix(in srgb, var(--st-accent, #6EA8FF) 42%, transparent);">▶ 模拟运行任务</button>
+          <button class="hdr-sim-btn" id="btn-sim-task" data-running="0" title="模拟 AI 任务运行中：体验原版左侧旋转棱镜星轨、彩虹流光竖条、双宠干活与完成声呐欢呼">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 2.1c0-.62.68-1 1.21-.68l6.1 3.9a.8.8 0 0 1 0 1.36l-6.1 3.9A.8.8 0 0 1 3 9.9V2.1Z"/></svg>
+            <span>模拟运行任务</span>
+          </button>
           <button class="hdr-cmd-btn" id="btn-open-cmd" title="打开全局命令面板 (Ctrl+K)">⌘K</button>
           <div class="hdr-seg-view" role="tablist">
             <button class="hdr-seg-btn" id="tab-view-home" aria-selected="true">首页光场</button>
@@ -2826,20 +2858,34 @@ export function renderPreviewHtml() {
         '3. 所有 DSH 官方 --dsw-* 插件变量保持实时同步，绝不遮挡审批卡与右侧抽屉。\\n\\n',
         '✓ 全部 14 端状态检查通过，任务执行完成！'
       ];
+      var PLAY_SVG = '<svg width="11" height="11" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M3 2.1c0-.62.68-1 1.21-.68l6.1 3.9a.8.8 0 0 1 0 1.36l-6.1 3.9A.8.8 0 0 1 3 9.9V2.1Z"/></svg><span>模拟运行任务</span>';
+      var STOP_SVG = '<svg width="10" height="10" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><rect x="2" y="2" width="8" height="8" rx="2"/></svg><span>停止模拟</span>';
+      function spawnLiftoffRing(anchorEl) {
+        if (!anchorEl) return;
+        var r = anchorEl.getBoundingClientRect();
+        var ring = document.createElement('div');
+        ring.className = 'ag-cs-liftoff-ring';
+        ring.style.left = Math.round(r.left + r.width / 2) + 'px';
+        ring.style.top = Math.round(r.top + r.height / 2) + 'px';
+        document.body.appendChild(ring);
+        setTimeout(function () { if (ring.parentNode) ring.parentNode.removeChild(ring); }, 560);
+      }
       function stopTaskSimulation(aborted) {
         if (!simState.running) return;
         clearInterval(simState.timer);
         simState.timer = null;
         simState.running = false;
-        if (simBtnHdr) simBtnHdr.textContent = '▶ 模拟运行任务';
-        if (simBtnHome) simBtnHome.textContent = '▶ 看任务运行中效果';
+        if (simBtnHdr) { simBtnHdr.setAttribute('data-running', '0'); simBtnHdr.innerHTML = PLAY_SVG; }
+        if (simBtnHome) simBtnHome.textContent = '看任务运行中效果';
         if (sendBtnEl) {
           sendBtnEl.removeAttribute('data-streaming');
+          sendBtnEl.removeAttribute('data-testid');
           sendBtnEl.setAttribute('title', '发送消息');
           sendBtnEl.setAttribute('aria-label', '发送消息');
           sendBtnEl.innerHTML = '<span data-icon-slot="arrow-up-launch"></span>';
           hydrateIcons();
         }
+        if (simState.thoughtWrap) simState.thoughtWrap.removeAttribute('data-ag-cs-thought-streaming');
         if (simState.thoughtEl) {
           simState.thoughtEl.textContent = aborted
             ? '已手动中止任务 · 双宠返回待机'
@@ -2848,20 +2894,22 @@ export function renderPreviewHtml() {
         if (window.__dreamSkinOptical && window.__dreamSkinOptical.setStreaming) {
           window.__dreamSkinOptical.setStreaming(false, { hasError: false, silent: Boolean(aborted) });
         }
-        toast(aborted ? '已中止模拟任务' : '✓ 任务运行完成 · Clawd 与小紫猫欢呼提醒！');
+        toast(aborted ? '已中止模拟任务' : '✓ 任务运行完成 · 左侧声呐光晕 + 双宠欢呼提醒！');
       }
       function startTaskSimulation() {
         if (simState.running) { stopTaskSimulation(true); return; }
         setView('conv');
         simState.running = true;
         simState.step = 0;
-        if (simBtnHdr) simBtnHdr.textContent = '■ 停止模拟';
-        if (simBtnHome) simBtnHome.textContent = '■ 停止模拟';
+        if (simBtnHdr) { simBtnHdr.setAttribute('data-running', '1'); simBtnHdr.innerHTML = STOP_SVG; }
+        if (simBtnHome) simBtnHome.textContent = '停止模拟任务';
         if (sendBtnEl) {
           sendBtnEl.setAttribute('data-streaming', '1');
+          sendBtnEl.setAttribute('data-testid', 'input-cancel-button');
           sendBtnEl.setAttribute('title', '停止生成');
           sendBtnEl.setAttribute('aria-label', '停止生成');
-          sendBtnEl.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#ef4444;box-shadow:0 0 10px rgba(239,68,68,.75)"></span>';
+          sendBtnEl.innerHTML = '<span></span>';
+          spawnLiftoffRing(sendBtnEl);
         }
         var flow = document.querySelector('[data-slot="conversation.chat.flow"]');
         var resp = document.createElement('div');
@@ -2869,22 +2917,28 @@ export function renderPreviewHtml() {
         resp.setAttribute('data-chat-streaming', '1');
         var th = document.createElement('div');
         th.className = 'thought-trigger';
-        th.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--st-accent-2,#64D2FF);box-shadow:0 0 10px var(--st-accent-2,#64D2FF)"></span><span class="sim-th-txt">DeepSeek-R1 正在深度思考并实时输出…（注意上方双宠与输入框流光）</span>';
+        th.innerHTML = '<span class="ag-cs-orbit-spinner" style="width:14px !important;height:14px !important;min-width:14px !important;"><span data-agent-state-dot="1"></span></span><span class="sim-th-txt">DeepSeek-R1 正在深度思考并实时输出…（观察左侧旋转星轨、双宠与右下角棱镜停止环）</span>';
+        var thoughtWrap = document.createElement('div');
+        thoughtWrap.setAttribute('data-ag-cs-thought-streaming', '1');
+        thoughtWrap.style.cssText = 'margin: 6px 0 8px; font-size: 12.5px; color: var(--dsw-alias-label-secondary, #98a2b3);';
+        thoughtWrap.textContent = '▸ 思考链路：检测本机 DSH NEXT 2.0.24-next 插件变量 → 启用流式降频退让 → 激活双宠工作态与左侧星轨…';
         var bodyP = document.createElement('p');
-        bodyP.className = 'resp-p';
+        bodyP.className = 'resp-p ag-cs-stream-chunk';
         bodyP.style.whiteSpace = 'pre-wrap';
         bodyP.textContent = '';
         resp.appendChild(th);
+        resp.appendChild(thoughtWrap);
         resp.appendChild(bodyP);
         flow.appendChild(resp);
         simState.msgEl = bodyP;
         simState.thoughtEl = th.querySelector('.sim-th-txt');
+        simState.thoughtWrap = thoughtWrap;
         var sc = document.querySelector('[data-conversation-scroll]');
         if (sc) sc.scrollTop = sc.scrollHeight;
         if (window.__dreamSkinOptical && window.__dreamSkinOptical.setStreaming) {
           window.__dreamSkinOptical.setStreaming(true, { tier: 2 });
         }
-        toast('⚡ 任务开始运行 · 双宠进入工作态 + 输入框棱镜流光 + 侧栏呼吸点');
+        toast('⚡ 原版运行态已启动 · 左侧彩虹条+星轨 / 思考彗星 / 旋转棱镜停止键 / 双宠工作态');
         var fullText = SIM_CHUNKS.join('');
         var charIdx = 0;
         simState.timer = setInterval(function () {
