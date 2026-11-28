@@ -47,19 +47,14 @@ const exeHash = sha256File(winExeDst);
 const winNotes = `# 梦境换肤 ${VERSION}（DreamSkin Prism）Windows 发布说明
 
 ## 核心升级亮点
-- **全新 Obsidian Prism 液态玻璃皮肤与动态壁纸引擎**：支持图片、视频（MP4/WebM/MOV）、多图幻灯片、交互式 HTML 网页、Steam Wallpaper Engine (431960) 创意工坊与 \`scene.pkg\`、以及 \`dreamskin.cc\` 在线主题库。
-- **一等公民适配 Google Antigravity（反重力）**：支持 Hub + IDE 双壳、\`2.34.0\` 内置浏览器精准避让挖洞、原图标一键开启与原生 Sidecar 侧边栏插件（\`dreamskin-prism\`）。
-- **普通用户友好体验升级**：
-  1. 双层极简界面（4 张风格大卡 + 2 个常用滑块，高级设置默认折叠）；
-  2. 原图标一键自动生效（无损备份，随时恢复）；
-  3. 多窗口前台播放、后台/电池自动冻结省电；
-  4. 各软件独立壁纸配置 + 一键同步全部；
-  5. 独立桌面端与反重力侧边栏共用同一管家，绝不打架；
-  6. 四重兜底保护：代码区清晰底板、反重力内置浏览器挖洞、冲突检测提醒（含 \`obsidian-prism\`）、\`4× Esc\` / \`Ctrl+Alt+Shift+R\` 随时秒撤。
+- **三模式光学 × 壁纸自由混搭引擎**：完整保留 4.0 液态玻璃与动态壁纸（图片 / 视频 / HTML / Steam 创意工坊 431960 / \`dreamskin.cc\`），重磅新增 **「黑曜光学模式」**（WebGL2 字符地平线、300Hz 棱镜边框、任务运行态光效、120Hz 磁吸侧栏、6 套高协调度光学主题），并支持 **自由混搭**。
+- **6 只活体像素桌宠**：从 0 新增 6 只可自由选角的像素桌宠（含 17 套自动生态剧场与彩虹羽衣），陪伴编码不枯燥。
+- **原装星轨思考强度滑块 + 14 款主流 AI 客户端适配**：在模型菜单内直接拖动星轨滑块（Codex 22 粒子 / Claude 点阵），适配 Antigravity 4 档执行模式菜单、Cherry Studio、ZCode、DSH NEXT（原生双半体插件免重启热切）等 14 款软件。
+- **极致轻量化与四重兜底**：5 项防卡顿瘦身优化、零修改官方安装包、一键和平共存（含 \`obsidian-prism\`）、\`4× Esc\` / \`Ctrl+Alt+Shift+R\` 随时秒撤。
 
 ## 使用说明与 SmartScreen 提示
+- 下载并解压后，直接双击 **\`梦境换肤-${VERSION}-Windows.exe\`** 即可运行（已内置便携 Node 运行时，无需额外安装 Node.js）。
 - 本程序未购买商业代码签名证书，首次双击可能弹出 Windows SmartScreen 提示，点「更多信息 → 仍要运行」即可，可通过同目录 \`SHA256SUMS-${VERSION}.txt\` 核对完整性。
-- 首次启动会自动只读迁移你 3.0 的本地壁纸和皮肤存档，绝不删除原 3.0 数据。
 `;
 writeFileSync(join(winStage, `发布说明-${VERSION}.md`), winNotes, 'utf8');
 writeFileSync(
