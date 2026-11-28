@@ -118,7 +118,7 @@ export function buildOpticalBundle({ syncUpstream = false } = {}) {
     '',
   ].join('\n');
 
-  const orderedFiles = [...UPSTREAM_FILES, 'optical-suite.js'];
+  const orderedFiles = [...UPSTREAM_FILES, 'context-vial.js', 'optical-suite.js'];
   const chunks = [header];
   for (const file of orderedFiles) {
     const full = join(OPTICAL_DIR, file);
