@@ -1466,6 +1466,16 @@
       // 4. 4-Tier Spring Motion Engine + Smooth Caret
       syncMotionAndCaret(Boolean(eff.microMotion));
 
+      // 4a. Cross-platform dynamic context vial (context-vial.js) — auto-yields to host-native vials
+      try {
+        var vial = G.__dreamSkinContextVial;
+        if (vial && typeof vial.start === 'function') {
+          var wantVial = Boolean(eff.opticalFacet || eff.microMotion) && !comp.yielded;
+          if (wantVial) vial.start();
+          else if (typeof vial.stop === 'function') vial.stop();
+        }
+      } catch (_) {}
+
       // 4b. Native Antigravity Starfield Reasoning Effort Slider (auto-yields if standalone obsidian-prism / effort-slider exists)
       try {
         var isAntigravityHost = appId === 'antigravity' || Boolean(D.querySelector('[data-testid="model-selector-trigger"], [data-testid="model-selector-panel"], [data-testid="agent-input-box"]'));
@@ -1543,6 +1553,11 @@
       teardownMascot();
       teardownRipple();
       teardownMotionAndCaret();
+      try {
+        if (G.__dreamSkinContextVial && typeof G.__dreamSkinContextVial.stop === 'function') {
+          G.__dreamSkinContextVial.stop();
+        }
+      } catch (_) {}
       try {
         if (G.__agPrismEffortSlider && typeof G.__agPrismEffortSlider.destroy === 'function') {
           G.__agPrismEffortSlider.destroy();
